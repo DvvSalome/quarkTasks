@@ -1,0 +1,5052 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=1280"/>
+  <title>Quark Tasking · Operational</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>/* ============================================
+   QUARK TASKING — Design System
+   ============================================ */
+
+:root {
+  /* Base canvas — deep cosmic */
+  --bg-0: oklch(0.13 0.02 280);
+  --bg-1: oklch(0.16 0.025 280);
+  --bg-2: oklch(0.19 0.03 280);
+  --bg-3: oklch(0.23 0.035 280);
+  --surface: oklch(0.17 0.025 280 / 0.7);
+  --surface-elev: oklch(0.21 0.03 280 / 0.85);
+
+  /* Borders & lines */
+  --line-faint: oklch(0.32 0.04 280 / 0.35);
+  --line: oklch(0.42 0.05 280 / 0.5);
+  --line-strong: oklch(0.55 0.08 285 / 0.7);
+
+  /* Text */
+  --fg-0: oklch(0.97 0.01 280);
+  --fg-1: oklch(0.85 0.02 280);
+  --fg-2: oklch(0.65 0.03 280);
+  --fg-3: oklch(0.48 0.04 280);
+
+  /* Quantum violet accent */
+  --violet: oklch(0.68 0.24 295);
+  --violet-hi: oklch(0.78 0.22 295);
+  --violet-lo: oklch(0.45 0.2 295);
+  --violet-glow: oklch(0.68 0.24 295 / 0.45);
+  --violet-fog: oklch(0.68 0.24 295 / 0.12);
+
+  /* Plasma signals */
+  --cyan: oklch(0.82 0.13 220);
+  --cyan-fog: oklch(0.82 0.13 220 / 0.14);
+  --amber: oklch(0.82 0.16 75);
+  --amber-fog: oklch(0.82 0.16 75 / 0.14);
+  --rose: oklch(0.7 0.2 15);
+  --rose-fog: oklch(0.7 0.2 15 / 0.14);
+  --green: oklch(0.78 0.18 150);
+  --green-fog: oklch(0.78 0.18 150 / 0.14);
+
+  /* Type */
+  --font-sans: "Geist", "Inter", -apple-system, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+
+  /* Spacing scale */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+}
+
+[data-theme="light"] {
+  --bg-0: oklch(0.985 0.005 280);
+  --bg-1: oklch(0.965 0.008 280);
+  --bg-2: oklch(0.94 0.01 280);
+  --bg-3: oklch(0.91 0.012 280);
+  --surface: oklch(0.99 0.005 280 / 0.85);
+  --surface-elev: oklch(1 0 0 / 0.95);
+  --line-faint: oklch(0.55 0.04 280 / 0.18);
+  --line: oklch(0.5 0.05 280 / 0.28);
+  --line-strong: oklch(0.45 0.08 285 / 0.45);
+  --fg-0: oklch(0.18 0.02 280);
+  --fg-1: oklch(0.32 0.025 280);
+  --fg-2: oklch(0.48 0.03 280);
+  --fg-3: oklch(0.62 0.04 280);
+  --violet-glow: oklch(0.55 0.24 295 / 0.3);
+  --violet-fog: oklch(0.55 0.24 295 / 0.08);
+  --violet: oklch(0.55 0.24 295);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg-0);
+  color: var(--fg-0);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.45;
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ============================================
+   COSMIC BACKGROUND
+   ============================================ */
+.cosmos {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.cosmos::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(ellipse 60% 50% at 15% 20%, var(--violet-fog), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 85% 80%, var(--cyan-fog), transparent 60%),
+    radial-gradient(ellipse 40% 30% at 50% 100%, var(--violet-fog), transparent 70%);
+  filter: blur(40px);
+}
+.cosmos-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--line-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-faint) 1px, transparent 1px);
+  background-size: 56px 56px;
+  background-position: -1px -1px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 80%);
+  opacity: 0.5;
+}
+.cosmos-stars {
+  position: absolute;
+  inset: 0;
+}
+.star {
+  position: absolute;
+  width: 2px; height: 2px;
+  background: var(--fg-0);
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: twinkle 4s ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.6; }
+}
+
+/* ============================================
+   APP SHELL
+   ============================================ */
+.app {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidebar {
+  border-right: 1px solid var(--line-faint);
+  background: linear-gradient(180deg, var(--bg-1), var(--bg-0));
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px 18px;
+  border-bottom: 1px dashed var(--line-faint);
+  margin-bottom: 14px;
+}
+.brand-mark {
+  width: 28px; height: 28px;
+  position: relative;
+  flex-shrink: 0;
+}
+.brand-mark svg { width: 100%; height: 100%; }
+.brand-name {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.brand-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.nav-section {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  padding: 14px 8px 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--r-md);
+  color: var(--fg-1);
+  cursor: pointer;
+  font-size: 13px;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+  position: relative;
+}
+.nav-item:hover {
+  background: var(--bg-2);
+  color: var(--fg-0);
+}
+.nav-item.active {
+  background: var(--violet-fog);
+  color: var(--fg-0);
+  border-color: var(--line-strong);
+}
+.nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: -14px; top: 50%;
+  transform: translateY(-50%);
+  width: 3px; height: 18px;
+  background: var(--violet);
+  border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 12px var(--violet-glow);
+}
+.nav-item .icon {
+  width: 16px; height: 16px;
+  display: grid;
+  place-items: center;
+  color: var(--fg-2);
+}
+.nav-item.active .icon { color: var(--violet-hi); }
+.nav-item .badge {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-3);
+  background: var(--bg-2);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* ============================================
+   TOPBAR
+   ============================================ */
+.main {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--line-faint);
+  background: linear-gradient(180deg, var(--bg-0), transparent);
+  backdrop-filter: blur(12px);
+}
+.crumb {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.crumb b {
+  color: var(--fg-1);
+  font-weight: 500;
+}
+.topbar-spacer { flex: 1; }
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--bg-2);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-3);
+  min-width: 220px;
+}
+.search kbd {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: var(--bg-3);
+  border: 1px solid var(--line-faint);
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-left: auto;
+  color: var(--fg-2);
+}
+
+.lang-toggle {
+  display: flex;
+  background: var(--bg-2);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+  padding: 2px;
+}
+.lang-toggle button {
+  background: transparent;
+  border: none;
+  color: var(--fg-3);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  padding: 4px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.lang-toggle button.active {
+  background: var(--violet-fog);
+  color: var(--fg-0);
+}
+
+.user-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 4px;
+  background: var(--bg-2);
+  border: 1px solid var(--line-faint);
+  border-radius: 999px;
+}
+.avatar {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--violet), var(--cyan));
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+}
+
+/* ============================================
+   PAGE CONTENT
+   ============================================ */
+.page {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px 32px 60px;
+}
+.page-head {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+.page-head h1 {
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+.page-head h1 em {
+  font-style: normal;
+  color: var(--violet-hi);
+}
+.page-head p {
+  color: var(--fg-2);
+  font-size: 13px;
+  max-width: 60ch;
+}
+.page-head .meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ============================================
+   CARDS / PANELS
+   ============================================ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  position: relative;
+  backdrop-filter: blur(8px);
+}
+.card-glow {
+  position: relative;
+  overflow: hidden;
+}
+.card-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(135deg, var(--violet-glow), transparent 50%, transparent);
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.6;
+  z-index: -1;
+}
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.card-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-title .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--violet);
+  box-shadow: 0 0 8px var(--violet);
+}
+.card-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ============================================
+   QUARK / ATOM
+   ============================================ */
+.atom {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+}
+.atom svg {
+  display: block;
+}
+.atom .core {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 4px var(--violet-glow));
+}
+.atom .orbit {
+  fill: none;
+  stroke: var(--violet);
+  stroke-width: 1;
+  opacity: 0.5;
+}
+.atom .electron {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 3px var(--cyan));
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.atom .orbit-1 { transform-origin: center; animation: spin 8s linear infinite; }
+.atom .orbit-2 { transform-origin: center; animation: spin 6s linear infinite reverse; }
+.atom .orbit-3 { transform-origin: center; animation: spin 11s linear infinite; }
+
+/* ============================================
+   DASHBOARD
+   ============================================ */
+.dash {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+}
+.metric {
+  grid-column: span 3;
+  position: relative;
+  overflow: hidden;
+}
+.metric .num {
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  font-feature-settings: "tnum";
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.metric .num small {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--fg-3);
+  font-family: var(--font-mono);
+}
+.metric .label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  margin-bottom: 8px;
+}
+.metric .delta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  margin-top: 6px;
+  color: var(--green);
+}
+.metric .delta.down { color: var(--rose); }
+.metric .spark {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 70%;
+  height: 36px;
+  opacity: 0.7;
+}
+
+.dash-col-8 { grid-column: span 8; }
+.dash-col-4 { grid-column: span 4; }
+.dash-col-6 { grid-column: span 6; }
+.dash-col-12 { grid-column: span 12; }
+
+/* AI insight feed */
+.insight {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+  background: var(--bg-1);
+  margin-bottom: 8px;
+  align-items: start;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.insight:hover {
+  border-color: var(--line-strong);
+  background: var(--bg-2);
+}
+.insight-icon {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--violet-fog);
+  color: var(--violet-hi);
+  border: 1px solid var(--line-strong);
+}
+.insight-icon.warn { background: var(--amber-fog); color: var(--amber); border-color: var(--amber); }
+.insight-icon.danger { background: var(--rose-fog); color: var(--rose); border-color: var(--rose); }
+.insight-icon.ok { background: var(--green-fog); color: var(--green); border-color: var(--green); }
+.insight-body { min-width: 0; }
+.insight-body .t {
+  font-size: 13px;
+  margin-bottom: 2px;
+  color: var(--fg-0);
+}
+.insight-body .d {
+  font-size: 12px;
+  color: var(--fg-2);
+}
+.insight-body .meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-3);
+  margin-top: 4px;
+  letter-spacing: 0.05em;
+}
+.insight-cta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--violet-hi);
+  white-space: nowrap;
+  align-self: center;
+}
+
+/* Quark cluster (project tasks visualization) */
+.quark-field {
+  position: relative;
+  height: 280px;
+  border-radius: var(--r-md);
+  background:
+    radial-gradient(circle at 50% 50%, var(--violet-fog), transparent 60%),
+    var(--bg-1);
+  border: 1px solid var(--line-faint);
+  overflow: hidden;
+}
+.quark-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Project list rows */
+.proj-row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto auto;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  align-items: center;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.proj-row:hover {
+  background: var(--bg-2);
+  border-color: var(--line-faint);
+}
+.proj-icon {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--bg-2);
+  border: 1px solid var(--line-faint);
+}
+.proj-name { font-size: 13px; }
+.proj-name small {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-3);
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+.proj-progress {
+  width: 80px;
+  height: 4px;
+  background: var(--bg-2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.proj-progress > div {
+  height: 100%;
+  background: linear-gradient(90deg, var(--violet), var(--cyan));
+  box-shadow: 0 0 8px var(--violet-glow);
+}
+.proj-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ============================================
+   STATUS / PRIORITY PILLS
+   ============================================ */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--bg-2);
+  border: 1px solid var(--line-faint);
+  color: var(--fg-2);
+  white-space: nowrap;
+}
+.pill .dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.pill.violet { background: var(--violet-fog); color: var(--violet-hi); border-color: var(--line-strong); }
+.pill.cyan { background: var(--cyan-fog); color: var(--cyan); border-color: oklch(0.5 0.12 220 / 0.5); }
+.pill.amber { background: var(--amber-fog); color: var(--amber); border-color: oklch(0.55 0.15 75 / 0.5); }
+.pill.rose { background: var(--rose-fog); color: var(--rose); border-color: oklch(0.5 0.18 15 / 0.5); }
+.pill.green { background: var(--green-fog); color: var(--green); border-color: oklch(0.5 0.15 150 / 0.5); }
+
+/* ============================================
+   CAPTURE
+   ============================================ */
+.capture-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  height: calc(100vh - 130px);
+}
+.capture-input {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.capture-textarea {
+  flex: 1;
+  min-height: 320px;
+  background: var(--bg-1);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  color: var(--fg-0);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.capture-textarea:focus {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px var(--violet-fog);
+}
+.capture-textarea::placeholder {
+  color: var(--fg-3);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-2);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+  color: var(--fg-1);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn:hover { background: var(--bg-3); color: var(--fg-0); border-color: var(--line); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--violet), var(--violet-lo));
+  border-color: var(--violet);
+  color: white;
+  box-shadow: 0 0 0 1px var(--violet-fog), 0 4px 16px var(--violet-glow);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--violet-hi), var(--violet));
+  box-shadow: 0 0 0 1px var(--violet-fog), 0 8px 24px var(--violet-glow);
+}
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--fg-2);
+}
+.btn-ghost:hover { background: var(--bg-2); color: var(--fg-0); border-color: var(--line-faint); }
+
+.capture-output {
+  background: var(--bg-1);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.thinking-trace {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-2);
+  background: var(--bg-0);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+  padding: 12px;
+  margin-bottom: 16px;
+  max-height: 180px;
+  overflow-y: auto;
+  line-height: 1.6;
+}
+.thinking-trace .line {
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  animation: fadeIn 0.3s ease forwards;
+}
+.thinking-trace .line .ts { color: var(--fg-3); }
+.thinking-trace .line .tag {
+  color: var(--violet-hi);
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+.thinking-trace .line .tag.detect { color: var(--cyan); }
+.thinking-trace .line .tag.warn { color: var(--amber); }
+.thinking-trace .line .tag.ok { color: var(--green); }
+.thinking-trace .cursor {
+  display: inline-block;
+  width: 6px; height: 12px;
+  background: var(--violet);
+  vertical-align: text-bottom;
+  animation: blink 1s steps(2) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+@keyframes fadeIn { to { opacity: 1; } }
+
+.struct-project {
+  margin-bottom: 14px;
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: slideIn 0.4s ease forwards;
+}
+@keyframes slideIn { to { opacity: 1; transform: translateY(0); } }
+.struct-project-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--line-faint);
+}
+.struct-project-head .name { font-size: 13px; font-weight: 500; }
+.struct-project-head .meta { margin-left: auto; }
+.struct-task {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  gap: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
+  border-top: 1px solid var(--line-faint);
+  align-items: center;
+}
+.struct-task:first-child { border-top: none; }
+.struct-task .check {
+  width: 14px; height: 14px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+}
+.struct-task .pills { display: flex; gap: 4px; }
+
+/* ============================================
+   ROADMAP
+   ============================================ */
+.roadmap {
+  background: var(--bg-1);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  overflow: auto;
+}
+.roadmap-header {
+  display: grid;
+  grid-template-columns: 220px repeat(8, 1fr);
+  gap: 0;
+  border-bottom: 1px solid var(--line-faint);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  position: sticky; top: 0;
+  background: var(--bg-1);
+  z-index: 2;
+}
+.roadmap-header > div {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  padding: 4px 8px;
+  border-left: 1px dashed var(--line-faint);
+}
+.roadmap-header > div:first-child { border-left: none; color: var(--fg-2); }
+.roadmap-header .now {
+  color: var(--violet-hi);
+  position: relative;
+}
+.roadmap-header .now::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: 100%;
+  width: 1px; height: 600px;
+  background: linear-gradient(180deg, var(--violet), transparent);
+  pointer-events: none;
+}
+
+.roadmap-row {
+  display: grid;
+  grid-template-columns: 220px repeat(8, 1fr);
+  border-bottom: 1px dashed var(--line-faint);
+  min-height: 56px;
+  position: relative;
+}
+.roadmap-label {
+  padding: 12px 8px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.roadmap-label small {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-3);
+}
+.roadmap-cell {
+  border-left: 1px dashed var(--line-faint);
+  position: relative;
+}
+.roadmap-bar {
+  position: absolute;
+  top: 12px;
+  height: 30px;
+  background: linear-gradient(90deg, var(--violet-fog), var(--violet-fog));
+  border: 1px solid var(--violet);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  font-size: 11px;
+  color: var(--fg-0);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.roadmap-bar:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 0 0 1px var(--violet), 0 4px 16px var(--violet-glow);
+}
+.roadmap-bar.cyan { background: var(--cyan-fog); border-color: var(--cyan); }
+.roadmap-bar.amber { background: var(--amber-fog); border-color: var(--amber); }
+.roadmap-bar.green { background: var(--green-fog); border-color: var(--green); }
+.roadmap-bar.rose { background: var(--rose-fog); border-color: var(--rose); }
+.roadmap-bar .progress {
+  position: absolute;
+  inset: 0;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--violet) var(--p, 0%), transparent var(--p, 0%));
+  opacity: 0.4;
+  pointer-events: none;
+}
+.roadmap-bar.cyan .progress { background: linear-gradient(90deg, var(--cyan) var(--p), transparent var(--p)); }
+.roadmap-bar.amber .progress { background: linear-gradient(90deg, var(--amber) var(--p), transparent var(--p)); }
+.roadmap-bar.green .progress { background: linear-gradient(90deg, var(--green) var(--p), transparent var(--p)); }
+
+.roadmap-bar .bar-label {
+  position: relative;
+  z-index: 1;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.roadmap-bar .bar-meta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--fg-2);
+  margin-left: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.dep-line {
+  position: absolute;
+  pointer-events: none;
+  stroke: var(--violet);
+  stroke-width: 1;
+  fill: none;
+  stroke-dasharray: 2 3;
+  opacity: 0.6;
+}
+
+.sprint-meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  background: var(--bg-1);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+}
+.sprint-meta .item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sprint-meta .item .l {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.sprint-meta .item .v {
+  font-size: 14px;
+  font-weight: 500;
+  font-feature-settings: "tnum";
+}
+.sprint-meta .divider { width: 1px; background: var(--line-faint); }
+
+/* ============================================
+   AI OPTIMIZATION
+   ============================================ */
+.opt-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+  height: calc(100vh - 180px);
+}
+.opt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.opt-card {
+  background: var(--bg-1);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+.opt-card.active {
+  border-color: var(--violet);
+  background: var(--violet-fog);
+  box-shadow: 0 0 0 1px var(--violet-glow);
+}
+.opt-card:hover { border-color: var(--line-strong); }
+.opt-card .head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.opt-card .impact {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-3);
+}
+.opt-card .title {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.opt-card .desc {
+  font-size: 11px;
+  color: var(--fg-2);
+  line-height: 1.5;
+}
+
+.opt-detail {
+  background: var(--bg-1);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-lg);
+  padding: 22px;
+  overflow-y: auto;
+}
+.opt-hero {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px dashed var(--line-faint);
+  margin-bottom: 18px;
+}
+.opt-hero .icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--violet-fog);
+  border: 1px solid var(--line-strong);
+  color: var(--violet-hi);
+}
+.opt-hero h3 {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+.opt-hero .sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-3);
+  letter-spacing: 0.05em;
+}
+
+.opt-section {
+  margin-bottom: 18px;
+}
+.opt-section h4 {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  margin-bottom: 10px;
+}
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 32px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+.compare-col {
+  background: var(--bg-2);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+  padding: 12px;
+}
+.compare-col.before { border-style: dashed; opacity: 0.7; }
+.compare-col.after { border-color: var(--violet); background: var(--violet-fog); }
+.compare-col .lbl {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-3);
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.compare-col .item {
+  font-size: 12px;
+  padding: 6px 8px;
+  background: var(--bg-1);
+  border: 1px solid var(--line-faint);
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+.compare-arrow {
+  color: var(--violet-hi);
+  text-align: center;
+  font-size: 18px;
+}
+
+.opt-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line-faint);
+}
+
+/* ============================================
+   SETTINGS
+   ============================================ */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 24px;
+}
+.settings-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.settings-nav button {
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--fg-2);
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+}
+.settings-nav button:hover { background: var(--bg-2); color: var(--fg-0); }
+.settings-nav button.active {
+  background: var(--violet-fog);
+  color: var(--fg-0);
+  border-color: var(--line-strong);
+}
+
+.setting-row {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 24px;
+  padding: 18px 0;
+  border-bottom: 1px dashed var(--line-faint);
+  align-items: center;
+}
+.setting-row .label { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+.setting-row .desc { font-size: 12px; color: var(--fg-2); }
+.setting-row .control { justify-self: end; }
+
+/* Adaptive learning chart */
+.adapt-chart {
+  background: var(--bg-1);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+  padding: 16px;
+  position: relative;
+}
+.pattern-bar {
+  display: grid;
+  grid-template-columns: 80px 1fr 50px;
+  gap: 12px;
+  align-items: center;
+  padding: 6px 0;
+}
+.pattern-bar .lbl { font-family: var(--font-mono); font-size: 11px; color: var(--fg-2); }
+.pattern-bar .b {
+  height: 6px;
+  background: var(--bg-2);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+.pattern-bar .b > div {
+  height: 100%;
+  background: linear-gradient(90deg, var(--violet), var(--cyan));
+  border-radius: 3px;
+}
+.pattern-bar .v {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-1);
+  text-align: right;
+  font-feature-settings: "tnum";
+}
+
+/* Toggle switch */
+.toggle {
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  background: var(--bg-3);
+  border: 1px solid var(--line-faint);
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+}
+.toggle::after {
+  content: "";
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--fg-2);
+  transition: all 0.2s;
+}
+.toggle.on {
+  background: var(--violet);
+  border-color: var(--violet-hi);
+}
+.toggle.on::after {
+  left: 18px;
+  background: white;
+  box-shadow: 0 0 8px var(--violet-glow);
+}
+
+.seg {
+  display: inline-flex;
+  background: var(--bg-2);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+  padding: 2px;
+}
+.seg button {
+  background: transparent;
+  border: none;
+  color: var(--fg-3);
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.seg button.active {
+  background: var(--violet-fog);
+  color: var(--fg-0);
+}
+
+/* ============================================
+   SCROLLBARS
+   ============================================ */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--bg-3);
+  border-radius: 5px;
+  border: 2px solid var(--bg-0);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--line); }
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+.pulse {
+  position: relative;
+}
+.pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid var(--violet);
+  animation: pulse-ring 2s ease-out infinite;
+  pointer-events: none;
+}
+
+.particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.particle {
+  position: absolute;
+  width: 3px; height: 3px;
+  background: var(--violet);
+  border-radius: 50%;
+  box-shadow: 0 0 6px var(--violet);
+  animation: drift 6s linear infinite;
+}
+@keyframes drift {
+  0% { transform: translate(0, 0); opacity: 0; }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.8; }
+  100% { transform: translate(var(--dx, 60px), var(--dy, -60px)); opacity: 0; }
+}
+
+
+/* ============================================
+   LOGIN
+   ============================================ */
+.login-wrap {
+  position: fixed; inset: 0;
+  display: grid; grid-template-columns: 1.1fr 1fr;
+  background: radial-gradient(ellipse at 30% 40%, oklch(0.2 0.06 295 / 0.4), transparent 60%), var(--bg-0);
+  overflow: hidden;
+}
+.login-left {
+  display: flex; flex-direction: column;
+  padding: 40px 56px;
+  position: relative;
+  border-right: 1px solid var(--line-faint);
+  z-index: 1;
+}
+.login-brand {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 80px;
+}
+.login-hero h1 {
+  font-size: 48px; font-weight: 300;
+  letter-spacing: -0.02em; line-height: 1.05;
+  margin-bottom: 20px;
+  color: var(--fg-0);
+  text-wrap: balance;
+}
+.login-hero h1 em {
+  font-style: normal; font-weight: 500;
+  background: linear-gradient(110deg, var(--violet-hi), var(--cyan));
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+.login-hero p {
+  font-size: 15px; color: var(--fg-2);
+  line-height: 1.55; max-width: 440px;
+  margin-bottom: 40px;
+  text-wrap: pretty;
+}
+.login-feat { display: flex; flex-direction: column; gap: 18px; }
+.login-feat-row { display: flex; align-items: flex-start; gap: 12px; }
+.login-feat-icon {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: var(--violet-fog);
+  border: 1px solid var(--line-strong);
+  display: grid; place-items: center;
+  color: var(--violet-hi);
+  flex-shrink: 0;
+}
+.login-footer {
+  margin-top: auto; padding-top: 40px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.login-right {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px;
+  position: relative;
+  z-index: 1;
+}
+.login-card {
+  width: 100%; max-width: 420px;
+  padding: 36px 36px 28px;
+  background: var(--surface-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: 0 30px 80px oklch(0 0 0 / 0.5),
+              0 0 0 1px var(--line-faint),
+              0 0 80px var(--violet-fog);
+  backdrop-filter: blur(20px);
+}
+.login-card-head {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 16px; margin-bottom: 28px;
+}
+.atom-big {
+  width: 64px; height: 64px;
+  display: grid; place-items: center;
+  filter: drop-shadow(0 0 16px var(--violet-glow));
+}
+.login-field {
+  margin-bottom: 16px;
+}
+.login-field label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  margin-bottom: 6px;
+}
+.login-field input {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  color: var(--fg-0);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.login-field input:focus {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px var(--violet-fog);
+}
+.login-submit {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  justify-content: center;
+  font-size: 13px;
+}
+.login-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 20px 0;
+  color: var(--fg-3);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.login-divider::before,
+.login-divider::after {
+  content: ""; flex: 1; height: 1px;
+  background: var(--line-faint);
+}
+.login-sso {
+  width: 100%; padding: 11px;
+  justify-content: center;
+  font-size: 13px;
+}
+.login-links {
+  display: flex; justify-content: space-between;
+  margin-top: 20px;
+  font-size: 11px;
+  color: var(--fg-3);
+}
+.login-links a {
+  color: var(--violet-hi);
+  text-decoration: none;
+}
+.login-links a:hover { text-decoration: underline; }
+
+.login-toolbar {
+  margin-top: 24px;
+  display: flex; align-items: center; gap: 16px;
+}
+
+.login-scan {
+  padding: 4px 0;
+}
+.scan-trace {
+  background: var(--bg-1);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+  padding: 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  display: flex; flex-direction: column; gap: 8px;
+  margin-bottom: 16px;
+  min-height: 140px;
+}
+.scan-trace .line {
+  display: flex; align-items: center; gap: 8px;
+  opacity: 0;
+  animation: scan-in 0.3s ease forwards;
+  color: var(--fg-1);
+}
+.scan-trace .ts { color: var(--fg-3); }
+.scan-trace .tag {
+  padding: 1px 6px; border-radius: 3px;
+  font-size: 9px; letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.scan-trace .tag.ok { background: var(--green-fog); color: var(--green); border: 1px solid var(--green); }
+.scan-trace .tag.detect { background: var(--violet-fog); color: var(--violet-hi); border: 1px solid var(--violet); }
+@keyframes scan-in {
+  to { opacity: 1; }
+}
+.scan-bar {
+  height: 3px; border-radius: 2px;
+  background: var(--bg-1);
+  overflow: hidden;
+  position: relative;
+}
+.scan-bar > div {
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, var(--violet), transparent);
+  width: 40%;
+  animation: scan-sweep 1.5s ease-in-out infinite;
+}
+@keyframes scan-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+/* ============================================
+   KANBAN
+   ============================================ */
+.kb-page { padding-bottom: 40px; }
+.kb-toolbar {
+  display: flex; align-items: center; gap: 16px;
+  padding: 12px 0;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--line-faint);
+  flex-wrap: wrap;
+}
+.kb-team {
+  display: flex; align-items: center; gap: 4px;
+  padding-left: 12px;
+  border-left: 1px solid var(--line-faint);
+}
+.kb-add-team {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: 1px dashed var(--line);
+  background: transparent;
+  color: var(--fg-3);
+  cursor: pointer;
+  display: grid; place-items: center;
+  margin-left: 4px;
+}
+.kb-add-team:hover { border-color: var(--violet); color: var(--violet-hi); }
+
+.kb-ai-pill {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 12px;
+  background: var(--amber-fog);
+  border: 1px solid var(--amber);
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  color: var(--fg-1);
+  margin-left: auto;
+}
+.kb-ai-cta {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--amber); letter-spacing: 0.08em;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+.kb-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+.kb-col {
+  background: oklch(0.15 0.02 280 / 0.6);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+  display: flex; flex-direction: column;
+  min-height: 200px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.kb-col.over {
+  background: var(--violet-fog);
+  border-color: var(--violet);
+  box-shadow: 0 0 0 1px var(--violet-glow);
+}
+.kb-col-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line-faint);
+}
+.kb-col-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0;
+}
+.kb-col-title {
+  font-size: 13px; font-weight: 500; letter-spacing: -0.01em;
+  color: var(--fg-0);
+}
+.kb-col-sub {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--fg-3); letter-spacing: 0.05em;
+}
+.kb-col-add {
+  margin-left: auto;
+  width: 24px; height: 24px; border-radius: 6px;
+  background: transparent;
+  border: 1px solid var(--line-faint);
+  color: var(--fg-2);
+  cursor: pointer;
+  display: grid; place-items: center;
+  transition: all 0.15s;
+}
+.kb-col-add:hover {
+  border-color: var(--violet);
+  color: var(--violet-hi);
+  background: var(--violet-fog);
+}
+.kb-col-body {
+  padding: 10px; display: flex; flex-direction: column; gap: 8px;
+  min-height: 80px;
+}
+.kb-add-row {
+  margin: 0 10px 10px;
+  padding: 8px;
+  background: transparent;
+  border: 1px dashed var(--line-faint);
+  border-radius: var(--r-sm);
+  color: var(--fg-3);
+  font-size: 11px;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: all 0.15s;
+}
+.kb-add-row:hover {
+  border-color: var(--violet);
+  color: var(--violet-hi);
+  background: var(--violet-fog);
+}
+.kb-empty {
+  padding: 20px; text-align: center;
+  font-size: 11px; color: var(--fg-3);
+  font-family: var(--font-mono); letter-spacing: 0.08em;
+}
+
+/* Card */
+.kb-card {
+  background: var(--bg-2);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-sm);
+  padding: 12px;
+  cursor: grab;
+  transition: all 0.15s;
+  position: relative;
+}
+.kb-card:hover {
+  border-color: var(--line);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px oklch(0 0 0 / 0.3);
+}
+.kb-card.dragging {
+  opacity: 0.4;
+  cursor: grabbing;
+  transform: rotate(2deg);
+}
+.kb-card.blocked {
+  border-color: var(--rose);
+  box-shadow: inset 3px 0 0 var(--rose);
+}
+.kb-card.stuck {
+  border-color: var(--amber);
+  box-shadow: inset 3px 0 0 var(--amber);
+}
+
+.kb-card-banner {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 8px;
+  margin: -4px -4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+}
+.kb-card-banner.blocked-banner {
+  background: oklch(0.65 0.22 25 / 0.15);
+  color: oklch(0.78 0.2 25);
+  border: 1px solid oklch(0.65 0.22 25 / 0.4);
+}
+.kb-card-banner.stuck-banner {
+  background: var(--amber-fog);
+  color: var(--amber);
+  border: 1px solid oklch(0.7 0.15 75 / 0.4);
+}
+.kb-card-banner.ai-banner {
+  background: var(--violet-fog);
+  color: var(--violet-hi);
+  border: 1px solid oklch(0.68 0.24 295 / 0.35);
+}
+
+.kb-card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.kb-card-code {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--fg-3); letter-spacing: 0.05em;
+}
+.kb-card-title {
+  font-size: 13px; font-weight: 500;
+  color: var(--fg-0);
+  line-height: 1.35;
+  margin-bottom: 8px;
+  text-wrap: pretty;
+}
+.kb-card-tags {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  margin-bottom: 10px;
+}
+.kb-tag {
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--bg-3);
+  border: 1px solid var(--line-faint);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-2);
+  letter-spacing: 0.02em;
+}
+.kb-card-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+}
+.kb-card-meta {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 11px;
+  color: var(--fg-3);
+}
+.kb-meta-item {
+  display: flex; align-items: center; gap: 3px;
+}
+.kb-meta-item.due-today {
+  color: oklch(0.78 0.2 25);
+  font-weight: 500;
+}
+.kb-card-progress {
+  margin-top: 8px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--bg-3);
+  overflow: hidden;
+}
+.kb-card-progress > div {
+  height: 100%;
+  background: linear-gradient(90deg, var(--violet), var(--violet-hi));
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+
+/* Avatar */
+.kb-avatar {
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: white;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.kb-avatar.empty {
+  background: transparent;
+  border: 1px dashed var(--line);
+  color: var(--fg-3);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  cursor: pointer;
+}
+.kb-avatar.empty:hover { border-color: var(--violet); color: var(--violet-hi); }
+.kb-avatar.more {
+  background: var(--bg-3);
+  border: 2px solid var(--bg-1);
+  color: var(--fg-2);
+}
+.kb-avatar-stack {
+  display: flex; align-items: center;
+  position: relative;
+}
+.kb-avatar-stack .kb-avatar:not(:first-child) {
+  margin-left: -6px;
+}
+
+.kb-card-assignees {
+  position: relative;
+  cursor: pointer;
+}
+.kb-assign-pop {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  background: var(--surface-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 6px;
+  min-width: 180px;
+  z-index: 100;
+  box-shadow: 0 12px 32px oklch(0 0 0 / 0.5);
+  backdrop-filter: blur(20px);
+}
+.kb-assign-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 8px 6px;
+  border-bottom: 1px solid var(--line-faint);
+  margin-bottom: 4px;
+}
+.kb-assign-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  color: var(--fg-1);
+  cursor: pointer;
+}
+.kb-assign-row:hover { background: var(--bg-2); }
+.kb-assign-row.sel { background: var(--violet-fog); color: var(--violet-hi); }
+
+/* New card form */
+.kb-card-new {
+  cursor: default;
+  border-color: var(--violet);
+  box-shadow: 0 0 0 1px var(--violet-glow);
+}
+.kb-card-new textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--fg-0);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  resize: none;
+  min-height: 50px;
+  outline: none;
+}
+
+/* Modal / Card detail */
+.kb-modal-overlay {
+  position: fixed; inset: 0;
+  background: oklch(0 0 0 / 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  animation: fade-in 0.15s ease;
+}
+@keyframes fade-in { from { opacity: 0; } }
+.kb-modal {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 92%; max-width: 840px;
+  max-height: 86vh;
+  background: var(--surface-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  z-index: 201;
+  box-shadow: 0 30px 80px oklch(0 0 0 / 0.6);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  backdrop-filter: blur(24px);
+  animation: modal-in 0.2s ease;
+}
+@keyframes modal-in {
+  from { transform: translate(-50%, -48%); opacity: 0; }
+}
+.kb-modal-head {
+  padding: 22px 24px 18px;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 16px;
+  border-bottom: 1px solid var(--line-faint);
+}
+.kb-modal-body {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 24px;
+  padding: 22px 24px;
+  overflow: auto;
+  flex: 1;
+}
+.kb-modal-main { min-width: 0; }
+.kb-modal-side {
+  display: flex; flex-direction: column; gap: 16px;
+  border-left: 1px solid var(--line-faint);
+  padding-left: 24px;
+}
+.kb-section { margin-bottom: 22px; }
+.kb-section h4 {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  margin-bottom: 10px;
+}
+.kb-progress-bar {
+  height: 4px; border-radius: 2px;
+  background: var(--bg-3);
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.kb-progress-bar > div {
+  height: 100%;
+  background: linear-gradient(90deg, var(--violet), var(--violet-hi));
+}
+.kb-check-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 0;
+  font-size: 13px;
+}
+.kb-check {
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid var(--line);
+  display: grid; place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.kb-check.on {
+  background: var(--violet);
+  border-color: var(--violet);
+  color: white;
+}
+.kb-comment-input {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px;
+  background: var(--bg-1);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+  margin-bottom: 12px;
+}
+.kb-comment-input input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--fg-0);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  outline: none;
+}
+.kb-comment {
+  display: flex; gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line-faint);
+}
+.kb-comment-body { flex: 1; }
+.kb-ai-callout {
+  padding: 14px;
+  margin-bottom: 22px;
+  background: var(--violet-fog);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+}
+.kb-side-row {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.kb-side-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.kb-side-assignees {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.kb-side-user {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 8px;
+  background: var(--bg-1);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-sm);
+  font-size: 12px;
+}
+.kb-add-assignee {
+  background: transparent;
+  border: 1px dashed var(--line-faint);
+  border-radius: 50%;
+  width: 24px; height: 24px;
+  cursor: pointer;
+  display: grid; place-items: center;
+  padding: 0;
+}
+.kb-add-assignee:hover { border-color: var(--violet); }
+
+/* Color name vars used for avatars - fallbacks if not defined */
+:root {
+  --rose: oklch(0.7 0.18 20);
+}
+</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0"></script>
+  <script type="text/babel" data-presets="react">
+/* ============================================
+   SUPABASE CONFIGURATION
+   ============================================ */
+const SUPABASE_URL = "https://ekhqgjrlylxkxxxsdjqy.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVraHFnanJseWx4a3h4eHNkanF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNTE5MTgsImV4cCI6MjA5MjgyNzkxOH0.NJh0MC-fEstfUA49G6X8qZ_OKWLLud8Fz_cN_9SmcW8";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ============================================
+   QUARK TASKING — Data + i18n + Icons
+   ============================================ */
+
+const I18N = {
+  es: {
+    appName: "Quark Tasking",
+    appSub: "OPERATIONAL · v0.4.2",
+    nav_workspace: "Workspace",
+    nav_dashboard: "Dashboard",
+    nav_capture: "Capturar",
+    nav_roadmap: "Roadmap",
+    nav_optimize: "Optimización IA",
+    nav_settings: "Ajustes",
+    nav_projects: "Proyectos activos",
+    search: "Buscar quark, proyecto o señal…",
+
+    // Dashboard
+    dash_title: "Estado operacional",
+    dash_em: "del sistema",
+    dash_sub: "Análisis en tiempo real de tus tareas, dependencias y patrones de ejecución. La IA está observando tu flujo de trabajo y proponiendo optimizaciones.",
+    dash_meta: "ÚLTIMO CICLO · HACE 12s",
+
+    m1_label: "Quarks activos",
+    m1_delta: "+8 esta semana",
+    m2_label: "En progreso",
+    m2_delta: "Foco: 2.1h prom.",
+    m3_label: "Bloqueados",
+    m3_delta: "Requieren atención",
+    m4_label: "Velocidad / sprint",
+    m4_delta: "+12% vs anterior",
+
+    insights_title: "Señales de la IA",
+    insights_sub: "5 OBSERVACIONES",
+    insights_view: "Ver todas",
+
+    field_title: "Campo cuántico de tareas",
+    field_sub: "PROYECTO ACTIVO · GAMMA",
+
+    proj_title: "Proyectos",
+    proj_sub: "6 ACTIVOS",
+    proj_new: "Nuevo proyecto",
+
+    today_title: "Foco de hoy",
+    today_sub: "OPTIMIZADO POR IA",
+
+    // Capture
+    cap_title: "Capturar caos,",
+    cap_em: "exportar orden",
+    cap_sub: "Pega ideas, notas, transcripciones o backlog desordenado. La IA detectará proyectos, descompondrá tareas, asignará prioridades y mapeará dependencias en segundos.",
+    cap_placeholder: "Pega o escribe tu input aquí. Puede ser una transcripción de reunión, un mensaje de Slack, ideas sueltas, una lista de bugs, lo que sea. La estructura emergerá.",
+    cap_run: "Estructurar con IA",
+    cap_clear: "Limpiar",
+    cap_sample: "Cargar ejemplo",
+    cap_running: "Analizando…",
+    cap_output_empty: "La estructura aparecerá aquí.",
+    cap_output_empty_sub: "Pulsa estructurar para iniciar el análisis cuántico.",
+    cap_trace_title: "Trazado del razonamiento",
+    cap_struct_title: "Estructura propuesta",
+    cap_apply: "Aplicar al workspace",
+    cap_edit: "Refinar",
+
+    // Roadmap
+    rm_title: "Roadmap",
+    rm_em: "adaptativo",
+    rm_sub: "Cronograma de sprints reorganizado por la IA según dependencias, capacidad del equipo y bloqueos detectados. Las líneas punteadas muestran dependencias críticas.",
+    rm_sprint: "Sprint 14 · activo",
+    rm_capacity: "Capacidad",
+    rm_velocity: "Velocidad estimada",
+    rm_risk: "Riesgo de slippage",
+    rm_focus: "Foco principal",
+    rm_zoom: "Zoom",
+
+    // Optimize
+    opt_title: "Panel de",
+    opt_em: "optimización",
+    opt_sub: "La IA ha analizado tu workspace completo. Estas son las acciones que mayor impacto generarían si las aplicas. Cada propuesta es reversible.",
+    opt_apply: "Aplicar propuesta",
+    opt_dismiss: "Descartar",
+    opt_simulate: "Simular impacto",
+    opt_before: "Estado actual",
+    opt_after: "Estado optimizado",
+    opt_why: "Razonamiento",
+    opt_actions: "Acciones a ejecutar",
+    opt_metrics: "Métricas estimadas",
+
+    // Settings
+    set_title: "Ajustes y",
+    set_em: "aprendizaje adaptativo",
+    set_sub: "Configura cómo Quark se adapta a tu ritmo. Los patrones aprendidos influyen en cómo se priorizan, agrupan y descomponen tus tareas.",
+    set_general: "General",
+    set_appearance: "Apariencia",
+    set_ai: "Comportamiento IA",
+    set_patterns: "Patrones aprendidos",
+    set_integrations: "Integraciones",
+
+    pat_title: "Tu firma operativa",
+    pat_sub: "APRENDIDO EN 47 DÍAS",
+  },
+  en: {
+    appName: "Quark Tasking",
+    appSub: "OPERATIONAL · v0.4.2",
+    nav_workspace: "Workspace",
+    nav_dashboard: "Dashboard",
+    nav_capture: "Capture",
+    nav_roadmap: "Roadmap",
+    nav_optimize: "AI Optimization",
+    nav_settings: "Settings",
+    nav_projects: "Active projects",
+    search: "Search quark, project or signal…",
+
+    dash_title: "Operational state",
+    dash_em: "of the system",
+    dash_sub: "Real-time analysis of your tasks, dependencies and execution patterns. The AI is observing your workflow and proposing optimizations.",
+    dash_meta: "LAST CYCLE · 12s AGO",
+
+    m1_label: "Active quarks",
+    m1_delta: "+8 this week",
+    m2_label: "In progress",
+    m2_delta: "Focus: 2.1h avg",
+    m3_label: "Blocked",
+    m3_delta: "Need attention",
+    m4_label: "Velocity / sprint",
+    m4_delta: "+12% vs previous",
+
+    insights_title: "AI signals",
+    insights_sub: "5 OBSERVATIONS",
+    insights_view: "View all",
+
+    field_title: "Quantum task field",
+    field_sub: "ACTIVE PROJECT · GAMMA",
+
+    proj_title: "Projects",
+    proj_sub: "6 ACTIVE",
+    proj_new: "New project",
+
+    today_title: "Today's focus",
+    today_sub: "AI-OPTIMIZED",
+
+    cap_title: "Capture chaos,",
+    cap_em: "export order",
+    cap_sub: "Paste ideas, notes, transcripts or messy backlog. The AI will detect projects, break down tasks, assign priorities and map dependencies in seconds.",
+    cap_placeholder: "Paste or type your input here. It can be a meeting transcript, a Slack thread, loose ideas, a bug list, anything. Structure will emerge.",
+    cap_run: "Structure with AI",
+    cap_clear: "Clear",
+    cap_sample: "Load example",
+    cap_running: "Analyzing…",
+    cap_output_empty: "The structure will appear here.",
+    cap_output_empty_sub: "Press structure to begin quantum analysis.",
+    cap_trace_title: "Reasoning trace",
+    cap_struct_title: "Proposed structure",
+    cap_apply: "Apply to workspace",
+    cap_edit: "Refine",
+
+    rm_title: "Adaptive",
+    rm_em: "roadmap",
+    rm_sub: "Sprint schedule reorganized by the AI based on dependencies, team capacity and detected blockers. Dotted lines show critical dependencies.",
+    rm_sprint: "Sprint 14 · active",
+    rm_capacity: "Capacity",
+    rm_velocity: "Estimated velocity",
+    rm_risk: "Slippage risk",
+    rm_focus: "Main focus",
+    rm_zoom: "Zoom",
+
+    opt_title: "Optimization",
+    opt_em: "panel",
+    opt_sub: "The AI has analyzed your full workspace. These are the highest-impact actions you could take. Every proposal is reversible.",
+    opt_apply: "Apply proposal",
+    opt_dismiss: "Dismiss",
+    opt_simulate: "Simulate impact",
+    opt_before: "Current state",
+    opt_after: "Optimized state",
+    opt_why: "Reasoning",
+    opt_actions: "Actions to execute",
+    opt_metrics: "Estimated metrics",
+
+    set_title: "Settings and",
+    set_em: "adaptive learning",
+    set_sub: "Configure how Quark adapts to your rhythm. Learned patterns influence how your tasks are prioritized, grouped and broken down.",
+    set_general: "General",
+    set_appearance: "Appearance",
+    set_ai: "AI behavior",
+    set_patterns: "Learned patterns",
+    set_integrations: "Integrations",
+
+    pat_title: "Your operational signature",
+    pat_sub: "LEARNED IN 47 DAYS",
+  }
+};
+
+// ----- Sample data -----
+
+const PROJECTS = [
+  { id: "p1", code: "QT", name: "Quark Tasking · v0.5", sub: "12 quarks · 3 bloqueados / blocked", progress: 0.62, due: "MAY 14", color: "violet" },
+  { id: "p2", code: "AT", name: "Atlas onboarding flow", sub: "8 quarks · sprint 14", progress: 0.38, due: "MAY 02", color: "cyan" },
+  { id: "p3", code: "OR", name: "Orion design system", sub: "21 quarks · in-flight", progress: 0.81, due: "JUN 06", color: "amber" },
+  { id: "p4", code: "PV", name: "Pavo · API gateway", sub: "6 quarks · backend", progress: 0.24, due: "MAY 28", color: "rose" },
+  { id: "p5", code: "LX", name: "Lyra UX research", sub: "4 quarks · review", progress: 0.93, due: "MAY 01", color: "green" },
+  { id: "p6", code: "PE", name: "Vida · rutina + hábitos", sub: "personal · daily", progress: 0.55, due: "ONGOING", color: "violet" },
+];
+
+const INSIGHTS = {
+  es: [
+    { kind: "warn", t: "Cuello de botella detectado en columna Review", d: "5 quarks llevan más de 48h en revisión. Sugiero asignar a María o desbloquear con un sync de 15 min.", meta: "PROYECTO ATLAS · CONFIANZA 0.91", cta: "Resolver" },
+    { kind: "default", t: "3 tareas redundantes detectadas", d: "Los quarks #142, #156 y #189 describen el mismo trabajo (auth refresh). Puedo fusionarlos en una sola unidad.", meta: "DUPLICACIÓN · 4h ahorradas", cta: "Fusionar" },
+    { kind: "danger", t: "Riesgo de slippage en Sprint 14", d: "Velocidad actual 23 pts vs 31 planificados. Recomiendo mover \"Pavo gateway\" a sprint 15.", meta: "PROYECCIÓN MONTE CARLO · P85", cta: "Replanificar" },
+    { kind: "ok", t: "Quick win disponible (47 min)", d: "El bug #233 desbloquearía 4 tareas downstream. Prioridad subida automáticamente.", meta: "IMPACTO ALTO · ESFUERZO BAJO", cta: "Empezar" },
+    { kind: "default", t: "Patrón detectado: tu energía cae a las 15:30", d: "Ajustaré la sugerencia de tareas profundas a la franja 09:00–12:00 los martes y jueves.", meta: "ADAPTACIÓN AUTÓNOMA", cta: "Aceptar" },
+  ],
+  en: [
+    { kind: "warn", t: "Bottleneck detected in Review column", d: "5 quarks have been in review for over 48h. I suggest assigning María or unblocking with a 15-min sync.", meta: "PROJECT ATLAS · CONFIDENCE 0.91", cta: "Resolve" },
+    { kind: "default", t: "3 redundant tasks detected", d: "Quarks #142, #156 and #189 describe the same work (auth refresh). I can merge them into a single unit.", meta: "DUPLICATION · 4h saved", cta: "Merge" },
+    { kind: "danger", t: "Slippage risk in Sprint 14", d: "Current velocity 23 pts vs 31 planned. I recommend moving \"Pavo gateway\" to sprint 15.", meta: "MONTE CARLO PROJECTION · P85", cta: "Replan" },
+    { kind: "ok", t: "Quick win available (47 min)", d: "Bug #233 would unblock 4 downstream tasks. Priority auto-raised.", meta: "HIGH IMPACT · LOW EFFORT", cta: "Start" },
+    { kind: "default", t: "Pattern detected: your energy dips at 15:30", d: "I'll shift deep-work suggestions to the 09:00–12:00 slot on Tuesdays and Thursdays.", meta: "AUTONOMOUS ADAPTATION", cta: "Accept" },
+  ]
+};
+
+const TODAY = {
+  es: [
+    { code: "QT-04", t: "Definir contrato OAuth refresh", time: "90m", prio: "alta", cat: "Backend" },
+    { code: "AT-12", t: "Iterar wireframes paso 3 onboarding", time: "60m", prio: "alta", cat: "Diseño" },
+    { code: "OR-29", t: "Tokens de color: refactor a oklch", time: "45m", prio: "media", cat: "Design system" },
+    { code: "PE-08", t: "Caminata + planificación semanal", time: "30m", prio: "media", cat: "Personal" },
+  ],
+  en: [
+    { code: "QT-04", t: "Define OAuth refresh contract", time: "90m", prio: "high", cat: "Backend" },
+    { code: "AT-12", t: "Iterate step 3 onboarding wireframes", time: "60m", prio: "high", cat: "Design" },
+    { code: "OR-29", t: "Color tokens: refactor to oklch", time: "45m", prio: "medium", cat: "Design system" },
+    { code: "PE-08", t: "Walk + weekly planning", time: "30m", prio: "medium", cat: "Personal" },
+  ]
+};
+
+// Capture sample input
+const CAPTURE_SAMPLE = {
+  es: `Reunión 26/abr — equipo producto
+
+- El onboarding está roto en el paso 3, los usuarios no entienden el OAuth flow. Diego dice que tenemos que rediseñar pero también hay que cambiar el backend porque el refresh token no se renueva bien.
+- María va a hacer research con 5 usuarios la próxima semana.
+- Tenemos que migrar los tokens de color a oklch antes del release de v0.5.
+- Bug crítico: el endpoint /api/projects está devolviendo 500 cuando hay más de 100 items. Es prioridad uno.
+- Idea: añadir vista de roadmap con dependencias visuales. Puede esperar al sprint siguiente.
+- Recordar: comprar regalo cumpleaños mamá, sábado.
+- Llamada con stakeholder de Pavo el jueves para definir scope del API gateway.`,
+  en: `Meeting Apr 26 — product team
+
+- Onboarding is broken on step 3, users don't get the OAuth flow. Diego says we need to redesign but we also have to change the backend because the refresh token doesn't renew correctly.
+- María will do research with 5 users next week.
+- We need to migrate color tokens to oklch before the v0.5 release.
+- Critical bug: /api/projects endpoint returns 500 when there are more than 100 items. P0.
+- Idea: add roadmap view with visual dependencies. Can wait for next sprint.
+- Reminder: buy mom's birthday gift, Saturday.
+- Call with Pavo stakeholder Thursday to define API gateway scope.`
+};
+
+const CAPTURE_TRACE = {
+  es: [
+    { tag: "init", text: "Recibido input. 8 unidades semánticas detectadas." },
+    { tag: "detect", text: "Clasificando por dominio…" },
+    { tag: "detect", text: "→ 5 unidades técnicas, 1 personal, 2 estratégicas." },
+    { tag: "ok", text: "3 proyectos identificados: Atlas, Orion, Pavo." },
+    { tag: "detect", text: "Detectando dependencias cruzadas…" },
+    { tag: "warn", text: "Onboarding paso 3 depende de OAuth refresh (ambos críticos)." },
+    { tag: "detect", text: "Estimando esfuerzo con histórico (47 días aprendizaje)…" },
+    { tag: "ok", text: "Prioridades asignadas. Bug API → P0 (impacto producción)." },
+    { tag: "detect", text: "Separando tareas personales del flujo de trabajo." },
+    { tag: "ok", text: "Estructura lista. 9 quarks en 3 proyectos + 1 nota personal." },
+  ],
+  en: [
+    { tag: "init", text: "Input received. 8 semantic units detected." },
+    { tag: "detect", text: "Classifying by domain…" },
+    { tag: "detect", text: "→ 5 technical, 1 personal, 2 strategic." },
+    { tag: "ok", text: "3 projects identified: Atlas, Orion, Pavo." },
+    { tag: "detect", text: "Detecting cross-dependencies…" },
+    { tag: "warn", text: "Onboarding step 3 depends on OAuth refresh (both critical)." },
+    { tag: "detect", text: "Estimating effort using history (47 days of learning)…" },
+    { tag: "ok", text: "Priorities assigned. API bug → P0 (production impact)." },
+    { tag: "detect", text: "Separating personal tasks from work flow." },
+    { tag: "ok", text: "Structure ready. 9 quarks in 3 projects + 1 personal note." },
+  ]
+};
+
+const CAPTURE_RESULT = {
+  es: [
+    {
+      name: "Atlas · onboarding",
+      meta: "3 quarks · alta",
+      tasks: [
+        { t: "Rediseñar paso 3 del onboarding (UX)", pills: [{ k: "alta", c: "rose" }, { k: "diseño", c: "violet" }, { k: "8h", c: "" }] },
+        { t: "Refactor OAuth refresh token en backend", pills: [{ k: "alta", c: "rose" }, { k: "backend", c: "cyan" }, { k: "12h", c: "" }, { k: "depende: paso 3", c: "amber" }] },
+        { t: "User research con 5 usuarios (María)", pills: [{ k: "media", c: "amber" }, { k: "research", c: "violet" }, { k: "6h", c: "" }] },
+      ]
+    },
+    {
+      name: "Orion · design system",
+      meta: "1 quark · media",
+      tasks: [
+        { t: "Migrar tokens de color a oklch", pills: [{ k: "media", c: "amber" }, { k: "ds", c: "violet" }, { k: "4h", c: "" }, { k: "antes v0.5", c: "rose" }] },
+      ]
+    },
+    {
+      name: "Pavo · API gateway",
+      meta: "2 quarks · alta",
+      tasks: [
+        { t: "BUG · /api/projects 500 con >100 items", pills: [{ k: "p0", c: "rose" }, { k: "backend", c: "cyan" }, { k: "3h", c: "" }] },
+        { t: "Llamada stakeholder Pavo · jueves", pills: [{ k: "alta", c: "rose" }, { k: "scope", c: "violet" }, { k: "60m", c: "" }] },
+      ]
+    },
+    {
+      name: "Idea · capturada",
+      meta: "1 nota · backlog",
+      tasks: [
+        { t: "Vista roadmap con dependencias visuales", pills: [{ k: "baja", c: "" }, { k: "feature", c: "cyan" }, { k: "sprint+1", c: "" }] },
+      ]
+    },
+    {
+      name: "Personal",
+      meta: "1 quark · baja",
+      tasks: [
+        { t: "Regalo cumpleaños mamá · sábado", pills: [{ k: "media", c: "amber" }, { k: "personal", c: "violet" }] },
+      ]
+    },
+  ],
+  en: [
+    {
+      name: "Atlas · onboarding",
+      meta: "3 quarks · high",
+      tasks: [
+        { t: "Redesign onboarding step 3 (UX)", pills: [{ k: "high", c: "rose" }, { k: "design", c: "violet" }, { k: "8h", c: "" }] },
+        { t: "Refactor OAuth refresh token in backend", pills: [{ k: "high", c: "rose" }, { k: "backend", c: "cyan" }, { k: "12h", c: "" }, { k: "depends: step 3", c: "amber" }] },
+        { t: "User research with 5 users (María)", pills: [{ k: "med", c: "amber" }, { k: "research", c: "violet" }, { k: "6h", c: "" }] },
+      ]
+    },
+    {
+      name: "Orion · design system",
+      meta: "1 quark · medium",
+      tasks: [
+        { t: "Migrate color tokens to oklch", pills: [{ k: "med", c: "amber" }, { k: "ds", c: "violet" }, { k: "4h", c: "" }, { k: "before v0.5", c: "rose" }] },
+      ]
+    },
+    {
+      name: "Pavo · API gateway",
+      meta: "2 quarks · high",
+      tasks: [
+        { t: "BUG · /api/projects 500 with >100 items", pills: [{ k: "p0", c: "rose" }, { k: "backend", c: "cyan" }, { k: "3h", c: "" }] },
+        { t: "Pavo stakeholder call · Thursday", pills: [{ k: "high", c: "rose" }, { k: "scope", c: "violet" }, { k: "60m", c: "" }] },
+      ]
+    },
+    {
+      name: "Idea · captured",
+      meta: "1 note · backlog",
+      tasks: [
+        { t: "Roadmap view with visual dependencies", pills: [{ k: "low", c: "" }, { k: "feature", c: "cyan" }, { k: "sprint+1", c: "" }] },
+      ]
+    },
+    {
+      name: "Personal",
+      meta: "1 quark · low",
+      tasks: [
+        { t: "Mom's birthday gift · Saturday", pills: [{ k: "med", c: "amber" }, { k: "personal", c: "violet" }] },
+      ]
+    },
+  ]
+};
+
+// Roadmap rows. Time grid 0..7 (8 cells = 8 weeks)
+const ROADMAP = {
+  es: [
+    {
+      lane: "Atlas", sub: "onboarding",
+      bars: [
+        { start: 0, span: 2.4, t: "Research base", c: "cyan", p: 100 },
+        { start: 2.5, span: 2, t: "Wireframes paso 3", c: "violet", p: 60 },
+        { start: 4.6, span: 1.4, t: "QA + ship", c: "green", p: 0 },
+      ],
+      deps: [{ from: 1, to: 2 }, { from: 0, to: 1 }]
+    },
+    {
+      lane: "Pavo", sub: "API gateway",
+      bars: [
+        { start: 1.2, span: 2, t: "Spec + scope", c: "amber", p: 35 },
+        { start: 3.4, span: 2.4, t: "Implementación", c: "violet", p: 0 },
+      ],
+      deps: [{ from: 0, to: 1 }]
+    },
+    {
+      lane: "Orion", sub: "design system",
+      bars: [
+        { start: 0, span: 1.5, t: "Tokens oklch", c: "violet", p: 80 },
+        { start: 1.8, span: 2, t: "Componentes core", c: "cyan", p: 20 },
+        { start: 4.2, span: 1.6, t: "Docs públicas", c: "amber", p: 0 },
+      ],
+      deps: [{ from: 0, to: 1 }, { from: 1, to: 2 }]
+    },
+    {
+      lane: "Lyra", sub: "UX research",
+      bars: [
+        { start: 0.4, span: 1.6, t: "Test usabilidad", c: "green", p: 90 },
+      ],
+      deps: []
+    },
+    {
+      lane: "Quark", sub: "infra interna",
+      bars: [
+        { start: 2.2, span: 1.4, t: "Adaptive learning v2", c: "rose", p: 12 },
+        { start: 4.0, span: 2.6, t: "Engine optimizador", c: "violet", p: 0 },
+      ],
+      deps: [{ from: 0, to: 1 }]
+    },
+  ],
+  en: null // reuse es; English labels are short enough to share
+};
+
+const OPT_PROPOSALS = {
+  es: [
+    { id: "o1", icon: "merge", kind: "default", title: "Fusionar 3 quarks duplicados", impact: "+4h", desc: "Tres tareas describen el mismo refactor de auth. Una sola unidad con subtareas claras." },
+    { id: "o2", icon: "shuffle", kind: "warn", title: "Reordenar Sprint 14 por dependencias", impact: "−18% riesgo", desc: "Pavo gateway está antes que su dependencia. Reordenar evita un bloqueo." },
+    { id: "o3", icon: "split", kind: "default", title: "Descomponer epic \"v0.5 release\"", impact: "+claridad", desc: "El epic actual es demasiado grande. Sugiero 5 quarks medibles con criterios de aceptación." },
+    { id: "o4", icon: "rocket", kind: "ok", title: "Quick win: bug #233 desbloquea 4", impact: "+4 tareas", desc: "47 min de trabajo desbloquearían 4 tareas downstream esta misma semana." },
+    { id: "o5", icon: "shuffle", kind: "default", title: "Mover tareas profundas a la mañana", impact: "+22% foco", desc: "Tu patrón muestra mejor rendimiento entre 09:00 y 12:00. Reagrupar deep work." },
+  ],
+  en: [
+    { id: "o1", icon: "merge", kind: "default", title: "Merge 3 duplicate quarks", impact: "+4h", desc: "Three tasks describe the same auth refactor. One unit with clear subtasks." },
+    { id: "o2", icon: "shuffle", kind: "warn", title: "Reorder Sprint 14 by dependencies", impact: "−18% risk", desc: "Pavo gateway is scheduled before its dependency. Reorder avoids a block." },
+    { id: "o3", icon: "split", kind: "default", title: "Decompose \"v0.5 release\" epic", impact: "+clarity", desc: "Current epic is too large. I suggest 5 measurable quarks with acceptance criteria." },
+    { id: "o4", icon: "rocket", kind: "ok", title: "Quick win: bug #233 unblocks 4", impact: "+4 tasks", desc: "47 minutes of work would unblock 4 downstream tasks this very week." },
+    { id: "o5", icon: "shuffle", kind: "default", title: "Move deep work to morning", impact: "+22% focus", desc: "Your pattern shows higher output 09:00–12:00. Re-group deep work blocks." },
+  ]
+};
+
+const PATTERNS = {
+  es: [
+    { l: "Pico de foco", v: "09:00–12:00", b: 0.92 },
+    { l: "Caída de energía", v: "15:30", b: 0.78 },
+    { l: "Tareas profundas", v: "Mar, Jue", b: 0.84 },
+    { l: "Sesión media", v: "47 min", b: 0.65 },
+    { l: "Tasa de quick win", v: "73%", b: 0.73 },
+    { l: "Bloqueos / sprint", v: "2.1 prom.", b: 0.42 },
+  ],
+  en: [
+    { l: "Focus peak", v: "09:00–12:00", b: 0.92 },
+    { l: "Energy dip", v: "15:30", b: 0.78 },
+    { l: "Deep work days", v: "Tue, Thu", b: 0.84 },
+    { l: "Average session", v: "47 min", b: 0.65 },
+    { l: "Quick-win rate", v: "73%", b: 0.73 },
+    { l: "Blocks / sprint", v: "2.1 avg", b: 0.42 },
+  ]
+};
+
+// Quark field nodes (positions in a 600x280 box)
+const QUARK_NODES = [
+  { id: "n1", x: 90,  y: 80,  r: 18, label: "QT-04", state: "doing", proj: "violet" },
+  { id: "n2", x: 200, y: 50,  r: 12, label: "QT-08", state: "todo",  proj: "violet" },
+  { id: "n3", x: 280, y: 130, r: 22, label: "QT-12", state: "doing", proj: "violet" },
+  { id: "n4", x: 170, y: 170, r: 14, label: "QT-19", state: "blocked", proj: "rose" },
+  { id: "n5", x: 380, y: 70,  r: 16, label: "QT-23", state: "review", proj: "cyan" },
+  { id: "n6", x: 460, y: 150, r: 20, label: "QT-29", state: "todo",  proj: "amber" },
+  { id: "n7", x: 540, y: 90,  r: 12, label: "QT-31", state: "done",  proj: "green" },
+  { id: "n8", x: 100, y: 220, r: 11, label: "QT-34", state: "todo",  proj: "violet" },
+  { id: "n9", x: 360, y: 210, r: 15, label: "QT-37", state: "doing", proj: "violet" },
+  { id: "n10",x: 530, y: 220, r: 13, label: "QT-41", state: "todo",  proj: "cyan" },
+];
+
+const QUARK_EDGES = [
+  ["n1","n3"], ["n3","n5"], ["n3","n4"], ["n5","n6"], ["n6","n7"],
+  ["n2","n3"], ["n4","n9"], ["n9","n10"], ["n8","n9"], ["n1","n2"],
+];
+
+// ===== Icons =====
+const Icon = ({ name, size = 16 }) => {
+  const s = size;
+  const stroke = { stroke: "currentColor", strokeWidth: 1.5, strokeLinecap: "round", strokeLinejoin: "round", fill: "none" };
+  const paths = {
+    dashboard: <g {...stroke}><rect x="2" y="2" width="8" height="8" rx="1.5"/><rect x="14" y="2" width="8" height="5" rx="1.5"/><rect x="2" y="14" width="8" height="8" rx="1.5"/><rect x="14" y="11" width="8" height="11" rx="1.5"/></g>,
+    capture: <g {...stroke}><path d="M3 5h18M3 12h18M3 19h12"/><circle cx="20" cy="19" r="2"/></g>,
+    roadmap: <g {...stroke}><path d="M3 6h10M11 12h10M3 18h10"/><circle cx="13" cy="6" r="1.5"/><circle cx="11" cy="12" r="1.5"/><circle cx="13" cy="18" r="1.5"/></g>,
+    optimize: <g {...stroke}><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/><circle cx="12" cy="12" r="3"/></g>,
+    settings: <g {...stroke}><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></g>,
+    search: <g {...stroke}><circle cx="10" cy="10" r="6"/><path d="m20 20-5-5"/></g>,
+    plus: <g {...stroke}><path d="M12 5v14M5 12h14"/></g>,
+    play: <g {...stroke}><path d="M6 4l14 8-14 8z" fill="currentColor"/></g>,
+    pause: <g {...stroke}><rect x="6" y="4" width="4" height="16" fill="currentColor"/><rect x="14" y="4" width="4" height="16" fill="currentColor"/></g>,
+    sparkle: <g {...stroke}><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="currentColor"/></g>,
+    warn: <g {...stroke}><path d="M12 3l10 17H2z"/><path d="M12 10v4M12 17v.5" stroke="currentColor" strokeWidth="2"/></g>,
+    danger: <g {...stroke}><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16v.5" stroke="currentColor" strokeWidth="2"/></g>,
+    check: <g {...stroke}><path d="M4 12l5 5L20 6"/></g>,
+    arrow: <g {...stroke}><path d="M5 12h14M13 6l6 6-6 6"/></g>,
+    merge: <g {...stroke}><path d="M6 3v6c0 4 4 6 6 6M18 3v6c0 4-4 6-6 6M12 15v6"/></g>,
+    split: <g {...stroke}><path d="M12 3v6M6 21v-6c0-4 6-6 6-6M18 21v-6c0-4-6-6-6-6"/></g>,
+    shuffle: <g {...stroke}><path d="M2 6h4l12 12h4M16 4l4 2-4 2M2 18h4l4-4M16 18h4l-4 2 4-2"/></g>,
+    rocket: <g {...stroke}><path d="M14 4l6 6-6 10-4-4zM10 10l-6 6 4 4 6-6M14 10l4-4"/></g>,
+    bell: <g {...stroke}><path d="M5 9a7 7 0 0114 0v5l2 3H3l2-3z"/><path d="M10 20a2 2 0 004 0"/></g>,
+    bolt: <g {...stroke}><path d="M13 2L4 14h6l-1 8 9-12h-6z" fill="currentColor"/></g>,
+    brain: <g {...stroke}><path d="M9 4a3 3 0 016 0v.5a3 3 0 012 5.5 3 3 0 01-2 5.5V16a3 3 0 01-6 0v-.5a3 3 0 01-2-5.5 3 3 0 012-5.5z"/><path d="M12 4v16M9 9h2M13 9h2"/></g>,
+    eye: <g {...stroke}><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></g>,
+    lock: <g {...stroke}><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></g>,
+    plug: <g {...stroke}><path d="M9 2v6M15 2v6M7 8h10v4a5 5 0 11-10 0zM12 17v5"/></g>,
+    target: <g {...stroke}><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></g>,
+  };
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24">{paths[name] || null}</svg>
+  );
+};
+
+// Brand mark — quark atom
+const BrandMark = () => (
+  <svg viewBox="0 0 32 32">
+    <defs>
+      <radialGradient id="bm-core" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stopColor="oklch(0.85 0.2 295)" />
+        <stop offset="100%" stopColor="oklch(0.55 0.24 295)" />
+      </radialGradient>
+    </defs>
+    <ellipse cx="16" cy="16" rx="14" ry="5" fill="none" stroke="oklch(0.68 0.24 295)" strokeWidth="1" opacity="0.6" transform="rotate(30 16 16)"/>
+    <ellipse cx="16" cy="16" rx="14" ry="5" fill="none" stroke="oklch(0.68 0.24 295)" strokeWidth="1" opacity="0.6" transform="rotate(-30 16 16)"/>
+    <ellipse cx="16" cy="16" rx="14" ry="5" fill="none" stroke="oklch(0.68 0.24 295)" strokeWidth="1" opacity="0.6" transform="rotate(90 16 16)"/>
+    <circle cx="16" cy="16" r="4" fill="url(#bm-core)" />
+    <circle cx="2" cy="16" r="1.5" fill="oklch(0.82 0.13 220)" transform="rotate(30 16 16)" />
+    <circle cx="30" cy="16" r="1.5" fill="oklch(0.82 0.13 220)" transform="rotate(-30 16 16)" />
+  </svg>
+);
+
+window.QT = {
+  I18N, PROJECTS, INSIGHTS, TODAY, CAPTURE_SAMPLE, CAPTURE_TRACE, CAPTURE_RESULT,
+  ROADMAP, OPT_PROPOSALS, PATTERNS, QUARK_NODES, QUARK_EDGES, Icon, BrandMark
+};
+
+
+//----
+
+
+// tweaks-panel.jsx
+// Reusable Tweaks shell + form-control helpers.
+//
+// Owns the host protocol (listens for __activate_edit_mode / __deactivate_edit_mode,
+// posts __edit_mode_available / __edit_mode_set_keys / __edit_mode_dismissed) so
+// individual prototypes don't re-roll it. Ships a consistent set of controls so you
+// don't hand-draw <input type="range">, segmented radios, steppers, etc.
+//
+// Usage (in an HTML file that loads React + Babel):
+//
+//   const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+//     "primaryColor": "#D97757",
+//     "fontSize": 16,
+//     "density": "regular",
+//     "dark": false
+//   }/*EDITMODE-END*/;
+//
+//   function App() {
+//     const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+//     return (
+//       <div style={{ fontSize: t.fontSize, color: t.primaryColor }}>
+//         Hello
+//         <TweaksPanel>
+//           <TweakSection label="Typography" />
+//           <TweakSlider label="Font size" value={t.fontSize} min={10} max={32} unit="px"
+//                        onChange={(v) => setTweak('fontSize', v)} />
+//           <TweakRadio  label="Density" value={t.density}
+//                        options={['compact', 'regular', 'comfy']}
+//                        onChange={(v) => setTweak('density', v)} />
+//           <TweakSection label="Theme" />
+//           <TweakColor  label="Primary" value={t.primaryColor}
+//                        onChange={(v) => setTweak('primaryColor', v)} />
+//           <TweakToggle label="Dark mode" value={t.dark}
+//                        onChange={(v) => setTweak('dark', v)} />
+//         </TweaksPanel>
+//       </div>
+//     );
+//   }
+//
+// ─────────────────────────────────────────────────────────────────────────────
+
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
+
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+
+  .twk-field{appearance:none;width:100%;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
+    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;
+    overflow-wrap:anywhere}
+
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+
+  .twk-num{display:flex;align-items:center;height:26px;padding:0 0 0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}
+  .twk-num-lbl{font-weight:500;color:rgba(41,38,27,.6);cursor:ew-resize;
+    user-select:none;padding-right:8px}
+  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;
+    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;
+    outline:none;color:inherit;-moz-appearance:textfield}
+  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{
+    -webkit-appearance:none;margin:0}
+  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}
+
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+`;
+
+// ── useTweaks ───────────────────────────────────────────────────────────────
+// Single source of truth for tweak values. setTweak persists via the host
+// (__edit_mode_set_keys → host rewrites the EDITMODE block on disk).
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  // Accepts either setTweak('key', value) or setTweak({ key: value, ... }) so a
+  // useState-style call doesn't write a "[object Object]" key into the persisted
+  // JSON block.
+  const setTweak = React.useCallback((keyOrEdits, val) => {
+    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
+      ? keyOrEdits : { [keyOrEdits]: val };
+    setValues((prev) => ({ ...prev, ...edits }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+  }, []);
+  return [values, setTweak];
+}
+
+// ── TweaksPanel ─────────────────────────────────────────────────────────────
+// Floating shell. Registers the protocol listener BEFORE announcing
+// availability — if the announce ran first, the host's activate could land
+// before our handler exists and the toolbar toggle would silently no-op.
+// The close button posts __edit_mode_dismissed so the host's toolbar toggle
+// flips off in lockstep; the host echoes __deactivate_edit_mode back which
+// is what actually hides the panel.
+function TweaksPanel({ title = 'Tweaks', children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', clampToViewport);
+      return () => window.removeEventListener('resize', clampToViewport);
+    }
+    const ro = new ResizeObserver(clampToViewport);
+    ro.observe(document.documentElement);
+    return () => ro.disconnect();
+  }, [open, clampToViewport]);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const t = e?.data?.type;
+      if (t === '__activate_edit_mode') setOpen(true);
+      else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const dismiss = () => {
+    setOpen(false);
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+  };
+
+  const onDragStart = (e) => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right;
+    const startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => {
+      offsetRef.current = {
+        x: startRight - (ev.clientX - sx),
+        y: startBottom - (ev.clientY - sy),
+      };
+      clampToViewport();
+    };
+    const up = () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel"
+           style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" aria-label="Close tweaks"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={dismiss}>✕</button>
+        </div>
+        <div className="twk-body">{children}</div>
+      </div>
+    </>
+  );
+}
+
+// ── Layout helpers ──────────────────────────────────────────────────────────
+
+function TweakSection({ label, children }) {
+  return (
+    <>
+      <div className="twk-sect">{label}</div>
+      {children}
+    </>
+  );
+}
+
+function TweakRow({ label, value, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl">
+        <span>{label}</span>
+        {value != null && <span className="twk-val">{value}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// ── Controls ────────────────────────────────────────────────────────────────
+
+function TweakSlider({ label, value, min = 0, max = 100, step = 1, unit = '', onChange }) {
+  return (
+    <TweakRow label={label} value={`${value}${unit}`}>
+      <input type="range" className="twk-slider" min={min} max={max} step={step}
+             value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </TweakRow>
+  );
+}
+
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
+              role="switch" aria-checked={!!value}
+              onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+
+  // The active value is read by pointer-move handlers attached for the lifetime
+  // of a drag — ref it so a stale closure doesn't fire onChange for every move.
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const inner = r.width - 4;
+    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => {
+      if (!trackRef.current) return;
+      const v = segAt(ev.clientX);
+      if (v !== valueRef.current) onChange(v);
+    };
+    const up = () => {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
+           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb"
+             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`,
+                      width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => (
+          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakSelect({ label, value, options, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <select className="twk-field" value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => {
+          const v = typeof o === 'object' ? o.value : o;
+          const l = typeof o === 'object' ? o.label : o;
+          return <option key={v} value={v}>{l}</option>;
+        })}
+      </select>
+    </TweakRow>
+  );
+}
+
+function TweakText({ label, value, placeholder, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <input className="twk-field" type="text" value={value} placeholder={placeholder}
+             onChange={(e) => onChange(e.target.value)} />
+    </TweakRow>
+  );
+}
+
+function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) {
+  const clamp = (n) => {
+    if (min != null && n < min) return min;
+    if (max != null && n > max) return max;
+    return n;
+  };
+  const startRef = React.useRef({ x: 0, val: 0 });
+  const onScrubStart = (e) => {
+    e.preventDefault();
+    startRef.current = { x: e.clientX, val: value };
+    const decimals = (String(step).split('.')[1] || '').length;
+    const move = (ev) => {
+      const dx = ev.clientX - startRef.current.x;
+      const raw = startRef.current.val + dx * step;
+      const snapped = Math.round(raw / step) * step;
+      onChange(clamp(Number(snapped.toFixed(decimals))));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  return (
+    <div className="twk-num">
+      <span className="twk-num-lbl" onPointerDown={onScrubStart}>{label}</span>
+      <input type="number" value={value} min={min} max={max} step={step}
+             onChange={(e) => onChange(clamp(Number(e.target.value)))} />
+      {unit && <span className="twk-num-unit">{unit}</span>}
+    </div>
+  );
+}
+
+function TweakColor({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <input type="color" className="twk-swatch" value={value}
+             onChange={(e) => onChange(e.target.value)} />
+    </div>
+  );
+}
+
+function TweakButton({ label, onClick, secondary = false }) {
+  return (
+    <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'}
+            onClick={onClick}>{label}</button>
+  );
+}
+
+Object.assign(window, {
+  useTweaks, TweaksPanel, TweakSection, TweakRow,
+  TweakSlider, TweakToggle, TweakRadio, TweakSelect,
+  TweakText, TweakNumber, TweakColor, TweakButton,
+});
+
+
+//----
+
+/* ============================================
+   QUARK TASKING — Screen components
+   ============================================ */
+
+const { useState, useEffect, useRef, useMemo } = React;
+const QTd = window.QT;
+const IconD = QTd.Icon;
+
+// ============================================
+// COSMOS BG
+// ============================================
+function Cosmos() {
+  const stars = useMemo(() => {
+    const out = [];
+    for (let i = 0; i < 60; i++) {
+      out.push({
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        d: Math.random() * 4,
+        size: Math.random() < 0.85 ? 1 : 2,
+      });
+    }
+    return out;
+  }, []);
+  return (
+    <div className="cosmos">
+      <div className="cosmos-grid"></div>
+      <div className="cosmos-stars">
+        {stars.map((s, i) => (
+          <div key={i} className="star" style={{
+            left: `${s.x}%`, top: `${s.y}%`,
+            width: s.size, height: s.size,
+            animationDelay: `${s.d}s`
+          }}/>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// DASHBOARD
+// ============================================
+function Sparkline({ values, color = "var(--violet)" }) {
+  const w = 180, h = 36;
+  const max = Math.max(...values), min = Math.min(...values);
+  const span = max - min || 1;
+  const pts = values.map((v, i) => {
+    const x = (i / (values.length - 1)) * w;
+    const y = h - ((v - min) / span) * h;
+    return `${x},${y}`;
+  }).join(" ");
+  return (
+    <svg className="spark" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none">
+      <defs>
+        <linearGradient id={`sp-${color.replace(/[()\s,]/g,'')}`} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.4"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0"/>
+        </linearGradient>
+      </defs>
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round"/>
+      <polygon points={`0,${h} ${pts} ${w},${h}`} fill={`url(#sp-${color.replace(/[()\s,]/g,'')})`}/>
+    </svg>
+  );
+}
+
+function QuarkField() {
+  const [hover, setHover] = useState(null);
+  const colorOf = (proj, state) => {
+    if (state === "blocked") return "var(--rose)";
+    if (state === "done") return "var(--green)";
+    if (state === "review") return "var(--amber)";
+    if (proj === "cyan") return "var(--cyan)";
+    return "var(--violet)";
+  };
+  return (
+    <div className="quark-field">
+      <svg className="quark-svg" viewBox="0 0 600 280" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <radialGradient id="node-glow" cx="50%" cy="50%">
+            <stop offset="0%" stopColor="oklch(0.78 0.22 295)" stopOpacity="0.9"/>
+            <stop offset="100%" stopColor="oklch(0.55 0.24 295)" stopOpacity="0"/>
+          </radialGradient>
+        </defs>
+        {QTd.QUARK_EDGES.map(([a, b], i) => {
+          const na = QTd.QUARK_NODES.find(n => n.id === a);
+          const nb = QTd.QUARK_NODES.find(n => n.id === b);
+          if (!na || !nb) return null;
+          return (
+            <line key={i} x1={na.x} y1={na.y} x2={nb.x} y2={nb.y}
+              stroke="oklch(0.68 0.24 295)" strokeOpacity="0.25"
+              strokeWidth="1" strokeDasharray="2 3"/>
+          );
+        })}
+        {QTd.QUARK_NODES.map(n => {
+          const fill = colorOf(n.proj, n.state);
+          const pulse = n.state === "doing" || n.state === "blocked";
+          return (
+            <g key={n.id}
+              onMouseEnter={() => setHover(n.id)}
+              onMouseLeave={() => setHover(null)}
+              style={{ cursor: "pointer" }}>
+              <circle cx={n.x} cy={n.y} r={n.r * 1.8} fill="url(#node-glow)" opacity={hover === n.id ? 0.6 : 0.3}/>
+              {pulse && (
+                <circle cx={n.x} cy={n.y} r={n.r} fill="none" stroke={fill} strokeOpacity="0.6">
+                  <animate attributeName="r" from={n.r} to={n.r * 2} dur="2s" repeatCount="indefinite"/>
+                  <animate attributeName="opacity" from="0.6" to="0" dur="2s" repeatCount="indefinite"/>
+                </circle>
+              )}
+              <circle cx={n.x} cy={n.y} r={n.r} fill={fill} fillOpacity="0.15" stroke={fill} strokeWidth="1.5"/>
+              <circle cx={n.x} cy={n.y} r={n.r * 0.4} fill={fill}/>
+              {hover === n.id && (
+                <text x={n.x} y={n.y - n.r - 6} textAnchor="middle"
+                  fontSize="10" fontFamily="var(--font-mono)" fill="var(--fg-0)"
+                  style={{ letterSpacing: "0.05em" }}>{n.label}</text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+      <div style={{
+        position: "absolute", bottom: 12, left: 12,
+        fontFamily: "var(--font-mono)", fontSize: 10,
+        color: "var(--fg-3)", letterSpacing: "0.1em"
+      }}>
+        10 QUARKS · 10 ENLACES · 1 CRÍTICO
+      </div>
+    </div>
+  );
+}
+
+function Dashboard({ t }) {
+  const insights = QTd.INSIGHTS[t === QTd.I18N.es ? "es" : "en"];
+  const today = QTd.TODAY[t === QTd.I18N.es ? "es" : "en"];
+
+  return (
+    <div className="page">
+      <div className="page-head">
+        <div>
+          <h1>{t.dash_title} <em>{t.dash_em}</em></h1>
+          <p>{t.dash_sub}</p>
+        </div>
+        <div className="meta">
+          <span style={{display: "inline-flex", alignItems: "center", gap: 6}}>
+            <span className="dot" style={{display: "inline-block", width: 6, height: 6, background: "var(--green)", borderRadius: "50%", boxShadow: "0 0 6px var(--green)"}}></span>
+            {t.dash_meta}
+          </span>
+        </div>
+      </div>
+
+      <div className="dash">
+        <div className="card metric">
+          <div className="label">{t.m1_label}</div>
+          <div className="num">47 <small>/ 89</small></div>
+          <div className="delta">▲ {t.m1_delta}</div>
+          <Sparkline values={[12, 14, 13, 18, 22, 28, 31, 47]} color="oklch(0.68 0.24 295)"/>
+        </div>
+        <div className="card metric">
+          <div className="label">{t.m2_label}</div>
+          <div className="num">12</div>
+          <div className="delta" style={{color: "var(--cyan)"}}>● {t.m2_delta}</div>
+          <Sparkline values={[8, 10, 9, 12, 11, 13, 12, 12]} color="oklch(0.82 0.13 220)"/>
+        </div>
+        <div className="card metric">
+          <div className="label">{t.m3_label}</div>
+          <div className="num">3</div>
+          <div className="delta down">▲ {t.m3_delta}</div>
+          <Sparkline values={[1, 2, 2, 3, 4, 3, 3, 3]} color="oklch(0.7 0.2 15)"/>
+        </div>
+        <div className="card metric">
+          <div className="label">{t.m4_label}</div>
+          <div className="num">31<small>pts</small></div>
+          <div className="delta">▲ {t.m4_delta}</div>
+          <Sparkline values={[18, 22, 19, 24, 26, 28, 31, 31]} color="oklch(0.78 0.18 150)"/>
+        </div>
+
+        {/* AI signals */}
+        <div className="card dash-col-8">
+          <div className="card-head">
+            <div className="card-title">
+              <span className="dot"></span>
+              {t.insights_title}
+            </div>
+            <div className="card-sub">{t.insights_sub}</div>
+          </div>
+          {insights.slice(0, 4).map((ins, i) => {
+            const iconMap = { warn: "warn", danger: "danger", ok: "rocket", default: "sparkle" };
+            return (
+              <div key={i} className="insight">
+                <div className={`insight-icon ${ins.kind === "default" ? "" : ins.kind}`}>
+                  <IconD name={iconMap[ins.kind]} size={14}/>
+                </div>
+                <div className="insight-body">
+                  <div className="t">{ins.t}</div>
+                  <div className="d">{ins.d}</div>
+                  <div className="meta">{ins.meta}</div>
+                </div>
+                <div className="insight-cta">{ins.cta} →</div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Quark field */}
+        <div className="card dash-col-4">
+          <div className="card-head">
+            <div className="card-title">
+              <span className="dot"></span>
+              {t.field_title}
+            </div>
+            <div className="card-sub">{t.field_sub}</div>
+          </div>
+          <QuarkField/>
+        </div>
+
+        {/* Projects */}
+        <div className="card dash-col-7" style={{gridColumn: "span 7"}}>
+          <div className="card-head">
+            <div className="card-title">
+              <span className="dot"></span>
+              {t.proj_title}
+            </div>
+            <div className="card-sub">{t.proj_sub}</div>
+          </div>
+          {QTd.PROJECTS.map(p => (
+            <div key={p.id} className="proj-row">
+              <div className="proj-icon" style={{
+                background: `var(--${p.color}-fog)`,
+                borderColor: `var(--line-strong)`,
+                color: `var(--${p.color === "violet" ? "violet-hi" : p.color})`
+              }}>{p.code}</div>
+              <div className="proj-name">
+                {p.name}
+                <small>{p.sub}</small>
+              </div>
+              <div className="proj-progress">
+                <div style={{width: `${p.progress * 100}%`}}/>
+              </div>
+              <div className="proj-meta">{p.due}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Today's focus */}
+        <div className="card dash-col-5" style={{gridColumn: "span 5"}}>
+          <div className="card-head">
+            <div className="card-title">
+              <span className="dot" style={{background: "var(--cyan)", boxShadow: "0 0 8px var(--cyan)"}}></span>
+              {t.today_title}
+            </div>
+            <div className="card-sub">{t.today_sub}</div>
+          </div>
+          {today.map((task, i) => (
+            <div key={i} style={{
+              display: "grid",
+              gridTemplateColumns: "auto 1fr auto",
+              gap: 10,
+              padding: "10px 0",
+              borderBottom: i < today.length - 1 ? "1px dashed var(--line-faint)" : "none",
+              alignItems: "center"
+            }}>
+              <span style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: 10,
+                color: "var(--fg-3)",
+                background: "var(--bg-2)",
+                padding: "2px 6px",
+                borderRadius: 4,
+                letterSpacing: "0.05em"
+              }}>{task.code}</span>
+              <div>
+                <div style={{fontSize: 13, marginBottom: 2}}>{task.t}</div>
+                <div style={{fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--fg-3)", letterSpacing: "0.05em"}}>
+                  {task.cat.toUpperCase()} · {task.time}
+                </div>
+              </div>
+              <span className={`pill ${task.prio === "alta" || task.prio === "high" ? "rose" : "amber"}`}>
+                <span className="dot"></span>{task.prio}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+window.Dashboard = Dashboard;
+window.Cosmos = Cosmos;
+
+
+//----
+
+/* ============================================
+   QUARK TASKING — Capture, Roadmap, Optimize, Settings
+   ============================================ */
+
+const useStateB = React.useState; const useEffectB = React.useEffect; const useRefB = React.useRef;
+const QT2 = window.QT;
+const IconS = QT2.Icon;
+
+// ============================================
+// CAPTURE
+// ============================================
+function Capture({ t, lang }) {
+  const [input, setInput] = useStateB("");
+  const [running, setRunning] = useStateB(false);
+  const [traceLines, setTraceLines] = useStateB([]);
+  const [structVisible, setStructVisible] = useStateB(0);
+  const traceData = QT2.CAPTURE_TRACE[lang];
+  const resultData = QT2.CAPTURE_RESULT[lang];
+  const traceEnd = useRefB(null);
+  const timersRef = useRefB([]);
+
+  const clearTimers = () => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+  };
+
+  useEffectB(() => () => clearTimers(), []);
+
+  const run = () => {
+    if (!input.trim() || running) return;
+    setRunning(true);
+    setTraceLines([]);
+    setStructVisible(0);
+    clearTimers();
+
+    traceData.forEach((line, i) => {
+      const t1 = setTimeout(() => {
+        setTraceLines(prev => [...prev, line]);
+      }, 200 + i * 360);
+      timersRef.current.push(t1);
+    });
+
+    resultData.forEach((_, i) => {
+      const t2 = setTimeout(() => {
+        setStructVisible(v => v + 1);
+      }, 200 + traceData.length * 360 + i * 280);
+      timersRef.current.push(t2);
+    });
+
+    const tEnd = setTimeout(() => setRunning(false),
+      200 + traceData.length * 360 + resultData.length * 280 + 200);
+    timersRef.current.push(tEnd);
+  };
+
+  const loadSample = () => {
+    setInput(QT2.CAPTURE_SAMPLE[lang]);
+  };
+
+  const clear = () => {
+    setInput("");
+    setTraceLines([]);
+    setStructVisible(0);
+    clearTimers();
+    setRunning(false);
+  };
+
+  return (
+    <div className="page">
+      <div className="page-head">
+        <div>
+          <h1>{t.cap_title} <em>{t.cap_em}</em></h1>
+          <p>{t.cap_sub}</p>
+        </div>
+      </div>
+
+      <div className="capture-wrap">
+        <div className="capture-input">
+          <textarea
+            className="capture-textarea"
+            placeholder={t.cap_placeholder}
+            value={input}
+            onChange={e => setInput(e.target.value)}
+          />
+          <div style={{display: "flex", gap: 8}}>
+            <button className="btn btn-primary" onClick={run} disabled={running || !input.trim()}>
+              <IconS name={running ? "pause" : "sparkle"} size={14}/>
+              {running ? t.cap_running : t.cap_run}
+            </button>
+            <button className="btn" onClick={loadSample}>
+              <IconS name="capture" size={14}/>
+              {t.cap_sample}
+            </button>
+            <button className="btn btn-ghost" onClick={clear}>{t.cap_clear}</button>
+          </div>
+        </div>
+
+        <div className="capture-output">
+          {traceLines.length === 0 && structVisible === 0 ? (
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              height: "100%",
+              color: "var(--fg-3)",
+              gap: 12,
+              textAlign: "center"
+            }}>
+              <div style={{
+                width: 72, height: 72, borderRadius: "50%",
+                background: "radial-gradient(circle, var(--violet-fog), transparent 70%)",
+                border: "1px dashed var(--line)",
+                display: "grid", placeItems: "center"
+              }}>
+                <IconS name="brain" size={28}/>
+              </div>
+              <div style={{fontSize: 14, color: "var(--fg-1)"}}>{t.cap_output_empty}</div>
+              <div style={{fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.05em"}}>{t.cap_output_empty_sub}</div>
+            </div>
+          ) : (
+            <>
+              <div className="card-head" style={{marginBottom: 10}}>
+                <div className="card-title"><span className="dot"></span>{t.cap_trace_title}</div>
+                <div className="card-sub">{traceLines.length}/{traceData.length}</div>
+              </div>
+              <div className="thinking-trace">
+                {traceLines.map((line, i) => (
+                  <div key={i} className="line">
+                    <span className="ts">[{String(i * 0.4).padStart(4, "0").slice(0,4)}s]</span>
+                    <span className={`tag ${line.tag}`}>{line.tag}</span>
+                    <span>{line.text}</span>
+                  </div>
+                ))}
+                {running && traceLines.length < traceData.length && <span className="cursor"></span>}
+                <div ref={traceEnd}/>
+              </div>
+
+              {structVisible > 0 && (
+                <>
+                  <div className="card-head" style={{marginTop: 18, marginBottom: 10}}>
+                    <div className="card-title"><span className="dot"></span>{t.cap_struct_title}</div>
+                  </div>
+                  {resultData.slice(0, structVisible).map((proj, i) => (
+                    <div key={i} className="struct-project" style={{animationDelay: `${i * 0.05}s`}}>
+                      <div className="struct-project-head">
+                        <IconS name="dashboard" size={14}/>
+                        <div className="name">{proj.name}</div>
+                        <div className="meta">
+                          <span className="card-sub">{proj.meta}</span>
+                        </div>
+                      </div>
+                      {proj.tasks.map((task, ti) => (
+                        <div key={ti} className="struct-task">
+                          <div className="check"></div>
+                          <div>{task.t}</div>
+                          <div className="pills">
+                            {task.pills.map((p, pi) => (
+                              <span key={pi} className={`pill ${p.c}`}>{p.k}</span>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                  {!running && structVisible === resultData.length && (
+                    <div style={{display: "flex", gap: 8, marginTop: 12}}>
+                      <button className="btn btn-primary"><IconS name="check" size={14}/>{t.cap_apply}</button>
+                      <button className="btn"><IconS name="settings" size={14}/>{t.cap_edit}</button>
+                    </div>
+                  )}
+                </>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// ROADMAP
+// ============================================
+function Roadmap({ t, lang }) {
+  const data = QT2.ROADMAP.es; // labels are short enough to share
+  const weekLabels = lang === "es"
+    ? ["S15", "S16", "S17", "S18", "AHORA", "S20", "S21", "S22"]
+    : ["W15", "W16", "W17", "W18", "NOW", "W20", "W21", "W22"];
+  const nowIdx = 4;
+
+  return (
+    <div className="page">
+      <div className="page-head">
+        <div>
+          <h1>{t.rm_title} <em>{t.rm_em}</em></h1>
+          <p>{t.rm_sub}</p>
+        </div>
+      </div>
+
+      <div className="sprint-meta">
+        <div className="item">
+          <div className="l">{t.rm_sprint.toUpperCase()}</div>
+          <div className="v">14 / 20 quarks</div>
+        </div>
+        <div className="divider"/>
+        <div className="item">
+          <div className="l">{t.rm_capacity}</div>
+          <div className="v">31 / 36 pts</div>
+        </div>
+        <div className="divider"/>
+        <div className="item">
+          <div className="l">{t.rm_velocity}</div>
+          <div className="v" style={{color: "var(--cyan)"}}>27 pts</div>
+        </div>
+        <div className="divider"/>
+        <div className="item">
+          <div className="l">{t.rm_risk}</div>
+          <div className="v" style={{color: "var(--amber)"}}>22%</div>
+        </div>
+        <div className="divider"/>
+        <div className="item">
+          <div className="l">{t.rm_focus}</div>
+          <div className="v">Atlas onboarding</div>
+        </div>
+      </div>
+
+      <div className="roadmap">
+        <div className="roadmap-header">
+          <div>LANE</div>
+          {weekLabels.map((w, i) => (
+            <div key={i} className={i === nowIdx ? "now" : ""}>{w}</div>
+          ))}
+        </div>
+        {data.map((row, ri) => (
+          <div key={ri} className="roadmap-row">
+            <div className="roadmap-label">
+              <IconS name="dashboard" size={14}/>
+              <div>
+                <div>{row.lane}</div>
+                <small>{row.sub}</small>
+              </div>
+            </div>
+            {Array.from({length: 8}).map((_, ci) => (
+              <div key={ci} className="roadmap-cell"/>
+            ))}
+            {row.bars.map((bar, bi) => {
+              const cellW = `calc((100% - 220px) / 8)`;
+              const left = `calc(220px + ${cellW} * ${bar.start})`;
+              const width = `calc(${cellW} * ${bar.span} - 4px)`;
+              return (
+                <div key={bi} className={`roadmap-bar ${bar.c}`}
+                  style={{ left, width, "--p": `${bar.p}%` }}>
+                  <div className="progress"/>
+                  <span className="bar-label">{bar.t}</span>
+                  <span className="bar-meta">{bar.p}%</span>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// OPTIMIZE
+// ============================================
+function Optimize({ t, lang }) {
+  const proposals = QT2.OPT_PROPOSALS[lang];
+  const [active, setActive] = useStateB(proposals[0].id);
+  const sel = proposals.find(p => p.id === active);
+
+  const beforeAfterMap = {
+    o1: {
+      before: ["#142 · Auth refresh token", "#156 · Renew oauth token", "#189 · Token expiry handler"],
+      after: ["AUTH-01 · Refresh flow (3 subtareas / subtasks)"]
+    },
+    o2: {
+      before: ["1. Pavo gateway impl", "2. Spec + scope Pavo", "3. QA gateway"],
+      after: ["1. Spec + scope Pavo", "2. Pavo gateway impl", "3. QA gateway"]
+    },
+    o3: {
+      before: ["EPIC v0.5 release (sin desglose / no breakdown)"],
+      after: ["1. Tokens oklch", "2. Onboarding step 3", "3. OAuth refresh", "4. API pagination", "5. QA + ship"]
+    },
+    o4: {
+      before: ["Bug #233 · prio media · backlog", "4 tareas bloqueadas downstream"],
+      after: ["Bug #233 · P0 · esta semana / this week", "4 tareas desbloqueadas / 4 tasks unblocked"]
+    },
+    o5: {
+      before: ["Deep work: distribuido / scattered", "Foco: 38%"],
+      after: ["Deep work: 09:00–12:00 Mar+Jue / Tue+Thu", "Foco: 60%"]
+    }
+  };
+  const ba = beforeAfterMap[sel.id];
+
+  const why = {
+    es: {
+      o1: "Tres quarks describen el mismo trabajo de auth. Mantenerlos separados duplica el esfuerzo de PR review, QA y deploy. Una unidad con 3 subtareas conserva trazabilidad sin fricción operativa.",
+      o2: "El grafo de dependencias indica que \"Pavo gateway impl\" requiere \"Spec + scope\" como input. Su orden actual genera un bloqueo garantizado en mitad de sprint.",
+      o3: "Epics sin subtareas medibles tienen 3.4× más probabilidad de slip según tu histórico. Cinco quarks con criterios claros es la granularidad óptima para tu equipo.",
+      o4: "Un quick win con razón impacto/esfuerzo > 4× debería ejecutarse antes que tareas de mayor esfuerzo. Esto desbloquea capacidad downstream esta misma semana.",
+      o5: "Tu firma operativa muestra +32% de output entre 09:00 y 12:00. Reagrupar deep work en esa franja podría ahorrar ~6h/semana de trabajo fragmentado."
+    },
+    en: {
+      o1: "Three quarks describe the same auth work. Keeping them split duplicates PR review, QA and deploy effort. One unit with 3 subtasks preserves traceability without operational friction.",
+      o2: "The dependency graph shows \"Pavo gateway impl\" requires \"Spec + scope\" as input. Current order guarantees a mid-sprint block.",
+      o3: "Epics without measurable subtasks have 3.4× higher slip probability based on your history. Five quarks with clear criteria is your team's optimal granularity.",
+      o4: "A quick win with impact/effort > 4× should run before higher-effort tasks. This frees downstream capacity this same week.",
+      o5: "Your operational signature shows +32% output between 09:00 and 12:00. Re-grouping deep work in that slot could save ~6h/week of fragmented work."
+    }
+  }[lang];
+
+  return (
+    <div className="page">
+      <div className="page-head">
+        <div>
+          <h1>{t.opt_title} <em>{t.opt_em}</em></h1>
+          <p>{t.opt_sub}</p>
+        </div>
+        <div className="meta" style={{display: "flex", alignItems: "center", gap: 8}}>
+          <span className="pill violet">
+            <span className="dot"></span>
+            {proposals.length} {lang === "es" ? "propuestas" : "proposals"}
+          </span>
+        </div>
+      </div>
+
+      <div className="opt-grid">
+        <div className="opt-list">
+          {proposals.map(p => (
+            <div key={p.id}
+              className={`opt-card ${active === p.id ? "active" : ""}`}
+              onClick={() => setActive(p.id)}>
+              <div className="head">
+                <div className={`insight-icon ${p.kind === "default" ? "" : p.kind}`} style={{width: 22, height: 22, borderRadius: 6}}>
+                  <IconS name={p.icon} size={12}/>
+                </div>
+                <span className="card-sub">{p.id.toUpperCase()}</span>
+                <span className="impact">{p.impact}</span>
+              </div>
+              <div className="title">{p.title}</div>
+              <div className="desc">{p.desc}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="opt-detail">
+          <div className="opt-hero">
+            <div className="icon"><IconS name={sel.icon} size={22}/></div>
+            <div>
+              <h3>{sel.title}</h3>
+              <div className="sub">{sel.id.toUpperCase()} · {lang === "es" ? "IMPACTO" : "IMPACT"} {sel.impact}</div>
+            </div>
+            <div style={{display: "flex", gap: 8}}>
+              <button className="btn btn-primary"><IconS name="check" size={14}/>{t.opt_apply}</button>
+              <button className="btn">{t.opt_simulate}</button>
+            </div>
+          </div>
+
+          <div className="opt-section">
+            <h4>{t.opt_why}</h4>
+            <p style={{fontSize: 13, color: "var(--fg-1)", lineHeight: 1.6, maxWidth: "70ch"}}>
+              {why[sel.id]}
+            </p>
+          </div>
+
+          <div className="opt-section">
+            <h4>{lang === "es" ? "Antes / Después" : "Before / After"}</h4>
+            <div className="compare-grid">
+              <div className="compare-col before">
+                <div className="lbl">{t.opt_before}</div>
+                {ba.before.map((it, i) => <div key={i} className="item">{it}</div>)}
+              </div>
+              <div className="compare-arrow"><IconS name="arrow" size={20}/></div>
+              <div className="compare-col after">
+                <div className="lbl">{t.opt_after}</div>
+                {ba.after.map((it, i) => <div key={i} className="item">{it}</div>)}
+              </div>
+            </div>
+          </div>
+
+          <div className="opt-section">
+            <h4>{t.opt_metrics}</h4>
+            <div style={{display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10}}>
+              {[
+                { l: lang === "es" ? "Tiempo ahorrado" : "Time saved", v: "+4.2h", c: "var(--green)" },
+                { l: lang === "es" ? "Riesgo" : "Risk", v: "−18%", c: "var(--cyan)" },
+                { l: lang === "es" ? "Tareas afectadas" : "Affected tasks", v: "9", c: "var(--violet-hi)" },
+                { l: lang === "es" ? "Confianza" : "Confidence", v: "0.91", c: "var(--fg-0)" },
+              ].map((m, i) => (
+                <div key={i} style={{
+                  background: "var(--bg-2)",
+                  border: "1px solid var(--line-faint)",
+                  borderRadius: "var(--r-md)",
+                  padding: "12px"
+                }}>
+                  <div style={{fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--fg-3)", letterSpacing: "0.1em", textTransform: "uppercase"}}>{m.l}</div>
+                  <div style={{fontSize: 22, fontWeight: 500, color: m.c, marginTop: 4, fontFeatureSettings: '"tnum"'}}>{m.v}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="opt-actions">
+            <button className="btn btn-primary"><IconS name="check" size={14}/>{t.opt_apply}</button>
+            <button className="btn">{t.opt_simulate}</button>
+            <button className="btn btn-ghost">{t.opt_dismiss}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// SETTINGS
+// ============================================
+function Settings({ t, lang, theme, setTheme, density, setDensity, aiVerbose, setAiVerbose }) {
+  const [tab, setTab] = useStateB("appearance");
+  const patterns = QT2.PATTERNS[lang];
+
+  const tabs = [
+    { id: "general", label: t.set_general, icon: "settings" },
+    { id: "appearance", label: t.set_appearance, icon: "eye" },
+    { id: "ai", label: t.set_ai, icon: "brain" },
+    { id: "patterns", label: t.set_patterns, icon: "target" },
+    { id: "integrations", label: t.set_integrations, icon: "plug" },
+  ];
+
+  return (
+    <div className="page">
+      <div className="page-head">
+        <div>
+          <h1>{t.set_title} <em>{t.set_em}</em></h1>
+          <p>{t.set_sub}</p>
+        </div>
+      </div>
+
+      <div className="settings-grid">
+        <div className="settings-nav">
+          {tabs.map(tb => (
+            <button key={tb.id} className={tab === tb.id ? "active" : ""} onClick={() => setTab(tb.id)}>
+              <span style={{display: "inline-flex", alignItems: "center", gap: 8}}>
+                <IconS name={tb.icon} size={14}/>{tb.label}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        <div>
+          {tab === "appearance" && (
+            <>
+              <div className="setting-row">
+                <div>
+                  <div className="label">{lang === "es" ? "Tema" : "Theme"}</div>
+                  <div className="desc">{lang === "es" ? "Modo oscuro recomendado para foco prolongado." : "Dark mode recommended for extended focus."}</div>
+                </div>
+                <div className="control">
+                  <div className="seg">
+                    <button className={theme === "dark" ? "active" : ""} onClick={() => setTheme("dark")}>{lang === "es" ? "Oscuro" : "Dark"}</button>
+                    <button className={theme === "light" ? "active" : ""} onClick={() => setTheme("light")}>{lang === "es" ? "Claro" : "Light"}</button>
+                  </div>
+                </div>
+              </div>
+              <div className="setting-row">
+                <div>
+                  <div className="label">{lang === "es" ? "Densidad" : "Density"}</div>
+                  <div className="desc">{lang === "es" ? "Compacto muestra más quarks por pantalla." : "Compact shows more quarks per screen."}</div>
+                </div>
+                <div className="control">
+                  <div className="seg">
+                    <button className={density === "comfortable" ? "active" : ""} onClick={() => setDensity("comfortable")}>{lang === "es" ? "Cómodo" : "Comfortable"}</button>
+                    <button className={density === "compact" ? "active" : ""} onClick={() => setDensity("compact")}>{lang === "es" ? "Compacto" : "Compact"}</button>
+                  </div>
+                </div>
+              </div>
+              <div className="setting-row">
+                <div>
+                  <div className="label">{lang === "es" ? "Animaciones cuánticas" : "Quantum animations"}</div>
+                  <div className="desc">{lang === "es" ? "Pulsos, partículas y campos. Apaga para reducir distracción." : "Pulses, particles and fields. Turn off to reduce distraction."}</div>
+                </div>
+                <div className="control">
+                  <div className="toggle on" onClick={(e) => e.currentTarget.classList.toggle("on")}/>
+                </div>
+              </div>
+            </>
+          )}
+
+          {tab === "ai" && (
+            <>
+              <div className="setting-row">
+                <div>
+                  <div className="label">{lang === "es" ? "Verbosidad de la IA" : "AI verbosity"}</div>
+                  <div className="desc">{lang === "es" ? "Cuánto razonamiento muestra la IA al estructurar." : "How much reasoning the AI surfaces while structuring."}</div>
+                </div>
+                <div className="control">
+                  <div className="seg">
+                    <button className={aiVerbose === "low" ? "active" : ""} onClick={() => setAiVerbose("low")}>{lang === "es" ? "Mínima" : "Min"}</button>
+                    <button className={aiVerbose === "med" ? "active" : ""} onClick={() => setAiVerbose("med")}>{lang === "es" ? "Media" : "Med"}</button>
+                    <button className={aiVerbose === "high" ? "active" : ""} onClick={() => setAiVerbose("high")}>{lang === "es" ? "Alta" : "High"}</button>
+                  </div>
+                </div>
+              </div>
+              <div className="setting-row">
+                <div>
+                  <div className="label">{lang === "es" ? "Reorganización autónoma" : "Autonomous reorganization"}</div>
+                  <div className="desc">{lang === "es" ? "Permite a la IA reordenar tareas sin pedir confirmación cuando la confianza supera 0.85." : "Lets the AI reorder tasks without asking when confidence exceeds 0.85."}</div>
+                </div>
+                <div className="control">
+                  <div className="toggle on" onClick={(e) => e.currentTarget.classList.toggle("on")}/>
+                </div>
+              </div>
+              <div className="setting-row">
+                <div>
+                  <div className="label">{lang === "es" ? "Detectar duplicados" : "Detect duplicates"}</div>
+                  <div className="desc">{lang === "es" ? "La IA fusiona tareas redundantes automáticamente." : "AI merges redundant tasks automatically."}</div>
+                </div>
+                <div className="control">
+                  <div className="toggle on" onClick={(e) => e.currentTarget.classList.toggle("on")}/>
+                </div>
+              </div>
+              <div className="setting-row">
+                <div>
+                  <div className="label">{lang === "es" ? "Sugerir descomposición" : "Suggest decomposition"}</div>
+                  <div className="desc">{lang === "es" ? "Avisa cuando un quark es demasiado grande." : "Alerts when a quark is too large."}</div>
+                </div>
+                <div className="control">
+                  <div className="toggle on" onClick={(e) => e.currentTarget.classList.toggle("on")}/>
+                </div>
+              </div>
+            </>
+          )}
+
+          {tab === "patterns" && (
+            <>
+              <div className="card-head" style={{marginBottom: 12}}>
+                <div className="card-title"><span className="dot"></span>{t.pat_title}</div>
+                <div className="card-sub">{t.pat_sub}</div>
+              </div>
+              <div className="adapt-chart">
+                {patterns.map((p, i) => (
+                  <div key={i} className="pattern-bar">
+                    <div className="lbl">{p.l}</div>
+                    <div className="b"><div style={{width: `${p.b * 100}%`}}/></div>
+                    <div className="v">{p.v}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{
+                marginTop: 16,
+                padding: 14,
+                background: "var(--violet-fog)",
+                border: "1px solid var(--line-strong)",
+                borderRadius: "var(--r-md)",
+                fontSize: 12,
+                color: "var(--fg-1)",
+                lineHeight: 1.6
+              }}>
+                <div style={{fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.1em", color: "var(--violet-hi)", marginBottom: 6}}>
+                  {lang === "es" ? "OBSERVACIÓN ACTUAL" : "CURRENT OBSERVATION"}
+                </div>
+                {lang === "es"
+                  ? "Tu firma sugiere que las tareas creativas rinden mejor en bloques de 47 min con 8 min de descanso. Estoy ajustando tus sugerencias automáticamente."
+                  : "Your signature suggests creative tasks perform best in 47-min blocks with 8-min breaks. I'm adjusting your suggestions automatically."}
+              </div>
+            </>
+          )}
+
+          {tab === "general" && (
+            <>
+              <div className="setting-row">
+                <div>
+                  <div className="label">{lang === "es" ? "Idioma" : "Language"}</div>
+                  <div className="desc">{lang === "es" ? "Cambia desde la barra superior." : "Change from the top bar."}</div>
+                </div>
+                <div className="control">
+                  <span className="pill violet"><span className="dot"></span>{lang.toUpperCase()}</span>
+                </div>
+              </div>
+              <div className="setting-row">
+                <div>
+                  <div className="label">{lang === "es" ? "Workspace" : "Workspace"}</div>
+                  <div className="desc">{lang === "es" ? "Personal + production team — híbrido." : "Personal + production team — hybrid."}</div>
+                </div>
+                <div className="control">
+                  <span style={{fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--fg-2)"}}>quark.work / hybrid</span>
+                </div>
+              </div>
+              <div className="setting-row">
+                <div>
+                  <div className="label">{lang === "es" ? "Notificaciones inteligentes" : "Smart notifications"}</div>
+                  <div className="desc">{lang === "es" ? "Solo cuando el impacto/esfuerzo justifica interrupción." : "Only when impact/effort justifies interruption."}</div>
+                </div>
+                <div className="control">
+                  <div className="toggle on" onClick={(e) => e.currentTarget.classList.toggle("on")}/>
+                </div>
+              </div>
+            </>
+          )}
+
+          {tab === "integrations" && (
+            <>
+              {[
+                { n: "GitHub", d: lang === "es" ? "Sincroniza issues y PRs como quarks." : "Sync issues and PRs as quarks.", on: true },
+                { n: "Slack", d: lang === "es" ? "Captura tareas desde mensajes." : "Capture tasks from messages.", on: true },
+                { n: "Linear", d: lang === "es" ? "Importa proyectos y sprints." : "Import projects and sprints.", on: false },
+                { n: "Calendar", d: lang === "es" ? "Reserva bloques de foco automáticamente." : "Books focus blocks automatically.", on: true },
+                { n: "Figma", d: lang === "es" ? "Vincula frames a quarks de diseño." : "Link frames to design quarks.", on: false },
+              ].map((it, i) => (
+                <div key={i} className="setting-row">
+                  <div>
+                    <div className="label">{it.n}</div>
+                    <div className="desc">{it.d}</div>
+                  </div>
+                  <div className="control">
+                    <div className={`toggle ${it.on ? "on" : ""}`} onClick={(e) => e.currentTarget.classList.toggle("on")}/>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+window.Capture = Capture;
+window.Roadmap = Roadmap;
+window.Optimize = Optimize;
+window.Settings = Settings;
+
+
+//----
+
+/* ============================================
+   QUARK TASKING — Login + Kanban
+   ============================================ */
+
+const useStateK = React.useState;
+const useEffectK = React.useEffect;
+const useRefK = React.useRef;
+const QTk = window.QT;
+const IconK = QTk.Icon;
+
+// ============================================
+// LOGIN
+// ============================================
+function Login({ lang, onLogin, onLangToggle }) {
+  const [email, setEmail] = useStateK("");
+  const [pass, setPass] = useStateK("");
+  const [loading, setLoading] = useStateK(false);
+  const [step, setStep] = useStateK("idle"); // idle | scanning | ok
+  const [isSignUp, setIsSignUp] = useStateK(false);
+
+  const t = lang === "es" ? {
+    welcome: "Bienvenido a",
+    sub: "Sistema operacional autónomo de organización de tareas. Tu workspace está esperando.",
+    email: "Correo",
+    pass: "Contraseña",
+    enter: "Entrar al workspace",
+    sso: "Continuar con SSO",
+    forgot: "¿Olvidaste tu contraseña?",
+    new: "¿Nuevo en Quark?",
+    create: "Crear cuenta",
+    badge: "Tu IA ha aprendido durante 47 días",
+    scan1: "Verificando identidad…",
+    scan2: "Cargando firma operativa…",
+    scan3: "Sincronizando workspace híbrido…",
+    scan4: "Listo. Iniciando…",
+    placeholder_e: "tu@empresa.com",
+    placeholder_p: "••••••••",
+  } : {
+    welcome: "Welcome to",
+    sub: "Autonomous operational system for task organization. Your workspace is waiting.",
+    email: "Email",
+    pass: "Password",
+    enter: "Enter workspace",
+    sso: "Continue with SSO",
+    forgot: "Forgot your password?",
+    new: "New to Quark?",
+    create: "Create account",
+    badge: "Your AI has been learning for 47 days",
+    scan1: "Verifying identity…",
+    scan2: "Loading operational signature…",
+    scan3: "Syncing hybrid workspace…",
+    scan4: "Ready. Starting…",
+    placeholder_e: "you@company.com",
+    placeholder_p: "••••••••",
+  };
+
+  const submit = async (e) => {
+    e && e.preventDefault();
+    if (loading) return;
+    setLoading(true);
+    setStep("scanning");
+    
+    try {
+      let data, error;
+      if (isSignUp) {
+        const res = await supabase.auth.signUp({
+          email: email,
+          password: pass
+        });
+        data = res.data; error = res.error;
+      } else {
+        const res = await supabase.auth.signInWithPassword({
+          email: email,
+          password: pass
+        });
+        data = res.data; error = res.error;
+      }
+      
+      if (error) {
+        console.error("Auth error:", error.message);
+        setLoading(false);
+        setStep("idle");
+        alert(error.message);
+        return;
+      }
+      
+      // Simulate scanning steps
+      setTimeout(() => setStep("ok"), 1800);
+      setTimeout(() => {
+        const user = {
+          id: data.user?.id,
+          email: data.user?.email,
+          name: data.user?.user_metadata?.name || "Usuario"
+        };
+        onLogin(user);
+      }, 2400);
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      setLoading(false);
+      setStep("idle");
+      alert("Error en la autenticación");
+    }
+  };
+
+  return (
+    <div className="login-wrap">
+      <window.Cosmos/>
+
+      {/* Left panel - branding */}
+      <div className="login-left">
+        <div className="login-brand">
+          <div style={{width: 40, height: 40}}><QTk.BrandMark/></div>
+          <div>
+            <div style={{fontSize: 14, fontWeight: 600}}>Quark Tasking</div>
+            <div style={{fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--fg-3)", letterSpacing: "0.12em"}}>OPERATIONAL · v0.4.2</div>
+          </div>
+        </div>
+
+        <div className="login-hero">
+          <h1>{t.welcome} <em>Quark</em>.</h1>
+          <p>{t.sub}</p>
+
+          <div className="login-feat">
+            <div className="login-feat-row">
+              <div className="login-feat-icon"><IconK name="brain" size={14}/></div>
+              <div>
+                <div style={{fontSize: 13, color: "var(--fg-0)"}}>{lang === "es" ? "Estructura el caos en segundos" : "Structure chaos in seconds"}</div>
+                <div style={{fontSize: 11, color: "var(--fg-3)"}}>{lang === "es" ? "De input desordenado a sistema operativo" : "From messy input to operating system"}</div>
+              </div>
+            </div>
+            <div className="login-feat-row">
+              <div className="login-feat-icon"><IconK name="target" size={14}/></div>
+              <div>
+                <div style={{fontSize: 13, color: "var(--fg-0)"}}>{lang === "es" ? "Aprende tu firma operativa" : "Learns your operational signature"}</div>
+                <div style={{fontSize: 11, color: "var(--fg-3)"}}>{lang === "es" ? "Adaptación autónoma a tu ritmo" : "Autonomous adaptation to your rhythm"}</div>
+              </div>
+            </div>
+            <div className="login-feat-row">
+              <div className="login-feat-icon"><IconK name="bolt" size={14}/></div>
+              <div>
+                <div style={{fontSize: 13, color: "var(--fg-0)"}}>{lang === "es" ? "Detecta bloqueos antes que ocurran" : "Detects blockers before they happen"}</div>
+                <div style={{fontSize: 11, color: "var(--fg-3)"}}>{lang === "es" ? "Análisis predictivo en tiempo real" : "Real-time predictive analysis"}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="login-footer">
+          <span className="pill violet"><span className="dot"></span>{t.badge}</span>
+        </div>
+      </div>
+
+      {/* Right panel - form */}
+      <div className="login-right">
+        <div className="login-card">
+          <div className="login-card-head">
+            <div className="atom-big">
+              <svg viewBox="0 0 80 80" width="64" height="64">
+                <ellipse cx="40" cy="40" rx="34" ry="12" fill="none" stroke="oklch(0.68 0.24 295)" strokeWidth="1" opacity="0.5" transform="rotate(30 40 40)"/>
+                <ellipse cx="40" cy="40" rx="34" ry="12" fill="none" stroke="oklch(0.68 0.24 295)" strokeWidth="1" opacity="0.5" transform="rotate(-30 40 40)"/>
+                <ellipse cx="40" cy="40" rx="34" ry="12" fill="none" stroke="oklch(0.68 0.24 295)" strokeWidth="1" opacity="0.5" transform="rotate(90 40 40)"/>
+                <circle cx="40" cy="40" r="10" fill="oklch(0.68 0.24 295)" opacity="0.3"/>
+                <circle cx="40" cy="40" r="6" fill="oklch(0.78 0.22 295)">
+                  <animate attributeName="r" values="6;7;6" dur="2s" repeatCount="indefinite"/>
+                </circle>
+              </svg>
+            </div>
+            <div style={{textAlign: "center"}}>
+              <div style={{fontSize: 16, fontWeight: 500, marginBottom: 4}}>
+                {isSignUp ? (lang === "es" ? "Crear cuenta" : "Sign up") : (lang === "es" ? "Iniciar sesión" : "Sign in")}
+              </div>
+              <div style={{fontSize: 12, color: "var(--fg-3)", fontFamily: "var(--font-mono)", letterSpacing: "0.05em"}}>WORKSPACE.QUARK / HYBRID</div>
+            </div>
+          </div>
+
+          {step === "idle" ? (
+            <form onSubmit={submit}>
+              <div className="login-field">
+                <label>{t.email}</label>
+                <input type="email" placeholder={t.placeholder_e} value={email} onChange={e => setEmail(e.target.value)} autoFocus/>
+              </div>
+              <div className="login-field">
+                <label>{t.pass}</label>
+                <input type="password" placeholder={t.placeholder_p} value={pass} onChange={e => setPass(e.target.value)}/>
+              </div>
+
+              <button type="submit" className="btn btn-primary login-submit">
+                <IconK name="arrow" size={14}/>
+                {isSignUp ? t.create : t.enter}
+              </button>
+
+              {!isSignUp && (
+                <>
+                  <div className="login-divider"><span>{lang === "es" ? "o" : "or"}</span></div>
+
+                  <button type="button" className="btn login-sso" onClick={submit}>
+                    <IconK name="lock" size={14}/>
+                    {t.sso}
+                  </button>
+                </>
+              )}
+
+              <div className="login-links">
+                {!isSignUp && <a href="#">{t.forgot}</a>}
+                <span style={{color: "var(--fg-3)"}}>
+                  {isSignUp ? (lang === "es" ? "¿Ya tienes cuenta?" : "Already have an account?") : t.new}{" "}
+                  <a href="#" onClick={(e) => { e.preventDefault(); setIsSignUp(!isSignUp); }}>
+                    {isSignUp ? (lang === "es" ? "Iniciar sesión" : "Sign in") : t.create}
+                  </a>
+                </span>
+              </div>
+            </form>
+          ) : (
+            <div className="login-scan">
+              <div className="scan-trace">
+                <div className="line" style={{animationDelay: "0s"}}>
+                  <span className="ts">[0.0s]</span><span className="tag ok">auth</span><span>{t.scan1}</span>
+                </div>
+                <div className="line" style={{animationDelay: "0.5s"}}>
+                  <span className="ts">[0.5s]</span><span className="tag detect">load</span><span>{t.scan2}</span>
+                </div>
+                <div className="line" style={{animationDelay: "1.1s"}}>
+                  <span className="ts">[1.1s]</span><span className="tag detect">sync</span><span>{t.scan3}</span>
+                </div>
+                <div className="line" style={{animationDelay: "1.7s"}}>
+                  <span className="ts">[1.7s]</span><span className="tag ok">ok</span><span>{t.scan4}</span>
+                </div>
+              </div>
+              <div className="scan-bar"><div/></div>
+            </div>
+          )}
+        </div>
+
+        <div className="login-toolbar">
+          <div className="lang-toggle">
+            <button className={lang === "es" ? "active" : ""} onClick={() => onLangToggle("es")}>ES</button>
+            <button className={lang === "en" ? "active" : ""} onClick={() => onLangToggle("en")}>EN</button>
+          </div>
+          <span style={{fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--fg-3)", letterSpacing: "0.1em"}}>
+            © 2026 QUARK · {lang === "es" ? "TODOS LOS DERECHOS" : "ALL RIGHTS"}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// KANBAN — Trello-style board
+// ============================================
+
+
+const INITIAL_CARDS = {
+  es: {
+    backlog: [
+      { id: "c1", title: "Investigar opciones de OAuth refresh", proj: "Atlas", code: "AT-22", prio: "media", tags: ["backend", "research"], assignee: ["u2"], comments: 2, checks: { done: 0, total: 3 }, due: "2 mayo" },
+      { id: "c2", title: "Bocetar vista timeline alternativa", proj: "Quark", code: "QT-31", prio: "baja", tags: ["diseño"], assignee: ["u3"], comments: 0, checks: { done: 1, total: 2 }, due: null },
+      { id: "c3", title: "Documentar tokens oklch para devs", proj: "Orion", code: "OR-29", prio: "media", tags: ["docs"], assignee: ["u1", "u3"], comments: 4, checks: null, due: null },
+      { id: "c4", title: "Plantillas de email onboarding", proj: "Atlas", code: "AT-25", prio: "baja", tags: ["copy", "email"], assignee: [], comments: 0, checks: null, due: null },
+    ],
+    doing: [
+      { id: "c5", title: "Rediseñar paso 3 del onboarding", proj: "Atlas", code: "AT-12", prio: "alta", tags: ["diseño", "UX"], assignee: ["u1"], comments: 6, checks: { done: 2, total: 5 }, due: "29 abr", aiNote: "Bloquea AT-15" },
+      { id: "c6", title: "Refactor refresh token backend", proj: "Atlas", code: "AT-15", prio: "alta", tags: ["backend"], assignee: ["u2"], comments: 3, checks: { done: 1, total: 4 }, due: "30 abr", blocked: true, blockReason: "Espera AT-12" },
+      { id: "c7", title: "Componentes core del DS", proj: "Orion", code: "OR-18", prio: "media", tags: ["DS", "react"], assignee: ["u3", "u5"], comments: 1, checks: { done: 4, total: 8 }, due: null },
+    ],
+    review: [
+      { id: "c8", title: "BUG · /api/projects 500 con >100 items", proj: "Pavo", code: "PV-04", prio: "p0", tags: ["bug", "backend"], assignee: ["u2"], comments: 8, checks: { done: 3, total: 3 }, due: "hoy", aiNote: "Quick win — desbloquea 4" },
+      { id: "c9", title: "Test usabilidad onboarding (5 users)", proj: "Lyra", code: "LY-02", prio: "media", tags: ["research"], assignee: ["u4"], comments: 2, checks: { done: 5, total: 5 }, due: null, stuck: true, stuckDays: 3 },
+      { id: "c10", title: "Migración a oklch (PR #214)", proj: "Orion", code: "OR-29", prio: "media", tags: ["DS"], assignee: ["u3"], comments: 5, checks: null, due: "2 mayo" },
+    ],
+    done: [
+      { id: "c11", title: "Spec del API gateway de Pavo", proj: "Pavo", code: "PV-01", prio: "alta", tags: ["spec"], assignee: ["u2"], comments: 12, checks: { done: 6, total: 6 }, due: null },
+      { id: "c12", title: "Research base usuarios power", proj: "Atlas", code: "AT-08", prio: "media", tags: ["research"], assignee: ["u4"], comments: 3, checks: null, due: null },
+    ],
+  },
+  en: {
+    backlog: [
+      { id: "c1", title: "Research OAuth refresh options", proj: "Atlas", code: "AT-22", prio: "med", tags: ["backend", "research"], assignee: ["u2"], comments: 2, checks: { done: 0, total: 3 }, due: "May 2" },
+      { id: "c2", title: "Sketch alternative timeline view", proj: "Quark", code: "QT-31", prio: "low", tags: ["design"], assignee: ["u3"], comments: 0, checks: { done: 1, total: 2 }, due: null },
+      { id: "c3", title: "Document oklch tokens for devs", proj: "Orion", code: "OR-29", prio: "med", tags: ["docs"], assignee: ["u1", "u3"], comments: 4, checks: null, due: null },
+      { id: "c4", title: "Onboarding email templates", proj: "Atlas", code: "AT-25", prio: "low", tags: ["copy", "email"], assignee: [], comments: 0, checks: null, due: null },
+    ],
+    doing: [
+      { id: "c5", title: "Redesign onboarding step 3", proj: "Atlas", code: "AT-12", prio: "high", tags: ["design", "UX"], assignee: ["u1"], comments: 6, checks: { done: 2, total: 5 }, due: "Apr 29", aiNote: "Blocks AT-15" },
+      { id: "c6", title: "Refactor refresh token backend", proj: "Atlas", code: "AT-15", prio: "high", tags: ["backend"], assignee: ["u2"], comments: 3, checks: { done: 1, total: 4 }, due: "Apr 30", blocked: true, blockReason: "Waiting AT-12" },
+      { id: "c7", title: "Core DS components", proj: "Orion", code: "OR-18", prio: "med", tags: ["DS", "react"], assignee: ["u3", "u5"], comments: 1, checks: { done: 4, total: 8 }, due: null },
+    ],
+    review: [
+      { id: "c8", title: "BUG · /api/projects 500 with >100 items", proj: "Pavo", code: "PV-04", prio: "p0", tags: ["bug", "backend"], assignee: ["u2"], comments: 8, checks: { done: 3, total: 3 }, due: "today", aiNote: "Quick win — unblocks 4" },
+      { id: "c9", title: "Onboarding usability test (5 users)", proj: "Lyra", code: "LY-02", prio: "med", tags: ["research"], assignee: ["u4"], comments: 2, checks: { done: 5, total: 5 }, due: null, stuck: true, stuckDays: 3 },
+      { id: "c10", title: "Migration to oklch (PR #214)", proj: "Orion", code: "OR-29", prio: "med", tags: ["DS"], assignee: ["u3"], comments: 5, checks: null, due: "May 2" },
+    ],
+    done: [
+      { id: "c11", title: "Pavo API gateway spec", proj: "Pavo", code: "PV-01", prio: "high", tags: ["spec"], assignee: ["u2"], comments: 12, checks: { done: 6, total: 6 }, due: null },
+      { id: "c12", title: "Power-user research base", proj: "Atlas", code: "AT-08", prio: "med", tags: ["research"], assignee: ["u4"], comments: 3, checks: null, due: null },
+    ],
+  }
+};
+
+
+
+function Avatar({ user, size = 22, ring = false }) {
+  if (!user) return null;
+  return (
+    <div className="kb-avatar" style={{
+      width: size, height: size,
+      fontSize: Math.round(size * 0.4),
+      background: `linear-gradient(135deg, var(--${user.color}), var(--violet))`,
+      boxShadow: ring ? `0 0 0 2px var(--bg-1)` : "none"
+    }} title={user.name}>{user.initials}</div>
+  );
+}
+
+function AvatarStack({ ids, size = 22, max = 3, teammates = [] }) {
+  const users = ids.map(id => teammates.find(u => u.id === id)).filter(Boolean);
+  const shown = users.slice(0, max);
+  const extra = users.length - shown.length;
+  return (
+    <div className="kb-avatar-stack">
+      {shown.map((u, i) => <Avatar key={u.id} user={u} size={size} ring={true}/>)}
+      {extra > 0 && (
+        <div className="kb-avatar more" style={{width: size, height: size, fontSize: Math.round(size * 0.4)}}>+{extra}</div>
+      )}
+    </div>
+  );
+}
+
+function AssignDropdown({ open, ids, onChange, onClose, teammates = [] }) {
+  if (!open) return null;
+  return (
+    <div className="kb-assign-pop" onClick={e => e.stopPropagation()}>
+      <div className="kb-assign-head">
+        <span style={{fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.12em", color: "var(--fg-3)"}}>ASSIGN</span>
+        <button className="btn-ghost" onClick={onClose} style={{background: "none", border: "none", color: "var(--fg-3)", cursor: "pointer", fontSize: 14}}>×</button>
+      </div>
+      {teammates.map(u => {
+        const sel = ids.includes(u.id);
+        return (
+          <div key={u.id} className={`kb-assign-row ${sel ? "sel" : ""}`}
+            onClick={() => onChange(sel ? ids.filter(x => x !== u.id) : [...ids, u.id])}>
+            <Avatar user={u} size={22}/>
+            <span>{u.name}</span>
+            {sel && <span style={{marginLeft: "auto", color: "var(--violet-hi)"}}><IconK name="check" size={12}/></span>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function KanbanCard({ card, onAssign, onClick, teammates = [] }) {
+  const [popOpen, setPopOpen] = useStateK(false);
+  const prioColor = (p) => {
+    if (p === "p0" || p === "alta" || p === "high") return "rose";
+    if (p === "media" || p === "med") return "amber";
+    return "";
+  };
+  return (
+    <div className={`kb-card ${card.blocked ? "blocked" : ""} ${card.stuck ? "stuck" : ""}`}
+      onClick={onClick}
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.setData("text/cardId", card.id);
+        e.currentTarget.classList.add("dragging");
+      }}
+      onDragEnd={(e) => e.currentTarget.classList.remove("dragging")}>
+
+      {card.blocked && (
+        <div className="kb-card-banner blocked-banner">
+          <IconK name="warn" size={11}/> {card.blockReason}
+        </div>
+      )}
+      {card.stuck && (
+        <div className="kb-card-banner stuck-banner">
+          <IconK name="warn" size={11}/> {card.stuckDays}d {card.stuckDays === 1 ? "" : "+"} en review
+        </div>
+      )}
+      {card.aiNote && (
+        <div className="kb-card-banner ai-banner">
+          <IconK name="sparkle" size={11}/> {card.aiNote}
+        </div>
+      )}
+
+      <div className="kb-card-head">
+        <span className="kb-card-code">{card.code}</span>
+        <span className={`pill ${prioColor(card.prio)}`}><span className="dot"></span>{card.prio}</span>
+      </div>
+
+      <div className="kb-card-title">{card.title}</div>
+
+      <div className="kb-card-tags">
+        {card.tags.map(tag => <span key={tag} className="kb-tag">#{tag}</span>)}
+      </div>
+
+      <div className="kb-card-foot">
+        <div className="kb-card-meta">
+          {card.checks && (
+            <span className="kb-meta-item">
+              <IconK name="check" size={11}/>
+              <span>{card.checks.done}/{card.checks.total}</span>
+            </span>
+          )}
+          {card.comments > 0 && (
+            <span className="kb-meta-item">
+              <IconK name="capture" size={11}/>
+              <span>{card.comments}</span>
+            </span>
+          )}
+          {card.due && (
+            <span className={`kb-meta-item ${card.due === "hoy" || card.due === "today" ? "due-today" : ""}`}>
+              <IconK name="bell" size={11}/>
+              <span>{card.due}</span>
+            </span>
+          )}
+        </div>
+        <div className="kb-card-assignees" onClick={(e) => { e.stopPropagation(); setPopOpen(o => !o); }}>
+          {card.assignee.length === 0 ? (
+            <div className="kb-avatar empty" title="Asignar">+</div>
+          ) : (
+            <AvatarStack ids={card.assignee} size={22} teammates={teammates}/>
+          )}
+          <AssignDropdown
+            open={popOpen}
+            ids={card.assignee}
+            onChange={(ids) => onAssign(card.id, ids)}
+            onClose={() => setPopOpen(false)}
+            teammates={teammates}/>
+        </div>
+      </div>
+
+      {card.checks && (
+        <div className="kb-card-progress">
+          <div style={{width: `${(card.checks.done / card.checks.total) * 100}%`}}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CardDetail({ card, onClose, onAssign, onUpdate, lang }) {
+  if (!card) return null;
+  const t = lang === "es" ? {
+    desc: "Descripción", checks: "Subtareas", comments: "Comentarios", activity: "Actividad",
+    addComment: "Añadir un comentario…", post: "Publicar",
+    assignees: "Asignados", priority: "Prioridad", due: "Fecha límite", project: "Proyecto",
+    aiAdvice: "Recomendación IA", close: "Cerrar"
+  } : {
+    desc: "Description", checks: "Subtasks", comments: "Comments", activity: "Activity",
+    addComment: "Add a comment…", post: "Post",
+    assignees: "Assignees", priority: "Priority", due: "Due", project: "Project",
+    aiAdvice: "AI advice", close: "Close"
+  };
+
+  const sampleChecks = card.checks ? [
+    { done: card.checks.done > 0, label: lang === "es" ? "Recopilar requisitos del stakeholder" : "Gather stakeholder requirements" },
+    { done: card.checks.done > 1, label: lang === "es" ? "Bocetar 2 alternativas" : "Sketch 2 alternatives" },
+    { done: card.checks.done > 2, label: lang === "es" ? "Validar con equipo" : "Validate with team" },
+    { done: card.checks.done > 3, label: lang === "es" ? "Implementar versión final" : "Implement final version" },
+    { done: card.checks.done > 4, label: lang === "es" ? "QA y revisión" : "QA and review" },
+  ].slice(0, card.checks.total) : [];
+
+  const sampleComments = [
+    { user: TEAMMATES[1], text: lang === "es" ? "Empecé con un proto en Figma. Subo link cuando tenga algo." : "Started with a proto in Figma. Will share link when I have something.", time: "hace 2h" },
+    { user: TEAMMATES[0], text: lang === "es" ? "Recuerda que el endpoint cambia, alinéalo con backend." : "Remember the endpoint changes — align with backend.", time: "hace 4h" },
+    { user: TEAMMATES[2], text: lang === "es" ? "+1, podemos hacer pair tomorrow." : "+1, we can pair tomorrow.", time: "hace 6h" },
+  ].slice(0, Math.min(card.comments || 0, 3));
+
+  return (
+    <>
+      <div className="kb-modal-overlay" onClick={onClose}/>
+      <div className="kb-modal">
+        <div className="kb-modal-head">
+          <div>
+            <div style={{display: "flex", alignItems: "center", gap: 8, marginBottom: 6}}>
+              <span className="kb-card-code">{card.code}</span>
+              <span className="pill violet"><span className="dot"></span>{card.proj}</span>
+              <span className={`pill ${card.prio === "p0" || card.prio === "alta" || card.prio === "high" ? "rose" : "amber"}`}><span className="dot"></span>{card.prio}</span>
+              {card.due && <span className="pill"><IconK name="bell" size={10}/>{card.due}</span>}
+            </div>
+            <h2 style={{fontSize: 20, fontWeight: 500, letterSpacing: "-0.01em"}}>{card.title}</h2>
+          </div>
+          <button onClick={onClose} className="btn-ghost" style={{background: "none", border: "none", color: "var(--fg-2)", cursor: "pointer", fontSize: 22, lineHeight: 1, padding: 4}}>×</button>
+        </div>
+
+        <div className="kb-modal-body">
+          <div className="kb-modal-main">
+            {card.aiNote && (
+              <div className="kb-ai-callout">
+                <div style={{display: "flex", alignItems: "center", gap: 8, marginBottom: 6}}>
+                  <span style={{
+                    width: 22, height: 22, borderRadius: 6,
+                    background: "var(--violet-fog)", border: "1px solid var(--line-strong)",
+                    display: "grid", placeItems: "center", color: "var(--violet-hi)"
+                  }}><IconK name="sparkle" size={12}/></span>
+                  <span style={{fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.12em", color: "var(--violet-hi)"}}>{t.aiAdvice}</span>
+                </div>
+                <div style={{fontSize: 13, color: "var(--fg-1)", lineHeight: 1.5}}>{card.aiNote}. {lang === "es" ? "Considera priorizar esta tarea hoy para liberar capacidad downstream." : "Consider prioritizing this task today to free downstream capacity."}</div>
+              </div>
+            )}
+
+            <div className="kb-section">
+              <h4>{t.desc}</h4>
+              <p style={{fontSize: 13, color: "var(--fg-1)", lineHeight: 1.6}}>
+                {lang === "es"
+                  ? "Esta tarea forma parte del flujo de onboarding. Hay que asegurar que el handoff a backend quede claro y que las dependencias estén mapeadas antes de mover a Doing."
+                  : "This task is part of the onboarding flow. Make sure the handoff to backend is clear and that dependencies are mapped before moving to Doing."}
+              </p>
+            </div>
+
+            {sampleChecks.length > 0 && (
+              <div className="kb-section">
+                <h4>{t.checks} <span style={{color: "var(--fg-3)", marginLeft: 6}}>{card.checks.done}/{card.checks.total}</span></h4>
+                <div className="kb-progress-bar"><div style={{width: `${(card.checks.done / card.checks.total) * 100}%`}}/></div>
+                <div style={{marginTop: 12}}>
+                  {sampleChecks.map((ch, i) => (
+                    <div key={i} className="kb-check-row">
+                      <div className={`kb-check ${ch.done ? "on" : ""}`}>
+                        {ch.done && <IconK name="check" size={10}/>}
+                      </div>
+                      <span style={{textDecoration: ch.done ? "line-through" : "none", color: ch.done ? "var(--fg-3)" : "var(--fg-1)"}}>{ch.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="kb-section">
+              <h4>{t.comments}</h4>
+              <div className="kb-comment-input">
+                <Avatar user={teammates[0] || fbUser("You", "violet")} size={28}/>
+                <input type="text" placeholder={t.addComment}/>
+                <button className="btn btn-primary" style={{padding: "6px 12px", fontSize: 12}}>{t.post}</button>
+              </div>
+              {sampleComments.map((c, i) => (
+                <div key={i} className="kb-comment">
+                  <Avatar user={c.user} size={28}/>
+                  <div className="kb-comment-body">
+                    <div style={{display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4}}>
+                      <span style={{fontSize: 12, fontWeight: 500}}>{c.user.name}</span>
+                      <span style={{fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--fg-3)"}}>{c.time}</span>
+                    </div>
+                    <div style={{fontSize: 13, color: "var(--fg-1)"}}>{c.text}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="kb-modal-side">
+            <div className="kb-side-row">
+              <div className="kb-side-label">{t.assignees}</div>
+              <div className="kb-side-assignees">
+                {card.assignee.map(id => {
+                  const u = teammates.find(x => x.id === id);
+                  return u ? (
+                    <div key={id} className="kb-side-user">
+                      <Avatar user={u} size={22}/>
+                      <span>{u.name}</span>
+                      <button onClick={() => onAssign(card.id, card.assignee.filter(x => x !== id))} style={{marginLeft: "auto", background: "none", border: "none", color: "var(--fg-3)", cursor: "pointer"}}>×</button>
+                    </div>
+                  ) : null;
+                })}
+                <div style={{display: "flex", flexWrap: "wrap", gap: 4, marginTop: 8}}>
+                  {teammates.filter(u => !card.assignee.includes(u.id)).map(u => (
+                    <button key={u.id} className="kb-add-assignee" onClick={() => onAssign(card.id, [...card.assignee, u.id])} title={lang === "es" ? `Asignar a ${u.name}` : `Assign to ${u.name}`}>
+                      <Avatar user={u} size={20}/>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="kb-side-row">
+              <div className="kb-side-label">{t.priority}</div>
+              <span className={`pill ${card.prio === "p0" || card.prio === "alta" || card.prio === "high" ? "rose" : "amber"}`}><span className="dot"></span>{card.prio}</span>
+            </div>
+            <div className="kb-side-row">
+              <div className="kb-side-label">{t.project}</div>
+              <span className="pill violet"><span className="dot"></span>{card.proj}</span>
+            </div>
+            {card.due && (
+              <div className="kb-side-row">
+                <div className="kb-side-label">{t.due}</div>
+                <span className={`pill ${card.due === "hoy" || card.due === "today" ? "rose" : ""}`}><IconK name="bell" size={10}/>{card.due}</span>
+              </div>
+            )}
+            <div className="kb-side-row">
+              <div className="kb-side-label">Tags</div>
+              <div style={{display: "flex", flexWrap: "wrap", gap: 4}}>
+                {card.tags.map(tag => <span key={tag} className="kb-tag">#{tag}</span>)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function Kanban({ t, lang, project }) {
+  const [board, setBoard] = useStateK({ backlog: [], doing: [], review: [], done: [] });
+  const [filter, setFilter] = useStateK("all"); // all | mine | unassigned
+  const [detail, setDetail] = useStateK(null);
+  const [showAdd, setShowAdd] = useStateK(null);
+  const [newTitle, setNewTitle] = useStateK("");
+  const [teammates, setTeammates] = useStateK([]);
+
+  const loadTeammates = React.useCallback(async () => {
+    const { data } = await supabase.from('profiles').select('*');
+    if (data) {
+      setTeammates(data.map(p => ({
+        id: p.id,
+        name: p.name,
+        color: p.color,
+        initials: (p.name || "U").slice(0, 2).toUpperCase()
+      })));
+    }
+  }, []);
+
+  const loadTasks = React.useCallback(async () => {
+    const { data, error } = await supabase.from('tasks').select('*').eq('project_name', project);
+    if (!error && data) {
+      const b = { backlog: [], doing: [], review: [], done: [] };
+      data.forEach(task => {
+        if (b[task.status]) {
+          b[task.status].push({
+            id: task.id, title: task.title, proj: task.project_name, code: "TSK", 
+            prio: task.priority, tags: task.tags || [], assignee: task.assignee_ids || [], 
+            comments: 0, checks: null, due: task.due, blocked: task.blocked, 
+            blockReason: task.block_reason, stuck: task.stuck, stuckDays: task.stuck_days, 
+            aiNote: task.ai_note
+          });
+        }
+      });
+      setBoard(b);
+    }
+  }, [project]);
+
+  useEffectK(() => {
+    loadTasks();
+    loadTeammates();
+    const chanTasks = supabase.channel('tasks-channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks', filter: `project_name=eq.${project}` }, () => {
+         loadTasks();
+      }).subscribe();
+    const chanProf = supabase.channel('profiles-channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+         loadTeammates();
+      }).subscribe();
+    return () => { 
+      supabase.removeChannel(chanTasks); 
+      supabase.removeChannel(chanProf);
+    };
+  }, [project, loadTasks, loadTeammates]);
+
+  const cols = [
+    { id: "backlog", title: lang === "es" ? "Backlog" : "Backlog", sub: lang === "es" ? "Por hacer" : "To do", accent: "var(--fg-3)" },
+    { id: "doing", title: lang === "es" ? "Doing" : "Doing", sub: lang === "es" ? "En progreso" : "In progress", accent: "var(--violet)" },
+    { id: "review", title: "Review", sub: lang === "es" ? "Revisión" : "In review", accent: "var(--amber)" },
+    { id: "done", title: "Done", sub: lang === "es" ? "Completado" : "Completed", accent: "var(--green)" },
+  ];
+
+  const moveCard = async (cardId, fromCol, toCol) => {
+    if (fromCol === toCol) return;
+    setBoard(b => {
+      const card = b[fromCol].find(c => c.id === cardId);
+      if (!card) return b;
+      const cleaned = { ...card };
+      if (toCol === "done") { delete cleaned.blocked; delete cleaned.stuck; }
+      return {
+        ...b,
+        [fromCol]: b[fromCol].filter(c => c.id !== cardId),
+        [toCol]: [...b[toCol], cleaned]
+      };
+    });
+    
+    const updates = { status: toCol };
+    if (toCol === "done") { updates.blocked = false; updates.stuck = false; }
+    await supabase.from('tasks').update(updates).eq('id', cardId);
+  };
+
+  const updateAssignee = async (cardId, ids) => {
+    setBoard(b => {
+      const next = {};
+      for (const colId of Object.keys(b)) {
+        next[colId] = b[colId].map(c => c.id === cardId ? { ...c, assignee: ids } : c);
+      }
+      return next;
+    });
+    if (detail && detail.id === cardId) setDetail(d => ({ ...d, assignee: ids }));
+    await supabase.from('tasks').update({ assignee_ids: ids }).eq('id', cardId);
+  };
+
+  const onDrop = (e, colId) => {
+    const cardId = e.dataTransfer.getData("text/cardId");
+    if (!cardId) return;
+    const fromCol = Object.keys(board).find(k => board[k].some(c => c.id === cardId));
+    if (fromCol) moveCard(cardId, fromCol, colId);
+    e.currentTarget.classList.remove("over");
+  };
+
+  const matchFilter = (c) => {
+    if (filter === "mine") return c.assignee.includes("u1");
+    if (filter === "unassigned") return c.assignee.length === 0;
+    return true;
+  };
+
+  const addCard = async (colId) => {
+    if (!newTitle.trim()) { setShowAdd(null); return; }
+    const title = newTitle.trim();
+    setNewTitle("");
+    setShowAdd(null);
+    
+    const { data: userData } = await supabase.auth.getUser();
+    const uid = userData?.user?.id;
+    
+    await supabase.from('tasks').insert({
+      title: title,
+      project_name: project,
+      status: colId,
+      priority: lang === "es" ? "media" : "med",
+      created_by: uid || null
+    });
+  };
+
+  // Detect bottleneck (>2 in review or stuck cards)
+  const reviewCount = board.review.length;
+  const stuckCount = board.review.filter(c => c.stuck).length;
+
+  return (
+    <div className="page kb-page">
+      <div className="page-head">
+        <div>
+          <h1>{lang === "es" ? "Tablero" : "Board"} <em>Kanban</em></h1>
+          <p>{lang === "es"
+            ? "Arrastra tarjetas entre columnas. Asigna compañeros con un click. La IA marca bloqueos, quick wins y cuellos de botella en tiempo real."
+            : "Drag cards between columns. Assign teammates with one click. AI flags blockers, quick wins and bottlenecks in real time."}</p>
+        </div>
+        <button 
+          className="btn btn-primary" 
+          style={{height: 36, whiteSpace: "nowrap"}}
+          onClick={() => {
+            const url = window.location.origin + window.location.pathname + "?project=" + encodeURIComponent(project);
+            navigator.clipboard.writeText(url);
+            alert(lang === "es" ? "¡URL copiada al portapapeles!" : "URL copied to clipboard!");
+          }}
+        >
+          <IconK name="link" size={14}/>
+          {lang === "es" ? "Compartir" : "Share"}
+        </button>
+      </div>
+
+      <div className="kb-toolbar">
+        <div className="seg">
+          <button className={filter === "all" ? "active" : ""} onClick={() => setFilter("all")}>{lang === "es" ? "Todas" : "All"}</button>
+          <button className={filter === "mine" ? "active" : ""} onClick={() => setFilter("mine")}>{lang === "es" ? "Mis tareas" : "Mine"}</button>
+          <button className={filter === "unassigned" ? "active" : ""} onClick={() => setFilter("unassigned")}>{lang === "es" ? "Sin asignar" : "Unassigned"}</button>
+        </div>
+        <div className="kb-team">
+          <span style={{fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--fg-3)", letterSpacing: "0.1em", marginRight: 4}}>{lang === "es" ? "EQUIPO" : "TEAM"}</span>
+          {teammates.map(u => <Avatar key={u.id} user={u} size={24} ring={true}/>)}
+          <button className="kb-add-team"><IconK name="plus" size={12}/></button>
+        </div>
+        {(reviewCount >= 3 || stuckCount > 0) && (
+          <div className="kb-ai-pill">
+            <span style={{
+              width: 18, height: 18, borderRadius: 4,
+              background: "var(--amber-fog)", border: "1px solid var(--amber)",
+              display: "grid", placeItems: "center", color: "var(--amber)"
+            }}><IconK name="warn" size={11}/></span>
+            <span>{lang === "es"
+              ? `Cuello de botella en Review · ${reviewCount} tarjetas, ${stuckCount} estancadas`
+              : `Bottleneck in Review · ${reviewCount} cards, ${stuckCount} stuck`}</span>
+            <span className="kb-ai-cta">{lang === "es" ? "Resolver" : "Resolve"} →</span>
+          </div>
+        )}
+      </div>
+
+      <div className="kb-board">
+        {cols.map(col => {
+          const cards = board[col.id].filter(matchFilter);
+          return (
+            <div key={col.id} className="kb-col"
+              onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("over"); }}
+              onDragLeave={(e) => e.currentTarget.classList.remove("over")}
+              onDrop={(e) => onDrop(e, col.id)}>
+              <div className="kb-col-head">
+                <span className="kb-col-dot" style={{background: col.accent, boxShadow: `0 0 8px ${col.accent}`}}/>
+                <div>
+                  <div className="kb-col-title">{col.title}</div>
+                  <div className="kb-col-sub">{col.sub} · {cards.length}</div>
+                </div>
+                <button className="kb-col-add" onClick={() => setShowAdd(col.id)} title={lang === "es" ? "Añadir tarjeta" : "Add card"}>
+                  <IconK name="plus" size={14}/>
+                </button>
+              </div>
+
+              <div className="kb-col-body">
+                {showAdd === col.id && (
+                  <div className="kb-card kb-card-new">
+                    <textarea
+                      autoFocus
+                      placeholder={lang === "es" ? "Título de la tarjeta…" : "Card title…"}
+                      value={newTitle}
+                      onChange={e => setNewTitle(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addCard(col.id); }
+                        if (e.key === "Escape") { setShowAdd(null); setNewTitle(""); }
+                      }}
+                    />
+                    <div style={{display: "flex", gap: 6, marginTop: 8}}>
+                      <button className="btn btn-primary" style={{padding: "5px 10px", fontSize: 12}} onClick={() => addCard(col.id)}>
+                        {lang === "es" ? "Añadir" : "Add"}
+                      </button>
+                      <button className="btn btn-ghost" style={{padding: "5px 10px", fontSize: 12}} onClick={() => { setShowAdd(null); setNewTitle(""); }}>
+                        {lang === "es" ? "Cancelar" : "Cancel"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {cards.map(card => (
+                  <KanbanCard key={card.id} card={card}
+                    onAssign={updateAssignee}
+                    onClick={() => setDetail(card)}
+                    teammates={teammates}/>
+                ))}
+                {cards.length === 0 && showAdd !== col.id && (
+                  <div className="kb-empty">{lang === "es" ? "Vacío" : "Empty"}</div>
+                )}
+              </div>
+
+              {showAdd !== col.id && (
+                <button className="kb-add-row" onClick={() => setShowAdd(col.id)}>
+                  <IconK name="plus" size={12}/>
+                  {lang === "es" ? "Añadir tarjeta" : "Add a card"}
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <CardDetail card={detail} onClose={() => setDetail(null)}
+        onAssign={updateAssignee}
+        onUpdate={() => {}}
+        lang={lang}
+        teammates={teammates}/>
+    </div>
+  );
+}
+
+window.Login = Login;
+window.Kanban = Kanban;
+
+
+//----
+
+/* ============================================
+   QUARK TASKING — App shell + nav + state
+   ============================================ */
+
+const useStateApp = React.useState; const useEffectApp = React.useEffect;
+const QT3 = window.QT;
+const IconApp = QT3.Icon;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "theme": "dark",
+  "lang": "es",
+  "density": "comfortable",
+  "aiVerbose": "med"
+}/*EDITMODE-END*/;
+
+function App() {
+  const Cosmos = window.Cosmos;
+  const Dashboard = window.Dashboard;
+  const Capture = window.Capture;
+  const Roadmap = window.Roadmap;
+  const Optimize = window.Optimize;
+  const Settings = window.Settings;
+  const TweaksPanel = window.TweaksPanel;
+  const TweakSection = window.TweakSection;
+  const TweakRadio = window.TweakRadio;
+  const BrandMark = QT3.BrandMark;
+  const tw = (window.useTweaks ? window.useTweaks(TWEAK_DEFAULTS) : null);
+  const tweaks = tw ? tw[0] : TWEAK_DEFAULTS;
+  const setTweak = tw ? tw[1] : (() => {});
+
+  const [page, setPage] = useStateApp("dashboard");
+  const [user, setUser] = useStateApp(null);
+  const [project, setProject] = useStateApp(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("project") || "Quark";
+  });
+  const lang = tweaks.lang || "es";
+  const theme = tweaks.theme || "dark";
+  const density = tweaks.density || "comfortable";
+  const aiVerbose = tweaks.aiVerbose || "med";
+
+  useEffectApp(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
+
+  // Check Supabase session
+  useEffectApp(() => {
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session && session.user) {
+          setUser({
+            id: session.user.id,
+            email: session.user.email,
+            name: session.user.user_metadata?.name || session.user.email.split("@")[0]
+          });
+        }
+      } catch (err) {
+        console.error("Session check error:", err);
+      }
+    };
+    checkSession();
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+      } else if (session && session.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.user_metadata?.name || session.user.email.split("@")[0]
+        });
+      }
+    });
+
+    return () => subscription?.unsubscribe();
+  }, []);
+
+  const t = QT3.I18N[lang];
+
+  const navItems = [
+    { id: "dashboard", label: t.nav_dashboard, icon: "dashboard" },
+    { id: "board",     label: lang === "es" ? "Tablero" : "Board", icon: "roadmap", badge: lang === "es" ? "NUEVO" : "NEW" },
+    { id: "capture",   label: t.nav_capture,   icon: "capture", badge: "AI" },
+    { id: "roadmap",   label: t.nav_roadmap,   icon: "roadmap" },
+    { id: "optimize",  label: t.nav_optimize,  icon: "optimize", badge: "5" },
+    { id: "settings",  label: t.nav_settings,  icon: "settings" },
+  ];
+
+  const projectsNav = [
+    { id: "p1", code: "QU", name: project, color: "violet" },
+    { id: "p2", code: "AT", name: "Atlas", color: "cyan" }
+  ];
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  };
+
+  const crumb = {
+    dashboard: lang === "es" ? "Workspace · Dashboard" : "Workspace · Dashboard",
+    board: lang === "es" ? "Workspace · Tablero Kanban" : "Workspace · Kanban Board",
+    capture: lang === "es" ? "Workspace · Capturar" : "Workspace · Capture",
+    roadmap: lang === "es" ? "Workspace · Roadmap" : "Workspace · Roadmap",
+    optimize: lang === "es" ? "Workspace · Optimización IA" : "Workspace · AI Optimization",
+    settings: lang === "es" ? "Workspace · Ajustes" : "Workspace · Settings",
+  }[page] || "Quark Tasking";
+  document.title = crumb;
+
+  if (!user && window.Login) {
+    return <window.Login lang={lang} onLangToggle={(v) => setTweak("lang", v)} onLogin={(u) => setUser(u)}/>;
+  }
+
+  return (
+    <>
+      <Cosmos/>
+      <div className="app">
+        <aside className="sidebar">
+          <div className="brand">
+            <div className="brand-mark"><BrandMark/></div>
+            <div>
+              <div className="brand-name">{t.appName}</div>
+              <div className="brand-sub">{t.appSub}</div>
+            </div>
+          </div>
+
+          <div className="nav-section">{t.nav_workspace}</div>
+          {navItems.map(n => (
+            <div key={n.id}
+              className={`nav-item ${page === n.id ? "active" : ""}`}
+              onClick={() => setPage(n.id)}>
+              <span className="icon"><IconApp name={n.icon} size={15}/></span>
+              <span>{n.label}</span>
+              {n.badge && <span className="badge">{n.badge}</span>}
+            </div>
+          ))}
+
+          <div className="nav-section">{t.nav_projects}</div>
+          {projectsNav.map(p => (
+            <div key={p.id} className="nav-item" style={{paddingLeft: 8}}>
+              <span className="icon" style={{
+                width: 16, height: 16, borderRadius: 4,
+                background: `var(--${p.color}-fog)`,
+                color: `var(--${p.color === "violet" ? "violet-hi" : p.color})`,
+                fontFamily: "var(--font-mono)", fontSize: 9, fontWeight: 600,
+                border: "1px solid var(--line-faint)"
+              }}>{p.code}</span>
+              <span style={{fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"}}>{p.name}</span>
+            </div>
+          ))}
+          <div className="nav-item" style={{color: "var(--fg-3)", marginTop: 4}}>
+            <span className="icon"><IconApp name="plus" size={14}/></span>
+            <span style={{fontSize: 12}}>{lang === "es" ? "Nuevo proyecto" : "New project"}</span>
+          </div>
+
+          <div style={{flex: 1}}/>
+
+          <div style={{
+            padding: 10,
+            background: "var(--bg-1)",
+            border: "1px solid var(--line-faint)",
+            borderRadius: "var(--r-md)",
+            fontSize: 11,
+            color: "var(--fg-2)",
+            lineHeight: 1.5
+          }}>
+            <div style={{
+              display: "flex", alignItems: "center", gap: 6,
+              fontFamily: "var(--font-mono)", fontSize: 10,
+              color: "var(--violet-hi)", letterSpacing: "0.1em",
+              textTransform: "uppercase", marginBottom: 6
+            }}>
+              <span className="dot" style={{display: "inline-block", width: 5, height: 5, background: "var(--violet)", borderRadius: "50%", boxShadow: "0 0 6px var(--violet)"}}></span>
+              {lang === "es" ? "IA APRENDIENDO" : "AI LEARNING"}
+            </div>
+            <div>
+              {lang === "es"
+                ? "47 días observando tu ritmo. Confianza del modelo: 0.84."
+                : "47 days observing your rhythm. Model confidence: 0.84."}
+            </div>
+          </div>
+        </aside>
+
+        <main className="main">
+          <header className="topbar">
+            <div className="crumb"><b>{crumb}</b></div>
+            <div className="topbar-spacer"/>
+            <div className="search">
+              <IconApp name="search" size={12}/>
+              <span>{t.search}</span>
+              <kbd>⌘K</kbd>
+            </div>
+            <div className="lang-toggle">
+              <button className={lang === "es" ? "active" : ""} onClick={() => setTweak("lang", "es")}>ES</button>
+              <button className={lang === "en" ? "active" : ""} onClick={() => setTweak("lang", "en")}>EN</button>
+            </div>
+            <button className="btn" style={{padding: "5px 10px"}}
+              onClick={() => setTweak("theme", theme === "dark" ? "light" : "dark")}>
+              <IconApp name={theme === "dark" ? "eye" : "lock"} size={13}/>
+              <span style={{fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase"}}>
+                {theme === "dark" ? (lang === "es" ? "Oscuro" : "Dark") : (lang === "es" ? "Claro" : "Light")}
+              </span>
+            </button>
+            <div className="user-pill" onClick={handleLogout} title={lang === "es" ? "Cerrar sesión" : "Sign out"} style={{cursor: "pointer"}}>
+              <div className="avatar">{user ? (user.name || "M").slice(0,2).toUpperCase() : "MA"}</div>
+              <span style={{fontSize: 12}}>{user ? (user.name || "user").toLowerCase() : "user"}</span>
+            </div>
+          </header>
+
+          {page === "dashboard" && Dashboard && <Dashboard t={t}/>}
+          {page === "board" && window.Kanban && <window.Kanban t={t} lang={lang} project={project} />}
+          {page === "capture" && Capture && <Capture t={t} lang={lang}/>}
+          {page === "roadmap" && Roadmap && <Roadmap t={t} lang={lang}/>}
+          {page === "optimize" && Optimize && <Optimize t={t} lang={lang}/>}
+          {page === "settings" && Settings && <Settings t={t} lang={lang}
+            theme={theme} setTheme={(v) => setTweak("theme", v)}
+            density={density} setDensity={(v) => setTweak("density", v)}
+            aiVerbose={aiVerbose} setAiVerbose={(v) => setTweak("aiVerbose", v)}/>}
+        </main>
+      </div>
+
+      {/* Tweaks panel */}
+      {TweaksPanel && (
+        <TweaksPanel title="Tweaks">
+          <TweakSection title={lang === "es" ? "Apariencia" : "Appearance"}>
+            <TweakRadio
+              label={lang === "es" ? "Tema" : "Theme"}
+              value={theme}
+              onChange={(v) => setTweak("theme", v)}
+              options={[
+                { value: "dark", label: lang === "es" ? "Oscuro" : "Dark" },
+                { value: "light", label: lang === "es" ? "Claro" : "Light" }
+              ]}/>
+            <TweakRadio
+              label={lang === "es" ? "Idioma" : "Language"}
+              value={lang}
+              onChange={(v) => setTweak("lang", v)}
+              options={[
+                { value: "es", label: "ES" },
+                { value: "en", label: "EN" }
+              ]}/>
+          </TweakSection>
+          <TweakSection title={lang === "es" ? "Comportamiento" : "Behavior"}>
+            <TweakRadio
+              label={lang === "es" ? "Densidad" : "Density"}
+              value={density}
+              onChange={(v) => setTweak("density", v)}
+              options={[
+                { value: "comfortable", label: lang === "es" ? "Cómodo" : "Comfort" },
+                { value: "compact", label: lang === "es" ? "Compacto" : "Compact" }
+              ]}/>
+            <TweakRadio
+              label={lang === "es" ? "Verbosidad IA" : "AI verbosity"}
+              value={aiVerbose}
+              onChange={(v) => setTweak("aiVerbose", v)}
+              options={[
+                { value: "low", label: lang === "es" ? "Min" : "Min" },
+                { value: "med", label: lang === "es" ? "Med" : "Med" },
+                { value: "high", label: lang === "es" ? "Alta" : "High" }
+              ]}/>
+          </TweakSection>
+        </TweaksPanel>
+      )}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+
+  </script>
+</body>
+</html>

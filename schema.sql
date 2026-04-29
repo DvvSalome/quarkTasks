@@ -121,3 +121,14 @@ create policy "comments_insert" on public.task_comments for insert to authentica
 alter publication supabase_realtime add table public.tasks;
 alter publication supabase_realtime add table public.task_comments;
 alter publication supabase_realtime add table public.profiles;
+
+-- ============================================================
+-- Colaboración tipo tablero (Trello): cualquier usuario
+-- autenticado puede eliminar tarjetas del workspace compartido.
+-- Las cuentas siguen siendo individuales (auth.users);
+-- lo compartido es el nombre de proyecto (project_name).
+-- Ejecuta en SQL Editor si ya aplicaste el esquema anterior.
+-- ============================================================
+drop policy if exists "tasks_delete" on public.tasks;
+create policy "tasks_delete" on public.tasks
+  for delete to authenticated using (true);

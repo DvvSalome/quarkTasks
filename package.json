@@ -1,7 +1,12 @@
 {
+  "scripts": {
+    "dev": "serve -s .",
+    "start": "serve -s ."
+  },
   "dependencies": {
     "@babel/core": "^7.29.0",
     "@babel/preset-react": "^7.28.5",
-    "puppeteer": "^24.42.0"
+    "puppeteer": "^24.42.0",
+    "serve": "^14.2.0"
   }
 }

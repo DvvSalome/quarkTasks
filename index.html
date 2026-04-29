@@ -6,53 +6,48 @@
   <title>Quark Tasking · Operational</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>/* ============================================
    QUARK TASKING — Design System
    ============================================ */
 
 :root {
-  /* Base canvas — deep cosmic */
-  --bg-0: oklch(0.13 0.02 280);
-  --bg-1: oklch(0.16 0.025 280);
-  --bg-2: oklch(0.19 0.03 280);
-  --bg-3: oklch(0.23 0.035 280);
-  --surface: oklch(0.17 0.025 280 / 0.7);
-  --surface-elev: oklch(0.21 0.03 280 / 0.85);
+  /* Morado claro — lavanda suave (modo oscuro violeta, legible) */
+  --bg-0: oklch(0.24 0.05 305);
+  --bg-1: oklch(0.28 0.055 302);
+  --bg-2: oklch(0.32 0.05 300);
+  --bg-3: oklch(0.36 0.048 298);
+  --surface: oklch(0.3 0.05 302 / 0.88);
+  --surface-elev: oklch(0.34 0.052 300 / 0.94);
 
-  /* Borders & lines */
-  --line-faint: oklch(0.32 0.04 280 / 0.35);
-  --line: oklch(0.42 0.05 280 / 0.5);
-  --line-strong: oklch(0.55 0.08 285 / 0.7);
+  --line-faint: oklch(0.45 0.06 295 / 0.35);
+  --line: oklch(0.55 0.07 298 / 0.45);
+  --line-strong: oklch(0.65 0.09 300 / 0.55);
 
-  /* Text */
-  --fg-0: oklch(0.97 0.01 280);
-  --fg-1: oklch(0.85 0.02 280);
-  --fg-2: oklch(0.65 0.03 280);
-  --fg-3: oklch(0.48 0.04 280);
+  --fg-0: oklch(0.97 0.02 305);
+  --fg-1: oklch(0.9 0.03 300);
+  --fg-2: oklch(0.72 0.05 298);
+  --fg-3: oklch(0.55 0.06 296);
 
-  /* Quantum violet accent */
-  --violet: oklch(0.68 0.24 295);
-  --violet-hi: oklch(0.78 0.22 295);
-  --violet-lo: oklch(0.45 0.2 295);
-  --violet-glow: oklch(0.68 0.24 295 / 0.45);
-  --violet-fog: oklch(0.68 0.24 295 / 0.12);
+  --violet: oklch(0.78 0.14 304);
+  --violet-hi: oklch(0.86 0.12 306);
+  --violet-lo: oklch(0.55 0.14 300);
+  --violet-glow: oklch(0.78 0.14 304 / 0.45);
+  --violet-fog: oklch(0.7 0.12 302 / 0.2);
 
-  /* Plasma signals */
-  --cyan: oklch(0.82 0.13 220);
-  --cyan-fog: oklch(0.82 0.13 220 / 0.14);
-  --amber: oklch(0.82 0.16 75);
-  --amber-fog: oklch(0.82 0.16 75 / 0.14);
-  --rose: oklch(0.7 0.2 15);
-  --rose-fog: oklch(0.7 0.2 15 / 0.14);
-  --green: oklch(0.78 0.18 150);
-  --green-fog: oklch(0.78 0.18 150 / 0.14);
+  --cyan: oklch(0.78 0.1 230);
+  --cyan-fog: oklch(0.78 0.1 230 / 0.14);
+  --amber: oklch(0.88 0.14 85);
+  --amber-fog: oklch(0.88 0.14 85 / 0.16);
+  --rose: oklch(0.72 0.16 15);
+  --rose-fog: oklch(0.72 0.16 15 / 0.15);
+  --green: oklch(0.8 0.14 155);
+  --green-fog: oklch(0.8 0.14 155 / 0.15);
 
-  /* Type */
-  --font-sans: "Geist", "Inter", -apple-system, system-ui, sans-serif;
-  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: "Plus Jakarta Sans", "Inter", -apple-system, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* Spacing scale */
   --r-sm: 6px;
   --r-md: 10px;
   --r-lg: 14px;
@@ -60,22 +55,23 @@
 }
 
 [data-theme="light"] {
-  --bg-0: oklch(0.985 0.005 280);
-  --bg-1: oklch(0.965 0.008 280);
-  --bg-2: oklch(0.94 0.01 280);
-  --bg-3: oklch(0.91 0.012 280);
-  --surface: oklch(0.99 0.005 280 / 0.85);
-  --surface-elev: oklch(1 0 0 / 0.95);
-  --line-faint: oklch(0.55 0.04 280 / 0.18);
-  --line: oklch(0.5 0.05 280 / 0.28);
-  --line-strong: oklch(0.45 0.08 285 / 0.45);
-  --fg-0: oklch(0.18 0.02 280);
-  --fg-1: oklch(0.32 0.025 280);
-  --fg-2: oklch(0.48 0.03 280);
-  --fg-3: oklch(0.62 0.04 280);
-  --violet-glow: oklch(0.55 0.24 295 / 0.3);
-  --violet-fog: oklch(0.55 0.24 295 / 0.08);
-  --violet: oklch(0.55 0.24 295);
+  /* Morado muy claro — casi lavanda papel */
+  --bg-0: oklch(0.98 0.025 305);
+  --bg-1: oklch(0.965 0.03 303);
+  --bg-2: oklch(0.945 0.035 302);
+  --bg-3: oklch(0.92 0.038 300);
+  --surface: oklch(0.995 0.02 305 / 0.96);
+  --surface-elev: oklch(1 0.015 305 / 0.99);
+  --line-faint: oklch(0.82 0.04 300 / 0.45);
+  --line: oklch(0.74 0.05 298 / 0.55);
+  --line-strong: oklch(0.62 0.07 296 / 0.38);
+  --fg-0: oklch(0.22 0.05 305);
+  --fg-1: oklch(0.34 0.055 302);
+  --fg-2: oklch(0.48 0.06 300);
+  --fg-3: oklch(0.58 0.06 298);
+  --violet-glow: oklch(0.62 0.18 302 / 0.35);
+  --violet-fog: oklch(0.65 0.16 304);
+  --violet: oklch(0.58 0.19 302);
 }
 
 * {
@@ -115,12 +111,12 @@ html, body {
 .cosmos::before {
   content: "";
   position: absolute;
-  inset: -20%;
+  inset: -25%;
   background:
-    radial-gradient(ellipse 60% 50% at 15% 20%, var(--violet-fog), transparent 60%),
-    radial-gradient(ellipse 50% 40% at 85% 80%, var(--cyan-fog), transparent 60%),
-    radial-gradient(ellipse 40% 30% at 50% 100%, var(--violet-fog), transparent 70%);
-  filter: blur(40px);
+    radial-gradient(ellipse 55% 45% at 20% 15%, var(--violet-fog), transparent 55%),
+    radial-gradient(ellipse 45% 40% at 88% 72%, oklch(0.72 0.1 280 / 0.12), transparent 55%),
+    radial-gradient(ellipse 50% 35% at 48% 100%, oklch(0.82 0.08 320 / 0.1), transparent 60%);
+  filter: blur(48px);
 }
 .cosmos-grid {
   position: absolute;
@@ -128,10 +124,10 @@ html, body {
   background-image:
     linear-gradient(var(--line-faint) 1px, transparent 1px),
     linear-gradient(90deg, var(--line-faint) 1px, transparent 1px);
-  background-size: 56px 56px;
+  background-size: 64px 64px;
   background-position: -1px -1px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 80%);
-  opacity: 0.5;
+  mask-image: radial-gradient(ellipse 85% 65% at 50% 35%, black 25%, transparent 75%);
+  opacity: 0.22;
 }
 .cosmos-stars {
   position: absolute;
@@ -140,14 +136,23 @@ html, body {
 .star {
   position: absolute;
   width: 2px; height: 2px;
-  background: var(--fg-0);
+  background: var(--amber);
   border-radius: 50%;
-  opacity: 0.3;
-  animation: twinkle 4s ease-in-out infinite;
+  opacity: 0.22;
+  animation: twinkle 5s ease-in-out infinite;
 }
 @keyframes twinkle {
-  0%, 100% { opacity: 0.15; }
-  50% { opacity: 0.6; }
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.45; }
+}
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes routine-row-in {
+  from { opacity: 0; transform: translateX(-6px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 /* ============================================
@@ -362,6 +367,7 @@ html, body {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 24px 32px 60px;
+  animation: page-enter 0.55s var(--ease-out) both;
 }
 .page-head {
   margin-bottom: 24px;
@@ -402,7 +408,13 @@ html, body {
   border-radius: var(--r-lg);
   padding: 18px;
   position: relative;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
+  transition: transform 0.28s var(--ease-out), border-color 0.2s, box-shadow 0.28s var(--ease-out);
+}
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--line);
+  box-shadow: 0 14px 40px oklch(0.05 0.02 80 / 0.35);
 }
 .card-glow {
   position: relative;
@@ -652,8 +664,11 @@ html, body {
 }
 .proj-progress > div {
   height: 100%;
+  width: 0;
   background: linear-gradient(90deg, var(--violet), var(--cyan));
   box-shadow: 0 0 8px var(--violet-glow);
+  border-radius: 2px;
+  transition: width 0.65s var(--ease-out);
 }
 .proj-meta {
   font-family: var(--font-mono);
@@ -663,6 +678,164 @@ html, body {
   text-transform: uppercase;
   white-space: nowrap;
 }
+
+/* Routine panel — day planning */
+.routine-head-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.routine-seg {
+  display: inline-flex;
+  background: var(--bg-2);
+  border: 1px solid var(--line-faint);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+}
+.routine-seg button {
+  border: none;
+  background: transparent;
+  color: var(--fg-2);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.routine-seg button.active {
+  background: var(--violet-fog);
+  color: var(--fg-0);
+  border: 1px solid var(--line);
+}
+.routine-hint {
+  font-size: 11px;
+  color: var(--fg-2);
+  line-height: 1.45;
+  margin: 10px 0 12px;
+  padding: 10px 12px;
+  background: var(--bg-1);
+  border-radius: var(--r-md);
+  border: 1px dashed var(--line-faint);
+}
+.routine-hint em {
+  font-style: normal;
+  color: var(--violet-hi);
+  font-weight: 600;
+}
+.routine-progress-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.routine-ring {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: conic-gradient(var(--violet) calc(var(--p, 0) * 1%), var(--bg-2) 0);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: background 0.5s var(--ease-out);
+}
+.routine-ring-inner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-1);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg-0);
+}
+.routine-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  padding: 11px 0;
+  border-bottom: 1px dashed var(--line-faint);
+  align-items: center;
+  animation: routine-row-in 0.4s var(--ease-out) both;
+}
+.routine-row:last-child { border-bottom: none; }
+.routine-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1.5px solid var(--line);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  flex-shrink: 0;
+}
+.routine-check:hover { transform: scale(1.06); border-color: var(--violet-hi); }
+.routine-check.on {
+  background: var(--green-fog);
+  border-color: var(--green);
+}
+.routine-check svg { opacity: 0; }
+.routine-check.on svg { opacity: 1; color: var(--green); }
+.routine-move {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--cyan);
+  background: transparent;
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-sm);
+  padding: 4px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, border-color 0.2s;
+}
+.routine-move:hover {
+  background: var(--cyan-fog);
+  border-color: var(--cyan);
+}
+.routine-form {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-faint);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.routine-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.routine-form input[type="text"],
+.routine-form select {
+  background: var(--bg-2);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+  color: var(--fg-0);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  padding: 8px 10px;
+}
+.routine-form input[type="text"] { flex: 1; min-width: 140px; }
+.routine-form select { cursor: pointer; }
+.btn-routine-add {
+  border: none;
+  border-radius: var(--r-md);
+  background: var(--violet);
+  color: oklch(0.99 0.01 85);
+  font-weight: 600;
+  font-size: 12px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: filter 0.2s, transform 0.15s;
+}
+.btn-routine-add:hover { filter: brightness(1.06); transform: translateY(-1px); }
 
 /* ============================================
    STATUS / PRIORITY PILLS
@@ -1918,6 +2091,116 @@ html, body {
   color: var(--fg-3);
   margin-bottom: 10px;
 }
+.kb-title-input {
+  width: 100%;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  background: var(--bg-2);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+  color: var(--fg-0);
+  padding: 8px 10px;
+  font-family: var(--font-sans);
+}
+.kb-title-input:focus {
+  outline: none;
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px var(--violet-fog);
+}
+.kb-textarea-desc {
+  width: 100%;
+  min-height: 110px;
+  resize: vertical;
+  background: var(--bg-2);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+  color: var(--fg-1);
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  font-family: var(--font-sans);
+}
+.kb-textarea-desc:focus {
+  outline: none;
+  border-color: var(--violet);
+}
+.kb-field-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.kb-field-row label {
+  font-size: 11px;
+  color: var(--fg-3);
+  min-width: 72px;
+}
+.kb-select, .kb-input-sm {
+  background: var(--bg-2);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-sm);
+  color: var(--fg-0);
+  padding: 6px 8px;
+  font-size: 12px;
+  font-family: var(--font-sans);
+}
+.kb-check-add {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.kb-check-add input {
+  flex: 1;
+  background: var(--bg-2);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-sm);
+  color: var(--fg-0);
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.kb-save-hint {
+  font-size: 11px;
+  color: var(--fg-3);
+  margin-top: 8px;
+}
+.kb-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--rose);
+  background: var(--rose-fog);
+  color: var(--rose);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+.kb-btn-danger:hover {
+  background: oklch(0.72 0.16 15 / 0.25);
+}
+.kb-modal-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.kb-btn-save {
+  padding: 8px 14px;
+  border-radius: var(--r-md);
+  border: none;
+  background: var(--violet);
+  color: oklch(0.99 0.02 305);
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+.kb-btn-save:disabled { opacity: 0.55; cursor: wait; }
 .kb-progress-bar {
   height: 4px; border-radius: 2px;
   background: var(--bg-3);
@@ -2008,10 +2291,6 @@ html, body {
 }
 .kb-add-assignee:hover { border-color: var(--violet); }
 
-/* Color name vars used for avatars - fallbacks if not defined */
-:root {
-  --rose: oklch(0.7 0.18 20);
-}
 </style>
 </head>
 <body>
@@ -2035,7 +2314,7 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const I18N = {
   es: {
     appName: "Quark Tasking",
-    appSub: "OPERATIONAL · v0.4.2",
+    appSub: "Tu espacio de trabajo",
     nav_workspace: "Workspace",
     nav_dashboard: "Dashboard",
     nav_capture: "Capturar",
@@ -2051,10 +2330,10 @@ const I18N = {
     dash_sub: "Análisis en tiempo real de tus tareas, dependencias y patrones de ejecución. La IA está observando tu flujo de trabajo y proponiendo optimizaciones.",
     dash_meta: "ÚLTIMO CICLO · HACE 12s",
 
-    m1_label: "Quarks activos",
-    m1_delta: "+8 esta semana",
-    m2_label: "En progreso",
-    m2_delta: "Foco: 2.1h prom.",
+    m1_label: "Progreso conjunto",
+    m1_delta: "Rutina + proyectos",
+    m2_label: "Rutina de hoy",
+    m2_delta: "bloques listos",
     m3_label: "Bloqueados",
     m3_delta: "Requieren atención",
     m4_label: "Velocidad / sprint",
@@ -2064,15 +2343,24 @@ const I18N = {
     insights_sub: "5 OBSERVACIONES",
     insights_view: "Ver todas",
 
-    field_title: "Campo cuántico de tareas",
+    field_title: "Mapa de tareas",
     field_sub: "PROYECTO ACTIVO · GAMMA",
 
     proj_title: "Proyectos",
     proj_sub: "6 ACTIVOS",
     proj_new: "Nuevo proyecto",
 
-    today_title: "Foco de hoy",
-    today_sub: "OPTIMIZADO POR IA",
+    today_title: "Rutina y foco",
+    today_sub: "HOY Y MAÑANA · LIGADO A TU PROGRESO",
+    routine_hint: "¿Se te pasó planear algo para mañana? Puedes añadirlo para <em>hoy</em> en cualquier momento: el día actual nunca está bloqueado.",
+    routine_tab_today: "Hoy",
+    routine_tab_tomorrow: "Mañana",
+    routine_ring_label: "hoy",
+    routine_add_placeholder: "Nuevo bloque de rutina…",
+    routine_when: "Cuándo",
+    routine_add: "Añadir",
+    routine_move_today: "→ Hoy",
+    routine_empty: "Nada aquí aún. Añade un bloque o pásalo desde mañana.",
 
     // Capture
     cap_title: "Capturar caos,",
@@ -2084,7 +2372,7 @@ const I18N = {
     cap_sample: "Cargar ejemplo",
     cap_running: "Analizando…",
     cap_output_empty: "La estructura aparecerá aquí.",
-    cap_output_empty_sub: "Pulsa estructurar para iniciar el análisis cuántico.",
+    cap_output_empty_sub: "Pulsa estructurar para iniciar el análisis.",
     cap_trace_title: "Trazado del razonamiento",
     cap_struct_title: "Estructura propuesta",
     cap_apply: "Aplicar al workspace",
@@ -2129,7 +2417,7 @@ const I18N = {
   },
   en: {
     appName: "Quark Tasking",
-    appSub: "OPERATIONAL · v0.4.2",
+    appSub: "Your workspace",
     nav_workspace: "Workspace",
     nav_dashboard: "Dashboard",
     nav_capture: "Capture",
@@ -2144,10 +2432,10 @@ const I18N = {
     dash_sub: "Real-time analysis of your tasks, dependencies and execution patterns. The AI is observing your workflow and proposing optimizations.",
     dash_meta: "LAST CYCLE · 12s AGO",
 
-    m1_label: "Active quarks",
-    m1_delta: "+8 this week",
-    m2_label: "In progress",
-    m2_delta: "Focus: 2.1h avg",
+    m1_label: "Combined progress",
+    m1_delta: "Routine + projects",
+    m2_label: "Today's routine",
+    m2_delta: "blocks done",
     m3_label: "Blocked",
     m3_delta: "Need attention",
     m4_label: "Velocity / sprint",
@@ -2157,15 +2445,24 @@ const I18N = {
     insights_sub: "5 OBSERVATIONS",
     insights_view: "View all",
 
-    field_title: "Quantum task field",
+    field_title: "Task map",
     field_sub: "ACTIVE PROJECT · GAMMA",
 
     proj_title: "Projects",
     proj_sub: "6 ACTIVE",
     proj_new: "New project",
 
-    today_title: "Today's focus",
-    today_sub: "AI-OPTIMIZED",
+    today_title: "Routine & focus",
+    today_sub: "TODAY & TOMORROW · TIED TO PROGRESS",
+    routine_hint: "Forgot to schedule something for tomorrow? You can add it for <em>today</em> anytime — the current day is never locked.",
+    routine_tab_today: "Today",
+    routine_tab_tomorrow: "Tomorrow",
+    routine_ring_label: "today",
+    routine_add_placeholder: "New routine block…",
+    routine_when: "When",
+    routine_add: "Add",
+    routine_move_today: "→ Today",
+    routine_empty: "Nothing here yet. Add a block or move one from tomorrow.",
 
     cap_title: "Capture chaos,",
     cap_em: "export order",
@@ -2176,7 +2473,7 @@ const I18N = {
     cap_sample: "Load example",
     cap_running: "Analyzing…",
     cap_output_empty: "The structure will appear here.",
-    cap_output_empty_sub: "Press structure to begin quantum analysis.",
+    cap_output_empty_sub: "Press structure to begin analysis.",
     cap_trace_title: "Reasoning trace",
     cap_struct_title: "Proposed structure",
     cap_apply: "Apply to workspace",
@@ -2521,11 +2818,14 @@ const Icon = ({ name, size = 16 }) => {
     rocket: <g {...stroke}><path d="M14 4l6 6-6 10-4-4zM10 10l-6 6 4 4 6-6M14 10l4-4"/></g>,
     bell: <g {...stroke}><path d="M5 9a7 7 0 0114 0v5l2 3H3l2-3z"/><path d="M10 20a2 2 0 004 0"/></g>,
     bolt: <g {...stroke}><path d="M13 2L4 14h6l-1 8 9-12h-6z" fill="currentColor"/></g>,
+    sun: <g {...stroke}><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></g>,
     brain: <g {...stroke}><path d="M9 4a3 3 0 016 0v.5a3 3 0 012 5.5 3 3 0 01-2 5.5V16a3 3 0 01-6 0v-.5a3 3 0 01-2-5.5 3 3 0 012-5.5z"/><path d="M12 4v16M9 9h2M13 9h2"/></g>,
     eye: <g {...stroke}><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></g>,
     lock: <g {...stroke}><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></g>,
     plug: <g {...stroke}><path d="M9 2v6M15 2v6M7 8h10v4a5 5 0 11-10 0zM12 17v5"/></g>,
     target: <g {...stroke}><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></g>,
+    trash: <g {...stroke}><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></g>,
+    link: <g {...stroke}><path d="M10 13a5 5 0 010-7l1-1a5 5 0 017 7l-1 1M14 11a5 5 0 010 7l-1 1a5 5 0 01-7-7l1-1"/></g>,
   };
   return (
     <svg width={s} height={s} viewBox="0 0 24 24">{paths[name] || null}</svg>
@@ -2537,16 +2837,16 @@ const BrandMark = () => (
   <svg viewBox="0 0 32 32">
     <defs>
       <radialGradient id="bm-core" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stopColor="oklch(0.85 0.2 295)" />
-        <stop offset="100%" stopColor="oklch(0.55 0.24 295)" />
+        <stop offset="0%" stopColor="oklch(0.88 0.12 305)" />
+        <stop offset="100%" stopColor="oklch(0.62 0.18 302)" />
       </radialGradient>
     </defs>
-    <ellipse cx="16" cy="16" rx="14" ry="5" fill="none" stroke="oklch(0.68 0.24 295)" strokeWidth="1" opacity="0.6" transform="rotate(30 16 16)"/>
-    <ellipse cx="16" cy="16" rx="14" ry="5" fill="none" stroke="oklch(0.68 0.24 295)" strokeWidth="1" opacity="0.6" transform="rotate(-30 16 16)"/>
-    <ellipse cx="16" cy="16" rx="14" ry="5" fill="none" stroke="oklch(0.68 0.24 295)" strokeWidth="1" opacity="0.6" transform="rotate(90 16 16)"/>
+    <ellipse cx="16" cy="16" rx="14" ry="5" fill="none" stroke="oklch(0.72 0.14 304)" strokeWidth="1" opacity="0.55" transform="rotate(30 16 16)"/>
+    <ellipse cx="16" cy="16" rx="14" ry="5" fill="none" stroke="oklch(0.72 0.14 304)" strokeWidth="1" opacity="0.55" transform="rotate(-30 16 16)"/>
+    <ellipse cx="16" cy="16" rx="14" ry="5" fill="none" stroke="oklch(0.72 0.14 304)" strokeWidth="1" opacity="0.55" transform="rotate(90 16 16)"/>
     <circle cx="16" cy="16" r="4" fill="url(#bm-core)" />
-    <circle cx="2" cy="16" r="1.5" fill="oklch(0.82 0.13 220)" transform="rotate(30 16 16)" />
-    <circle cx="30" cy="16" r="1.5" fill="oklch(0.82 0.13 220)" transform="rotate(-30 16 16)" />
+    <circle cx="2" cy="16" r="1.4" fill="oklch(0.78 0.12 280)" transform="rotate(30 16 16)" />
+    <circle cx="30" cy="16" r="1.4" fill="oklch(0.78 0.12 280)" transform="rotate(-30 16 16)" />
   </svg>
 );
 
@@ -3001,7 +3301,7 @@ const IconD = QTd.Icon;
 function Cosmos() {
   const stars = useMemo(() => {
     const out = [];
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 28; i++) {
       out.push({
         x: Math.random() * 100,
         y: Math.random() * 100,
@@ -3067,8 +3367,8 @@ function QuarkField() {
       <svg className="quark-svg" viewBox="0 0 600 280" preserveAspectRatio="xMidYMid meet">
         <defs>
           <radialGradient id="node-glow" cx="50%" cy="50%">
-            <stop offset="0%" stopColor="oklch(0.78 0.22 295)" stopOpacity="0.9"/>
-            <stop offset="100%" stopColor="oklch(0.55 0.24 295)" stopOpacity="0"/>
+            <stop offset="0%" stopColor="oklch(0.82 0.12 305)" stopOpacity="0.85"/>
+            <stop offset="100%" stopColor="oklch(0.55 0.14 302)" stopOpacity="0"/>
           </radialGradient>
         </defs>
         {QTd.QUARK_EDGES.map(([a, b], i) => {
@@ -3077,7 +3377,7 @@ function QuarkField() {
           if (!na || !nb) return null;
           return (
             <line key={i} x1={na.x} y1={na.y} x2={nb.x} y2={nb.y}
-              stroke="oklch(0.68 0.24 295)" strokeOpacity="0.25"
+              stroke="oklch(0.62 0.1 302)" strokeOpacity="0.28"
               strokeWidth="1" strokeDasharray="2 3"/>
           );
         })}
@@ -3118,9 +3418,101 @@ function QuarkField() {
   );
 }
 
-function Dashboard({ t }) {
-  const insights = QTd.INSIGHTS[t === QTd.I18N.es ? "es" : "en"];
-  const today = QTd.TODAY[t === QTd.I18N.es ? "es" : "en"];
+const ROUTINE_STORAGE_KEY = "quark_routine_v1";
+
+function routineSeed(lang) {
+  const rows = QTd.TODAY[lang === "es" ? "es" : "en"];
+  return {
+    today: rows.map((row, i) => ({
+      id: `seed-${row.code}-${i}`,
+      code: row.code,
+      t: row.t,
+      time: row.time,
+      prio: row.prio,
+      cat: row.cat,
+      done: false,
+    })),
+    tomorrow: [],
+  };
+}
+
+function loadRoutineState(lang) {
+  try {
+    const raw = localStorage.getItem(ROUTINE_STORAGE_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      return {
+        today: Array.isArray(data.today) ? data.today : [],
+        tomorrow: Array.isArray(data.tomorrow) ? data.tomorrow : [],
+      };
+    }
+  } catch (_) {}
+  return routineSeed(lang);
+}
+
+function Dashboard({ t, lang }) {
+  const insights = QTd.INSIGHTS[lang === "es" ? "es" : "en"];
+  const [routine, setRoutine] = useState(() => loadRoutineState(lang));
+  const [routineTab, setRoutineTab] = useState("today");
+  const [newTitle, setNewTitle] = useState("");
+  const [newWhen, setNewWhen] = useState("tomorrow");
+  const [newTime, setNewTime] = useState("30m");
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(ROUTINE_STORAGE_KEY, JSON.stringify(routine));
+    } catch (_) {}
+  }, [routine]);
+
+  const { routineTodayPct, combinedProgress, projAvgPct, doneToday, totalToday } = useMemo(() => {
+    const day = routine.today || [];
+    const totalT = day.length;
+    const doneT = day.filter(x => x.done).length;
+    const rp = totalT ? Math.round((doneT / totalT) * 100) : 0;
+    const pAvg = QTd.PROJECTS.reduce((a, p) => a + p.progress, 0) / QTd.PROJECTS.length;
+    const pp = Math.round(pAvg * 100);
+    const combined = Math.round((rp + pp) / 2);
+    return { routineTodayPct: rp, combinedProgress: combined, projAvgPct: pp, doneToday: doneT, totalToday: totalT };
+  }, [routine.today]);
+
+  const list = routineTab === "today" ? routine.today : routine.tomorrow;
+
+  const toggleDone = (id, slot) => {
+    setRoutine(r => ({
+      ...r,
+      [slot]: r[slot].map(it => it.id === id ? { ...it, done: !it.done } : it),
+    }));
+  };
+
+  const moveToToday = (id) => {
+    setRoutine(r => {
+      const item = r.tomorrow.find(x => x.id === id);
+      if (!item) return r;
+      return {
+        today: [...r.today, { ...item, done: false }],
+        tomorrow: r.tomorrow.filter(x => x.id !== id),
+      };
+    });
+    setRoutineTab("today");
+  };
+
+  const addRoutineItem = () => {
+    if (!newTitle.trim()) return;
+    const slot = newWhen === "today" ? "today" : "tomorrow";
+    const item = {
+      id: `r-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      code: "·",
+      t: newTitle.trim(),
+      time: newTime,
+      prio: lang === "es" ? "media" : "med",
+      cat: lang === "es" ? "Rutina" : "Routine",
+      done: false,
+    };
+    setRoutine(r => ({ ...r, [slot]: [...r[slot], item] }));
+    setNewTitle("");
+  };
+
+  const prioPill = (p) => (p === "alta" || p === "high" || p === "p0" ? "rose" : "amber");
 
   return (
     <div className="page">
@@ -3140,27 +3532,27 @@ function Dashboard({ t }) {
       <div className="dash">
         <div className="card metric">
           <div className="label">{t.m1_label}</div>
-          <div className="num">47 <small>/ 89</small></div>
-          <div className="delta">▲ {t.m1_delta}</div>
-          <Sparkline values={[12, 14, 13, 18, 22, 28, 31, 47]} color="oklch(0.68 0.24 295)"/>
+          <div className="num">{combinedProgress}<small>%</small></div>
+          <div className="delta">▲ {t.m1_delta} · {routineTodayPct}% + {projAvgPct}%</div>
+          <Sparkline values={[22, 28, 34, 38, 42, 46, 50, Math.max(12, combinedProgress)]} color="oklch(0.68 0.12 48)"/>
         </div>
         <div className="card metric">
           <div className="label">{t.m2_label}</div>
-          <div className="num">12</div>
+          <div className="num">{doneToday}<small> / {totalToday || "0"}</small></div>
           <div className="delta" style={{color: "var(--cyan)"}}>● {t.m2_delta}</div>
-          <Sparkline values={[8, 10, 9, 12, 11, 13, 12, 12]} color="oklch(0.82 0.13 220)"/>
+          <Sparkline values={[0, 1, 1, 2, 2, doneToday, doneToday, Math.max(doneToday, 1)]} color="oklch(0.72 0.08 165)"/>
         </div>
         <div className="card metric">
           <div className="label">{t.m3_label}</div>
           <div className="num">3</div>
           <div className="delta down">▲ {t.m3_delta}</div>
-          <Sparkline values={[1, 2, 2, 3, 4, 3, 3, 3]} color="oklch(0.7 0.2 15)"/>
+          <Sparkline values={[1, 2, 2, 3, 4, 3, 3, 3]} color="oklch(0.68 0.14 25)"/>
         </div>
         <div className="card metric">
           <div className="label">{t.m4_label}</div>
           <div className="num">31<small>pts</small></div>
           <div className="delta">▲ {t.m4_delta}</div>
-          <Sparkline values={[18, 22, 19, 24, 26, 28, 31, 31]} color="oklch(0.78 0.18 150)"/>
+          <Sparkline values={[18, 22, 19, 24, 26, 28, 31, 31]} color="oklch(0.77 0.12 145)"/>
         </div>
 
         {/* AI signals */}
@@ -3175,7 +3567,7 @@ function Dashboard({ t }) {
           {insights.slice(0, 4).map((ins, i) => {
             const iconMap = { warn: "warn", danger: "danger", ok: "rocket", default: "sparkle" };
             return (
-              <div key={i} className="insight">
+              <div key={i} className="insight" style={{animationDelay: `${i * 0.06}s`, animation: "routine-row-in 0.45s var(--ease-out) both"}}>
                 <div className={`insight-icon ${ins.kind === "default" ? "" : ins.kind}`}>
                   <IconD name={iconMap[ins.kind]} size={14}/>
                 </div>
@@ -3211,8 +3603,8 @@ function Dashboard({ t }) {
             </div>
             <div className="card-sub">{t.proj_sub}</div>
           </div>
-          {QTd.PROJECTS.map(p => (
-            <div key={p.id} className="proj-row">
+          {QTd.PROJECTS.map((p, i) => (
+            <div key={p.id} className="proj-row" style={{animationDelay: `${i * 0.04}s`, animation: "routine-row-in 0.4s var(--ease-out) both"}}>
               <div className="proj-icon" style={{
                 background: `var(--${p.color}-fog)`,
                 borderColor: `var(--line-strong)`,
@@ -3220,7 +3612,7 @@ function Dashboard({ t }) {
               }}>{p.code}</div>
               <div className="proj-name">
                 {p.name}
-                <small>{p.sub}</small>
+                <small>{p.sub} · {Math.round(p.progress * 100)}% → {t.m1_label}</small>
               </div>
               <div className="proj-progress">
                 <div style={{width: `${p.progress * 100}%`}}/>
@@ -3230,44 +3622,104 @@ function Dashboard({ t }) {
           ))}
         </div>
 
-        {/* Today's focus */}
+        {/* Routine: today / tomorrow — today always available */}
         <div className="card dash-col-5" style={{gridColumn: "span 5"}}>
-          <div className="card-head">
+          <div className="card-head" style={{marginBottom: 8}}>
             <div className="card-title">
-              <span className="dot" style={{background: "var(--cyan)", boxShadow: "0 0 8px var(--cyan)"}}></span>
+              <span className="dot" style={{background: "var(--amber)", boxShadow: "0 0 8px var(--amber)"}}></span>
               {t.today_title}
             </div>
             <div className="card-sub">{t.today_sub}</div>
           </div>
-          {today.map((task, i) => (
-            <div key={i} style={{
-              display: "grid",
-              gridTemplateColumns: "auto 1fr auto",
-              gap: 10,
-              padding: "10px 0",
-              borderBottom: i < today.length - 1 ? "1px dashed var(--line-faint)" : "none",
-              alignItems: "center"
-            }}>
-              <span style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: 10,
-                color: "var(--fg-3)",
-                background: "var(--bg-2)",
-                padding: "2px 6px",
-                borderRadius: 4,
-                letterSpacing: "0.05em"
-              }}>{task.code}</span>
-              <div>
-                <div style={{fontSize: 13, marginBottom: 2}}>{task.t}</div>
-                <div style={{fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--fg-3)", letterSpacing: "0.05em"}}>
-                  {task.cat.toUpperCase()} · {task.time}
-                </div>
-              </div>
-              <span className={`pill ${task.prio === "alta" || task.prio === "high" ? "rose" : "amber"}`}>
-                <span className="dot"></span>{task.prio}
-              </span>
+
+          <div className="routine-progress-top">
+            <div className="routine-ring" style={{ "--p": routineTodayPct }}>
+              <div className="routine-ring-inner">{routineTodayPct}<small style={{fontSize: 9, opacity: 0.85}}>%</small></div>
             </div>
-          ))}
+            <div>
+              <div style={{fontSize: 13, fontWeight: 600, color: "var(--fg-0)"}}>
+                <span style={{display: "inline-flex", verticalAlign: "middle", marginRight: 6}}><IconD name="sun" size={14}/></span>
+                {lang === "es" ? "Avance del día" : "Day progress"}
+              </div>
+              <div style={{fontSize: 12, color: "var(--fg-2)", marginTop: 4, lineHeight: 1.4}}>
+                {lang === "es"
+                  ? `Tu rutina de hoy suma al ${t.m1_label.toLowerCase()} (mezcla con avance de proyectos).`
+                  : `Today's routine feeds your ${t.m1_label.toLowerCase()} (blended with project advancement).`}
+              </div>
+            </div>
+          </div>
+
+          <div className="routine-hint" dangerouslySetInnerHTML={{__html: t.routine_hint}}/>
+
+          <div className="routine-head-tools">
+            <div className="routine-seg">
+              <button type="button" className={routineTab === "today" ? "active" : ""} onClick={() => setRoutineTab("today")}>{t.routine_tab_today}</button>
+              <button type="button" className={routineTab === "tomorrow" ? "active" : ""} onClick={() => setRoutineTab("tomorrow")}>{t.routine_tab_tomorrow}</button>
+            </div>
+          </div>
+
+          {list.length === 0 ? (
+            <div style={{color: "var(--fg-3)", fontSize: 13, padding: "16px 0", textAlign: "center"}}>{t.routine_empty}</div>
+          ) : (
+            list.map((task, i) => {
+              const slot = routineTab === "today" ? "today" : "tomorrow";
+              return (
+                <div key={task.id} className="routine-row" style={{animationDelay: `${i * 0.05}s`}}>
+                  <button
+                    type="button"
+                    className={`routine-check ${task.done ? "on" : ""}`}
+                    onClick={() => toggleDone(task.id, slot)}
+                    aria-pressed={task.done}>
+                    <IconD name="check" size={11}/>
+                  </button>
+                  <div style={{minWidth: 0}}>
+                    <div style={{
+                      fontSize: 13,
+                      marginBottom: 2,
+                      opacity: task.done ? 0.55 : 1,
+                      textDecoration: task.done ? "line-through" : "none",
+                    }}>{task.t}</div>
+                    <div style={{fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--fg-3)", letterSpacing: "0.04em"}}>
+                      {task.code} · {String(task.cat || "").toUpperCase()} · {task.time}
+                    </div>
+                  </div>
+                  <div style={{display: "flex", alignItems: "center", gap: 6}}>
+                    {routineTab === "tomorrow" && (
+                      <button type="button" className="routine-move" onClick={() => moveToToday(task.id)}>{t.routine_move_today}</button>
+                    )}
+                    <span className={`pill ${prioPill(task.prio)}`}>
+                      <span className="dot"></span>{task.prio}
+                    </span>
+                  </div>
+                </div>
+              );
+            })
+          )}
+
+          <div className="routine-form">
+            <div className="routine-form-row">
+              <input
+                type="text"
+                placeholder={t.routine_add_placeholder}
+                value={newTitle}
+                onChange={e => setNewTitle(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") addRoutineItem(); }}
+              />
+              <select value={newTime} onChange={e => setNewTime(e.target.value)} aria-label="Duration">
+                {["15m", "30m", "45m", "60m", "90m"].map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+              <select value={newWhen} onChange={e => setNewWhen(e.target.value)} aria-label={t.routine_when}>
+                <option value="tomorrow">{t.routine_tab_tomorrow}</option>
+                <option value="today">{t.routine_tab_today}</option>
+              </select>
+              <button type="button" className="btn-routine-add" onClick={addRoutineItem}>{t.routine_add}</button>
+            </div>
+            <div style={{fontSize: 11, color: "var(--fg-3)"}}>
+              {lang === "es"
+                ? "Por defecto va a «Mañana»; elige «Hoy» si lo necesitas ya."
+                : "Defaults to «Tomorrow»; pick «Today» when you need it now."}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -3760,8 +4212,8 @@ function Settings({ t, lang, theme, setTheme, density, setDensity, aiVerbose, se
               </div>
               <div className="setting-row">
                 <div>
-                  <div className="label">{lang === "es" ? "Animaciones cuánticas" : "Quantum animations"}</div>
-                  <div className="desc">{lang === "es" ? "Pulsos, partículas y campos. Apaga para reducir distracción." : "Pulses, particles and fields. Turn off to reduce distraction."}</div>
+                  <div className="label">{lang === "es" ? "Animaciones de la interfaz" : "Interface motion"}</div>
+                  <div className="desc">{lang === "es" ? "Transiciones suaves. Desactiva si prefieres una UI más estática." : "Smooth transitions. Turn off for a calmer, more static UI."}</div>
                 </div>
                 <div className="control">
                   <div className="toggle on" onClick={(e) => e.currentTarget.classList.toggle("on")}/>
@@ -4308,7 +4760,7 @@ function KanbanCard({ card, onAssign, onClick, teammates = [] }) {
       <div className="kb-card-title">{card.title}</div>
 
       <div className="kb-card-tags">
-        {card.tags.map(tag => <span key={tag} className="kb-tag">#{tag}</span>)}
+        {(card.tags || []).map(tag => <span key={tag} className="kb-tag">#{tag}</span>)}
       </div>
 
       <div className="kb-card-foot">
@@ -4356,49 +4808,182 @@ function KanbanCard({ card, onAssign, onClick, teammates = [] }) {
   );
 }
 
-function CardDetail({ card, onClose, onAssign, onUpdate, lang }) {
+function normalizeChecklist(raw) {
+  let arr = raw;
+  if (typeof raw === "string") {
+    try { arr = JSON.parse(raw); } catch (_) { arr = []; }
+  }
+  if (!Array.isArray(arr)) return [];
+  return arr.map((x) => ({
+    text: typeof x === "string" ? x : (x && x.text != null) ? String(x.text) : "",
+    done: !!(x && typeof x === "object" && x.done),
+  }));
+}
+
+function CardDetail({
+  card,
+  onClose,
+  onAssign,
+  lang,
+  teammates = [],
+  currentUser,
+  taskComments = [],
+  onSaveTask,
+  onDeleteTask,
+  onPostComment,
+}) {
   if (!card) return null;
+  const [saving, setSaving] = React.useState(false);
+  const [title, setTitle] = React.useState(card.title);
+  const [description, setDescription] = React.useState(card.description || "");
+  const [due, setDue] = React.useState(card.due || "");
+  const [prio, setPrio] = React.useState(card.prio);
+  const [tagsStr, setTagsStr] = React.useState((card.tags || []).join(", "));
+  const [checklist, setChecklist] = React.useState(() => normalizeChecklist(card.checklist));
+  const [newCheck, setNewCheck] = React.useState("");
+  const [commentText, setCommentText] = React.useState("");
+
+  React.useEffect(() => {
+    setTitle(card.title);
+    setDescription(card.description || "");
+    setDue(card.due || "");
+    const okPrio = ["low", "med", "high", "p0", "media", "alta", "baja"];
+    setPrio(okPrio.includes(card.prio) ? card.prio : "med");
+    setTagsStr((card.tags || []).join(", "));
+    setChecklist(normalizeChecklist(card.checklist));
+  }, [card]);
+
   const t = lang === "es" ? {
     desc: "Descripción", checks: "Subtareas", comments: "Comentarios", activity: "Actividad",
-    addComment: "Añadir un comentario…", post: "Publicar",
+    addComment: "Escribe un comentario…", post: "Publicar",
     assignees: "Asignados", priority: "Prioridad", due: "Fecha límite", project: "Proyecto",
-    aiAdvice: "Recomendación IA", close: "Cerrar"
+    aiAdvice: "Recomendación IA", close: "Cerrar", save: "Guardar cambios", saving: "Guardando…",
+    deleteCard: "Eliminar tarjeta", tags: "Etiquetas", addCheck: "Añadir subtarea",
+    hintSave: "Prioridad, fecha y etiquetas se guardan al cambiar. Usa el botón para título y descripción.",
+    noComments: "Sin comentarios aún.",
   } : {
     desc: "Description", checks: "Subtasks", comments: "Comments", activity: "Activity",
-    addComment: "Add a comment…", post: "Post",
+    addComment: "Write a comment…", post: "Post",
     assignees: "Assignees", priority: "Priority", due: "Due", project: "Project",
-    aiAdvice: "AI advice", close: "Close"
+    aiAdvice: "AI advice", close: "Close", save: "Save changes", saving: "Saving…",
+    deleteCard: "Delete card", tags: "Tags", addCheck: "Add subtask",
+    hintSave: "Priority, due and tags save on change. Use the button for title and description.",
+    noComments: "No comments yet.",
   };
 
-  const sampleChecks = card.checks ? [
-    { done: card.checks.done > 0, label: lang === "es" ? "Recopilar requisitos del stakeholder" : "Gather stakeholder requirements" },
-    { done: card.checks.done > 1, label: lang === "es" ? "Bocetar 2 alternativas" : "Sketch 2 alternatives" },
-    { done: card.checks.done > 2, label: lang === "es" ? "Validar con equipo" : "Validate with team" },
-    { done: card.checks.done > 3, label: lang === "es" ? "Implementar versión final" : "Implement final version" },
-    { done: card.checks.done > 4, label: lang === "es" ? "QA y revisión" : "QA and review" },
-  ].slice(0, card.checks.total) : [];
+  const me = teammates.find((u) => u.id === currentUser?.id) || {
+    id: currentUser?.id,
+    name: currentUser?.name || (lang === "es" ? "Tú" : "You"),
+    color: "violet",
+    initials: (currentUser?.name || "U").slice(0, 2).toUpperCase(),
+  };
 
-  const sampleComments = [
-    { user: TEAMMATES[1], text: lang === "es" ? "Empecé con un proto en Figma. Subo link cuando tenga algo." : "Started with a proto in Figma. Will share link when I have something.", time: "hace 2h" },
-    { user: TEAMMATES[0], text: lang === "es" ? "Recuerda que el endpoint cambia, alinéalo con backend." : "Remember the endpoint changes — align with backend.", time: "hace 4h" },
-    { user: TEAMMATES[2], text: lang === "es" ? "+1, podemos hacer pair tomorrow." : "+1, we can pair tomorrow.", time: "hace 6h" },
-  ].slice(0, Math.min(card.comments || 0, 3));
+  const savePriority = async (v) => {
+    setPrio(v);
+    setSaving(true);
+    await onSaveTask(card.id, { priority: v });
+    setSaving(false);
+  };
+
+  const blurDue = async () => {
+    setSaving(true);
+    await onSaveTask(card.id, { due: due.trim() || null });
+    setSaving(false);
+  };
+
+  const blurTags = async () => {
+    const tags = tagsStr.split(",").map((s) => s.trim()).filter(Boolean);
+    setSaving(true);
+    await onSaveTask(card.id, { tags });
+    setSaving(false);
+  };
+
+  const saveMainFields = async () => {
+    const tags = tagsStr.split(",").map((s) => s.trim()).filter(Boolean);
+    setSaving(true);
+    await onSaveTask(card.id, {
+      title: title.trim(),
+      description: description.trim(),
+      due: due.trim() || null,
+      priority: prio,
+      tags,
+    });
+    setSaving(false);
+  };
+
+  const saveChecklist = async (next) => {
+    setChecklist(next);
+    setSaving(true);
+    await onSaveTask(card.id, { checklist: next });
+    setSaving(false);
+  };
+
+  const toggleCheck = (i) => {
+    const next = checklist.map((item, j) => (j === i ? { ...item, done: !item.done } : item));
+    saveChecklist(next);
+  };
+
+  const addCheckItem = () => {
+    if (!newCheck.trim()) return;
+    saveChecklist([...checklist, { text: newCheck.trim(), done: false }]);
+    setNewCheck("");
+  };
+
+  const removeCheckItem = (i) => {
+    saveChecklist(checklist.filter((_, j) => j !== i));
+  };
+
+  const postComment = async () => {
+    if (!commentText.trim() || !currentUser?.id) return;
+    setSaving(true);
+    await onPostComment(card.id, commentText.trim());
+    setCommentText("");
+    setSaving(false);
+  };
+
+  const doDelete = async () => {
+    const ok = confirm(lang === "es"
+      ? "¿Eliminar esta tarjeta del tablero? No se puede deshacer."
+      : "Delete this card from the board? This cannot be undone.");
+    if (!ok) return;
+    setSaving(true);
+    await onDeleteTask(card.id);
+    setSaving(false);
+    onClose();
+  };
+
+  const fmtTime = (iso) => {
+    if (!iso) return "";
+    try {
+      return new Date(iso).toLocaleString(lang === "es" ? "es" : "en", { dateStyle: "short", timeStyle: "short" });
+    } catch (_) { return ""; }
+  };
+
+  const doneChecks = checklist.filter((c) => c.done).length;
+  const assignees = card.assignee || [];
 
   return (
     <>
       <div className="kb-modal-overlay" onClick={onClose}/>
-      <div className="kb-modal">
+      <div className="kb-modal" onClick={(e) => e.stopPropagation()}>
         <div className="kb-modal-head">
-          <div>
-            <div style={{display: "flex", alignItems: "center", gap: 8, marginBottom: 6}}>
+          <div style={{flex: 1, minWidth: 0}}>
+            <div style={{display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap"}}>
               <span className="kb-card-code">{card.code}</span>
               <span className="pill violet"><span className="dot"></span>{card.proj}</span>
-              <span className={`pill ${card.prio === "p0" || card.prio === "alta" || card.prio === "high" ? "rose" : "amber"}`}><span className="dot"></span>{card.prio}</span>
-              {card.due && <span className="pill"><IconK name="bell" size={10}/>{card.due}</span>}
             </div>
-            <h2 style={{fontSize: 20, fontWeight: 500, letterSpacing: "-0.01em"}}>{card.title}</h2>
+            <input
+              className="kb-title-input"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              aria-label="Title"
+            />
+            <div className="kb-modal-actions" style={{marginTop: 10}}>
+              <button type="button" className="kb-btn-save" onClick={saveMainFields} disabled={saving}>{saving ? t.saving : t.save}</button>
+              <span className="kb-save-hint">{t.hintSave}</span>
+            </div>
           </div>
-          <button onClick={onClose} className="btn-ghost" style={{background: "none", border: "none", color: "var(--fg-2)", cursor: "pointer", fontSize: 22, lineHeight: 1, padding: 4}}>×</button>
+          <button type="button" onClick={onClose} className="btn-ghost" style={{background: "none", border: "none", color: "var(--fg-2)", cursor: "pointer", fontSize: 22, lineHeight: 1, padding: 4}}>×</button>
         </div>
 
         <div className="kb-modal-body">
@@ -4413,75 +4998,98 @@ function CardDetail({ card, onClose, onAssign, onUpdate, lang }) {
                   }}><IconK name="sparkle" size={12}/></span>
                   <span style={{fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.12em", color: "var(--violet-hi)"}}>{t.aiAdvice}</span>
                 </div>
-                <div style={{fontSize: 13, color: "var(--fg-1)", lineHeight: 1.5}}>{card.aiNote}. {lang === "es" ? "Considera priorizar esta tarea hoy para liberar capacidad downstream." : "Consider prioritizing this task today to free downstream capacity."}</div>
+                <div style={{fontSize: 13, color: "var(--fg-1)", lineHeight: 1.5}}>{card.aiNote}</div>
               </div>
             )}
 
             <div className="kb-section">
               <h4>{t.desc}</h4>
-              <p style={{fontSize: 13, color: "var(--fg-1)", lineHeight: 1.6}}>
-                {lang === "es"
-                  ? "Esta tarea forma parte del flujo de onboarding. Hay que asegurar que el handoff a backend quede claro y que las dependencias estén mapeadas antes de mover a Doing."
-                  : "This task is part of the onboarding flow. Make sure the handoff to backend is clear and that dependencies are mapped before moving to Doing."}
-              </p>
+              <textarea
+                className="kb-textarea-desc"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={lang === "es" ? "Detalles, enlaces, criterios…" : "Details, links, acceptance criteria…"}
+              />
             </div>
 
-            {sampleChecks.length > 0 && (
-              <div className="kb-section">
-                <h4>{t.checks} <span style={{color: "var(--fg-3)", marginLeft: 6}}>{card.checks.done}/{card.checks.total}</span></h4>
-                <div className="kb-progress-bar"><div style={{width: `${(card.checks.done / card.checks.total) * 100}%`}}/></div>
-                <div style={{marginTop: 12}}>
-                  {sampleChecks.map((ch, i) => (
-                    <div key={i} className="kb-check-row">
-                      <div className={`kb-check ${ch.done ? "on" : ""}`}>
-                        {ch.done && <IconK name="check" size={10}/>}
-                      </div>
-                      <span style={{textDecoration: ch.done ? "line-through" : "none", color: ch.done ? "var(--fg-3)" : "var(--fg-1)"}}>{ch.label}</span>
+            <div className="kb-section">
+              <h4>{t.checks} {checklist.length > 0 && <span style={{color: "var(--fg-3)", marginLeft: 6}}>{doneChecks}/{checklist.length}</span>}</h4>
+              {checklist.length > 0 && (
+                <div className="kb-progress-bar"><div style={{width: `${(doneChecks / checklist.length) * 100}%`}}/></div>
+              )}
+              <div style={{marginTop: 8}}>
+                {checklist.map((ch, i) => (
+                  <div key={i} className="kb-check-row">
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      className={`kb-check ${ch.done ? "on" : ""}`}
+                      onClick={() => toggleCheck(i)}
+                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleCheck(i); } }}>
+                      {ch.done && <IconK name="check" size={10}/>}
                     </div>
-                  ))}
-                </div>
+                    <span style={{flex: 1, textDecoration: ch.done ? "line-through" : "none", color: ch.done ? "var(--fg-3)" : "var(--fg-1)"}}>{ch.text}</span>
+                    <button type="button" onClick={() => removeCheckItem(i)} style={{background: "none", border: "none", color: "var(--fg-3)", cursor: "pointer", fontSize: 14}} title={lang === "es" ? "Quitar" : "Remove"}>×</button>
+                  </div>
+                ))}
               </div>
-            )}
+              <div className="kb-check-add">
+                <input value={newCheck} onChange={(e) => setNewCheck(e.target.value)} placeholder={t.addCheck} onKeyDown={(e) => { if (e.key === "Enter") addCheckItem(); }}/>
+                <button type="button" className="btn btn-primary" style={{padding: "6px 12px", fontSize: 12}} onClick={addCheckItem}>{lang === "es" ? "Añadir" : "Add"}</button>
+              </div>
+            </div>
 
             <div className="kb-section">
               <h4>{t.comments}</h4>
               <div className="kb-comment-input">
-                <Avatar user={teammates[0] || fbUser("You", "violet")} size={28}/>
-                <input type="text" placeholder={t.addComment}/>
-                <button className="btn btn-primary" style={{padding: "6px 12px", fontSize: 12}}>{t.post}</button>
+                <Avatar user={me} size={28}/>
+                <input type="text" placeholder={t.addComment} value={commentText} onChange={(e) => setCommentText(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") postComment(); }}/>
+                <button type="button" className="btn btn-primary" style={{padding: "6px 12px", fontSize: 12}} onClick={postComment} disabled={saving || !commentText.trim()}>{t.post}</button>
               </div>
-              {sampleComments.map((c, i) => (
-                <div key={i} className="kb-comment">
-                  <Avatar user={c.user} size={28}/>
-                  <div className="kb-comment-body">
-                    <div style={{display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4}}>
-                      <span style={{fontSize: 12, fontWeight: 500}}>{c.user.name}</span>
-                      <span style={{fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--fg-3)"}}>{c.time}</span>
+              {(!taskComments || taskComments.length === 0) && (
+                <p style={{fontSize: 12, color: "var(--fg-3)"}}>{t.noComments}</p>
+              )}
+              {taskComments.map((row) => {
+                const u = teammates.find((x) => x.id === row.user_id) || {
+                  name: lang === "es" ? "Usuario" : "User", color: "violet", initials: "?", id: row.user_id,
+                };
+                return (
+                  <div key={row.id} className="kb-comment">
+                    <Avatar user={u} size={28}/>
+                    <div className="kb-comment-body">
+                      <div style={{display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4}}>
+                        <span style={{fontSize: 12, fontWeight: 500}}>{u.name}</span>
+                        <span style={{fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--fg-3)"}}>{fmtTime(row.created_at)}</span>
+                      </div>
+                      <div style={{fontSize: 13, color: "var(--fg-1)"}}>{row.content}</div>
                     </div>
-                    <div style={{fontSize: 13, color: "var(--fg-1)"}}>{c.text}</div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
+
+            <button type="button" className="kb-btn-danger" onClick={doDelete} disabled={saving}>
+              <IconK name="trash" size={14}/> {t.deleteCard}
+            </button>
           </div>
 
           <div className="kb-modal-side">
             <div className="kb-side-row">
               <div className="kb-side-label">{t.assignees}</div>
               <div className="kb-side-assignees">
-                {card.assignee.map(id => {
-                  const u = teammates.find(x => x.id === id);
+                {assignees.map((id) => {
+                  const u = teammates.find((x) => x.id === id);
                   return u ? (
                     <div key={id} className="kb-side-user">
                       <Avatar user={u} size={22}/>
                       <span>{u.name}</span>
-                      <button onClick={() => onAssign(card.id, card.assignee.filter(x => x !== id))} style={{marginLeft: "auto", background: "none", border: "none", color: "var(--fg-3)", cursor: "pointer"}}>×</button>
+                      <button type="button" onClick={() => onAssign(card.id, assignees.filter((x) => x !== id))} style={{marginLeft: "auto", background: "none", border: "none", color: "var(--fg-3)", cursor: "pointer"}}>×</button>
                     </div>
                   ) : null;
                 })}
                 <div style={{display: "flex", flexWrap: "wrap", gap: 4, marginTop: 8}}>
-                  {teammates.filter(u => !card.assignee.includes(u.id)).map(u => (
-                    <button key={u.id} className="kb-add-assignee" onClick={() => onAssign(card.id, [...card.assignee, u.id])} title={lang === "es" ? `Asignar a ${u.name}` : `Assign to ${u.name}`}>
+                  {teammates.filter((u) => !assignees.includes(u.id)).map((u) => (
+                    <button key={u.id} type="button" className="kb-add-assignee" onClick={() => onAssign(card.id, [...assignees, u.id])} title={lang === "es" ? `Asignar a ${u.name}` : `Assign to ${u.name}`}>
                       <Avatar user={u} size={20}/>
                     </button>
                   ))}
@@ -4490,23 +5098,27 @@ function CardDetail({ card, onClose, onAssign, onUpdate, lang }) {
             </div>
             <div className="kb-side-row">
               <div className="kb-side-label">{t.priority}</div>
-              <span className={`pill ${card.prio === "p0" || card.prio === "alta" || card.prio === "high" ? "rose" : "amber"}`}><span className="dot"></span>{card.prio}</span>
+              <select className="kb-select" value={prio} onChange={(e) => savePriority(e.target.value)}>
+                <option value="low">{lang === "es" ? "Baja · low" : "Low"}</option>
+                <option value="med">{lang === "es" ? "Media · med" : "Medium"}</option>
+                <option value="high">{lang === "es" ? "Alta · high" : "High"}</option>
+                <option value="p0">P0</option>
+                <option value="media">{lang === "es" ? "media (legacy)" : "media (legacy)"}</option>
+                <option value="alta">{lang === "es" ? "alta (legacy)" : "alta (legacy)"}</option>
+                <option value="baja">{lang === "es" ? "baja (legacy)" : "baja (legacy)"}</option>
+              </select>
+            </div>
+            <div className="kb-side-row">
+              <div className="kb-side-label">{t.due}</div>
+              <input className="kb-input-sm" style={{width: "100%"}} value={due} onChange={(e) => setDue(e.target.value)} onBlur={blurDue} placeholder={lang === "es" ? "ej. mañana, 12 may" : "e.g. tomorrow, May 12"}/>
             </div>
             <div className="kb-side-row">
               <div className="kb-side-label">{t.project}</div>
               <span className="pill violet"><span className="dot"></span>{card.proj}</span>
             </div>
-            {card.due && (
-              <div className="kb-side-row">
-                <div className="kb-side-label">{t.due}</div>
-                <span className={`pill ${card.due === "hoy" || card.due === "today" ? "rose" : ""}`}><IconK name="bell" size={10}/>{card.due}</span>
-              </div>
-            )}
             <div className="kb-side-row">
-              <div className="kb-side-label">Tags</div>
-              <div style={{display: "flex", flexWrap: "wrap", gap: 4}}>
-                {card.tags.map(tag => <span key={tag} className="kb-tag">#{tag}</span>)}
-              </div>
+              <div className="kb-side-label">{t.tags}</div>
+              <input className="kb-input-sm" style={{width: "100%"}} value={tagsStr} onChange={(e) => setTagsStr(e.target.value)} onBlur={blurTags} placeholder={lang === "es" ? "design, backend, …" : "design, backend, …"}/>
             </div>
           </div>
         </div>
@@ -4515,13 +5127,14 @@ function CardDetail({ card, onClose, onAssign, onUpdate, lang }) {
   );
 }
 
-function Kanban({ t, lang, project }) {
+function Kanban({ t, lang, project, currentUser }) {
   const [board, setBoard] = useStateK({ backlog: [], doing: [], review: [], done: [] });
   const [filter, setFilter] = useStateK("all"); // all | mine | unassigned
   const [detail, setDetail] = useStateK(null);
   const [showAdd, setShowAdd] = useStateK(null);
   const [newTitle, setNewTitle] = useStateK("");
   const [teammates, setTeammates] = useStateK([]);
+  const [taskComments, setTaskComments] = useStateK([]);
 
   const loadTeammates = React.useCallback(async () => {
     const { data } = await supabase.from('profiles').select('*');
@@ -4537,22 +5150,64 @@ function Kanban({ t, lang, project }) {
 
   const loadTasks = React.useCallback(async () => {
     const { data, error } = await supabase.from('tasks').select('*').eq('project_name', project);
-    if (!error && data) {
-      const b = { backlog: [], doing: [], review: [], done: [] };
-      data.forEach(task => {
-        if (b[task.status]) {
-          b[task.status].push({
-            id: task.id, title: task.title, proj: task.project_name, code: "TSK", 
-            prio: task.priority, tags: task.tags || [], assignee: task.assignee_ids || [], 
-            comments: 0, checks: null, due: task.due, blocked: task.blocked, 
-            blockReason: task.block_reason, stuck: task.stuck, stuckDays: task.stuck_days, 
-            aiNote: task.ai_note
-          });
-        }
+    if (error || !data) return;
+    const countByTask = {};
+    const ids = data.map((tk) => tk.id);
+    if (ids.length) {
+      const { data: cc } = await supabase.from('task_comments').select('task_id').in('task_id', ids);
+      cc?.forEach((row) => {
+        countByTask[row.task_id] = (countByTask[row.task_id] || 0) + 1;
       });
-      setBoard(b);
     }
+    const b = { backlog: [], doing: [], review: [], done: [] };
+    data.forEach((task) => {
+      if (!b[task.status]) return;
+      b[task.status].push({
+        id: task.id,
+        title: task.title,
+        description: task.description || '',
+        proj: task.project_name,
+        code: task.code && String(task.code).trim() !== '' ? task.code : 'TSK',
+        prio: task.priority,
+        tags: task.tags || [],
+        assignee: task.assignee_ids || [],
+        comments: countByTask[task.id] || 0,
+        checks: null,
+        checklist: normalizeChecklist(task.checklist),
+        due: task.due,
+        blocked: task.blocked,
+        blockReason: task.block_reason,
+        stuck: task.stuck,
+        stuckDays: task.stuck_days,
+        aiNote: task.ai_note,
+        createdBy: task.created_by,
+      });
+    });
+    setBoard(b);
   }, [project]);
+
+  const reloadComments = React.useCallback(async (taskId) => {
+    if (!taskId) { setTaskComments([]); return; }
+    const { data } = await supabase.from('task_comments').select('*').eq('task_id', taskId).order('created_at', { ascending: true });
+    setTaskComments(data || []);
+  }, []);
+
+  useEffectK(() => {
+    reloadComments(detail?.id || null);
+  }, [detail?.id, reloadComments]);
+
+  useEffectK(() => {
+    if (!detail?.id) return undefined;
+    const ch = supabase
+      .channel(`task-comments-${detail.id}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "task_comments", filter: `task_id=eq.${detail.id}` },
+        () => { reloadComments(detail.id); loadTasks(); }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [detail?.id, reloadComments, loadTasks]);
 
   useEffectK(() => {
     loadTasks();
@@ -4609,6 +5264,53 @@ function Kanban({ t, lang, project }) {
     await supabase.from('tasks').update({ assignee_ids: ids }).eq('id', cardId);
   };
 
+  const applyPatchToCard = (c, dbPatch) => {
+    const next = { ...c };
+    if (dbPatch.title != null) next.title = dbPatch.title;
+    if (dbPatch.description != null) next.description = dbPatch.description;
+    if (dbPatch.due !== undefined) next.due = dbPatch.due;
+    if (dbPatch.priority != null) next.prio = dbPatch.priority;
+    if (dbPatch.tags != null) next.tags = dbPatch.tags;
+    if (dbPatch.checklist != null) next.checklist = normalizeChecklist(dbPatch.checklist);
+    return next;
+  };
+
+  const saveTaskPatch = async (id, fields) => {
+    const dbPatch = {};
+    if (fields.title != null) dbPatch.title = fields.title;
+    if (fields.description != null) dbPatch.description = fields.description;
+    if (fields.due !== undefined) dbPatch.due = fields.due;
+    if (fields.priority != null) dbPatch.priority = fields.priority;
+    if (fields.tags != null) dbPatch.tags = fields.tags;
+    if (fields.checklist != null) dbPatch.checklist = fields.checklist;
+    if (Object.keys(dbPatch).length === 0) return;
+    await supabase.from('tasks').update(dbPatch).eq('id', id);
+    setBoard((b) => {
+      const n = { ...b };
+      for (const col of Object.keys(n)) {
+        n[col] = n[col].map((c) => (c.id === id ? applyPatchToCard(c, dbPatch) : c));
+      }
+      return n;
+    });
+    setDetail((d) => (d && d.id === id ? applyPatchToCard(d, dbPatch) : d));
+  };
+
+  const deleteTaskById = async (id) => {
+    await supabase.from('tasks').delete().eq('id', id);
+    setDetail(null);
+    setTaskComments([]);
+    await loadTasks();
+  };
+
+  const postCommentTask = async (taskId, text) => {
+    const { data: u } = await supabase.auth.getUser();
+    const uid = u?.user?.id;
+    if (!uid) return;
+    await supabase.from('task_comments').insert({ task_id: taskId, user_id: uid, content: text });
+    await reloadComments(taskId);
+    await loadTasks();
+  };
+
   const onDrop = (e, colId) => {
     const cardId = e.dataTransfer.getData("text/cardId");
     if (!cardId) return;
@@ -4617,9 +5319,11 @@ function Kanban({ t, lang, project }) {
     e.currentTarget.classList.remove("over");
   };
 
+  const uidMine = currentUser?.id;
   const matchFilter = (c) => {
-    if (filter === "mine") return c.assignee.includes("u1");
-    if (filter === "unassigned") return c.assignee.length === 0;
+    const asg = c.assignee || [];
+    if (filter === "mine") return !!uidMine && asg.includes(uidMine);
+    if (filter === "unassigned") return asg.length === 0;
     return true;
   };
 
@@ -4636,7 +5340,7 @@ function Kanban({ t, lang, project }) {
       title: title,
       project_name: project,
       status: colId,
-      priority: lang === "es" ? "media" : "med",
+      priority: 'med',
       created_by: uid || null
     });
   };
@@ -4651,8 +5355,8 @@ function Kanban({ t, lang, project }) {
         <div>
           <h1>{lang === "es" ? "Tablero" : "Board"} <em>Kanban</em></h1>
           <p>{lang === "es"
-            ? "Arrastra tarjetas entre columnas. Asigna compañeros con un click. La IA marca bloqueos, quick wins y cuellos de botella en tiempo real."
-            : "Drag cards between columns. Assign teammates with one click. AI flags blockers, quick wins and bottlenecks in real time."}</p>
+            ? "Mismo proyecto para todo el equipo (como Trello): cada quien entra con su cuenta; las tarjetas son colaborativas — editar, comentar y eliminar las puede cualquier miembro del tablero."
+            : "One shared project for the team (like Trello): everyone signs in with their own account; cards are collaborative — any board member can edit, comment or delete."}</p>
         </div>
         <button 
           className="btn btn-primary" 
@@ -4758,11 +5462,18 @@ function Kanban({ t, lang, project }) {
         })}
       </div>
 
-      <CardDetail card={detail} onClose={() => setDetail(null)}
+      <CardDetail
+        card={detail}
+        onClose={() => setDetail(null)}
         onAssign={updateAssignee}
-        onUpdate={() => {}}
         lang={lang}
-        teammates={teammates}/>
+        teammates={teammates}
+        currentUser={currentUser}
+        taskComments={taskComments}
+        onSaveTask={saveTaskPatch}
+        onDeleteTask={deleteTaskById}
+        onPostComment={postCommentTask}
+      />
     </div>
   );
 }
@@ -4782,7 +5493,7 @@ const QT3 = window.QT;
 const IconApp = QT3.Icon;
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
-  "theme": "dark",
+  "theme": "light",
   "lang": "es",
   "density": "comfortable",
   "aiVerbose": "med"
@@ -4987,8 +5698,8 @@ function App() {
             </div>
           </header>
 
-          {page === "dashboard" && Dashboard && <Dashboard t={t}/>}
-          {page === "board" && window.Kanban && <window.Kanban t={t} lang={lang} project={project} />}
+          {page === "dashboard" && Dashboard && <Dashboard t={t} lang={lang}/>}
+          {page === "board" && window.Kanban && <window.Kanban t={t} lang={lang} project={project} currentUser={user ? { id: user.id, name: user.name } : null}/>}
           {page === "capture" && Capture && <Capture t={t} lang={lang}/>}
           {page === "roadmap" && Roadmap && <Roadmap t={t} lang={lang}/>}
           {page === "optimize" && Optimize && <Optimize t={t} lang={lang}/>}

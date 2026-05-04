@@ -2307,6 +2307,40 @@ const SUPABASE_URL = "https://ekhqgjrlylxkxxxsdjqy.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVraHFnanJseWx4a3h4eHNkanF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNTE5MTgsImV4cCI6MjA5MjgyNzkxOH0.NJh0MC-fEstfUA49G6X8qZ_OKWLLud8Fz_cN_9SmcW8";
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+async function ensureProfile(user) {
+  if (!user?.id) return null;
+  const fallbackName = user.user_metadata?.name || user.email?.split("@")[0] || "Usuario";
+  const { data: existing, error: readError } = await supabase
+    .from("profiles")
+    .select("id,name,color")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (readError) console.warn("Profile read warning:", readError.message);
+  if (existing) return existing;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .insert({ id: user.id, name: fallbackName, color: "violet" })
+    .select("id,name,color")
+    .maybeSingle();
+  if (error) {
+    console.warn("Profile bootstrap warning:", error.message);
+    return { id: user.id, name: fallbackName, color: "violet" };
+  }
+  return data;
+}
+
+function userFromSessionUser(user, profile = null) {
+  if (!user) return null;
+  const name = profile?.name || user.user_metadata?.name || user.email?.split("@")[0] || "Usuario";
+  return { id: user.id, email: user.email, name };
+}
+
+function humanSupabaseError(error, fallback = "No se pudo completar la operación") {
+  if (!error) return fallback;
+  return error.message || error.details || fallback;
+}
+
 /* ============================================
    QUARK TASKING — Data + i18n + Icons
    ============================================ */
@@ -3743,9 +3777,10 @@ const IconS = QT2.Icon;
 // ============================================
 // CAPTURE
 // ============================================
-function Capture({ t, lang }) {
+function Capture({ t, lang, currentUser }) {
   const [input, setInput] = useStateB("");
   const [running, setRunning] = useStateB(false);
+  const [applying, setApplying] = useStateB(false);
   const [traceLines, setTraceLines] = useStateB([]);
   const [structVisible, setStructVisible] = useStateB(0);
   const traceData = QT2.CAPTURE_TRACE[lang];
@@ -3796,6 +3831,50 @@ function Capture({ t, lang }) {
     setStructVisible(0);
     clearTimers();
     setRunning(false);
+    setApplying(false);
+  };
+
+  const applyToWorkspace = async () => {
+    if (applying || structVisible !== resultData.length) return;
+    setApplying(true);
+    try {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
+      const uid = userData?.user?.id || currentUser?.id;
+      if (!uid) throw new Error(lang === "es" ? "Debes iniciar sesión para crear tareas." : "You must sign in to create tasks.");
+
+      const rows = [];
+      resultData.forEach((project) => {
+        const projectName = String(project.name || "Quark").split("·")[0].trim() || "Quark";
+        (project.tasks || []).forEach((task) => {
+          const pills = task.pills || [];
+          const priorityPill = pills.find((p) => ["p0", "alta", "high", "media", "med", "baja", "low"].includes(String(p.k).toLowerCase()));
+          const priorityMap = { alta: "high", high: "high", media: "med", med: "med", baja: "low", low: "low", p0: "p0" };
+          const priority = priorityMap[String(priorityPill?.k || "med").toLowerCase()] || "med";
+          const tags = pills
+            .map((p) => String(p.k || "").trim())
+            .filter((k) => k && !["p0", "alta", "high", "media", "med", "baja", "low"].includes(k.toLowerCase()) && !/^\d+h$|^\d+m$|^\d+min$|^\d+\s?m$/i.test(k));
+          rows.push({
+            title: task.t,
+            project_name: projectName,
+            status: "backlog",
+            priority,
+            tags,
+            created_by: uid,
+            ai_note: lang === "es" ? "Creada desde Capturar" : "Created from Capture",
+          });
+        });
+      });
+
+      const { error } = await supabase.from("tasks").insert(rows);
+      if (error) throw error;
+      alert(lang === "es" ? `${rows.length} tareas creadas en el workspace.` : `${rows.length} tasks created in the workspace.`);
+    } catch (err) {
+      console.error("Apply capture error:", err);
+      alert(humanSupabaseError(err, lang === "es" ? "No se pudieron crear las tareas." : "Could not create tasks."));
+    } finally {
+      setApplying(false);
+    }
   };
 
   return (
@@ -3898,7 +3977,9 @@ function Capture({ t, lang }) {
                   ))}
                   {!running && structVisible === resultData.length && (
                     <div style={{display: "flex", gap: 8, marginTop: 12}}>
-                      <button className="btn btn-primary"><IconS name="check" size={14}/>{t.cap_apply}</button>
+                      <button className="btn btn-primary" onClick={applyToWorkspace} disabled={applying}>
+                        <IconS name="check" size={14}/>{applying ? (lang === "es" ? "Aplicando…" : "Applying…") : t.cap_apply}
+                      </button>
                       <button className="btn"><IconS name="settings" size={14}/>{t.cap_edit}</button>
                     </div>
                   )}
@@ -4454,16 +4535,20 @@ function Login({ lang, onLogin, onLangToggle }) {
         alert(error.message);
         return;
       }
+      if (isSignUp && !data.session) {
+        setLoading(false);
+        setStep("idle");
+        alert(lang === "es"
+          ? "Cuenta creada. Revisa tu correo para confirmar antes de entrar."
+          : "Account created. Check your email to confirm before entering.");
+        return;
+      }
       
       // Simulate scanning steps
       setTimeout(() => setStep("ok"), 1800);
-      setTimeout(() => {
-        const user = {
-          id: data.user?.id,
-          email: data.user?.email,
-          name: data.user?.user_metadata?.name || "Usuario"
-        };
-        onLogin(user);
+      setTimeout(async () => {
+        const profile = await ensureProfile(data.user);
+        onLogin(userFromSessionUser(data.user, profile));
       }, 2400);
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -4564,7 +4649,7 @@ function Login({ lang, onLogin, onLangToggle }) {
                 <>
                   <div className="login-divider"><span>{lang === "es" ? "o" : "or"}</span></div>
 
-                  <button type="button" className="btn login-sso" onClick={submit}>
+                  <button type="button" className="btn login-sso" onClick={() => alert(lang === "es" ? "SSO todavía no está configurado. Usa correo y contraseña." : "SSO is not configured yet. Use email and password.")}>
                     <IconK name="lock" size={14}/>
                     {t.sso}
                   </button>
@@ -5136,6 +5221,13 @@ function Kanban({ t, lang, project, currentUser }) {
   const [teammates, setTeammates] = useStateK([]);
   const [taskComments, setTaskComments] = useStateK([]);
 
+  const reportError = React.useCallback((error, fallback) => {
+    if (!error) return false;
+    console.error(fallback, error);
+    alert(humanSupabaseError(error, fallback));
+    return true;
+  }, []);
+
   const loadTeammates = React.useCallback(async () => {
     const { data } = await supabase.from('profiles').select('*');
     if (data) {
@@ -5235,6 +5327,7 @@ function Kanban({ t, lang, project, currentUser }) {
 
   const moveCard = async (cardId, fromCol, toCol) => {
     if (fromCol === toCol) return;
+    const previousBoard = board;
     setBoard(b => {
       const card = b[fromCol].find(c => c.id === cardId);
       if (!card) return b;
@@ -5249,7 +5342,11 @@ function Kanban({ t, lang, project, currentUser }) {
     
     const updates = { status: toCol };
     if (toCol === "done") { updates.blocked = false; updates.stuck = false; }
-    await supabase.from('tasks').update(updates).eq('id', cardId);
+    const { error } = await supabase.from('tasks').update(updates).eq('id', cardId);
+    if (reportError(error, lang === "es" ? "No se pudo mover la tarjeta." : "Could not move card.")) {
+      setBoard(previousBoard);
+      await loadTasks();
+    }
   };
 
   const updateAssignee = async (cardId, ids) => {
@@ -5261,7 +5358,8 @@ function Kanban({ t, lang, project, currentUser }) {
       return next;
     });
     if (detail && detail.id === cardId) setDetail(d => ({ ...d, assignee: ids }));
-    await supabase.from('tasks').update({ assignee_ids: ids }).eq('id', cardId);
+    const { error } = await supabase.from('tasks').update({ assignee_ids: ids }).eq('id', cardId);
+    if (reportError(error, lang === "es" ? "No se pudo actualizar la asignación." : "Could not update assignee.")) await loadTasks();
   };
 
   const applyPatchToCard = (c, dbPatch) => {
@@ -5284,7 +5382,11 @@ function Kanban({ t, lang, project, currentUser }) {
     if (fields.tags != null) dbPatch.tags = fields.tags;
     if (fields.checklist != null) dbPatch.checklist = fields.checklist;
     if (Object.keys(dbPatch).length === 0) return;
-    await supabase.from('tasks').update(dbPatch).eq('id', id);
+    const { error } = await supabase.from('tasks').update(dbPatch).eq('id', id);
+    if (reportError(error, lang === "es" ? "No se pudo guardar la tarjeta." : "Could not save card.")) {
+      await loadTasks();
+      return;
+    }
     setBoard((b) => {
       const n = { ...b };
       for (const col of Object.keys(n)) {
@@ -5296,7 +5398,8 @@ function Kanban({ t, lang, project, currentUser }) {
   };
 
   const deleteTaskById = async (id) => {
-    await supabase.from('tasks').delete().eq('id', id);
+    const { error } = await supabase.from('tasks').delete().eq('id', id);
+    if (reportError(error, lang === "es" ? "No se pudo eliminar la tarjeta." : "Could not delete card.")) return;
     setDetail(null);
     setTaskComments([]);
     await loadTasks();
@@ -5306,7 +5409,8 @@ function Kanban({ t, lang, project, currentUser }) {
     const { data: u } = await supabase.auth.getUser();
     const uid = u?.user?.id;
     if (!uid) return;
-    await supabase.from('task_comments').insert({ task_id: taskId, user_id: uid, content: text });
+    const { error } = await supabase.from('task_comments').insert({ task_id: taskId, user_id: uid, content: text });
+    if (reportError(error, lang === "es" ? "No se pudo publicar el comentario." : "Could not post comment.")) return;
     await reloadComments(taskId);
     await loadTasks();
   };
@@ -5336,13 +5440,15 @@ function Kanban({ t, lang, project, currentUser }) {
     const { data: userData } = await supabase.auth.getUser();
     const uid = userData?.user?.id;
     
-    await supabase.from('tasks').insert({
+    const { error } = await supabase.from('tasks').insert({
       title: title,
       project_name: project,
       status: colId,
       priority: 'med',
       created_by: uid || null
     });
+    if (reportError(error, lang === "es" ? "No se pudo crear la tarjeta." : "Could not create card.")) return;
+    await loadTasks();
   };
 
   // Detect bottleneck (>2 in review or stuck cards)
@@ -5462,18 +5568,20 @@ function Kanban({ t, lang, project, currentUser }) {
         })}
       </div>
 
-      <CardDetail
-        card={detail}
-        onClose={() => setDetail(null)}
-        onAssign={updateAssignee}
-        lang={lang}
-        teammates={teammates}
-        currentUser={currentUser}
-        taskComments={taskComments}
-        onSaveTask={saveTaskPatch}
-        onDeleteTask={deleteTaskById}
-        onPostComment={postCommentTask}
-      />
+      {detail && (
+        <CardDetail
+          card={detail}
+          onClose={() => setDetail(null)}
+          onAssign={updateAssignee}
+          lang={lang}
+          teammates={teammates}
+          currentUser={currentUser}
+          taskComments={taskComments}
+          onSaveTask={saveTaskPatch}
+          onDeleteTask={deleteTaskById}
+          onPostComment={postCommentTask}
+        />
+      )}
     </div>
   );
 }
@@ -5628,7 +5736,7 @@ function App() {
 
           <div className="nav-section">{t.nav_projects}</div>
           {projectsNav.map(p => (
-            <div key={p.id} className="nav-item" style={{paddingLeft: 8}}>
+            <div key={p.id} className={`nav-item ${project === p.name ? "active" : ""}`} style={{paddingLeft: 8}} onClick={() => { setProject(p.name); setPage("board"); }}>
               <span className="icon" style={{
                 width: 16, height: 16, borderRadius: 4,
                 background: `var(--${p.color}-fog)`,
@@ -5639,7 +5747,10 @@ function App() {
               <span style={{fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"}}>{p.name}</span>
             </div>
           ))}
-          <div className="nav-item" style={{color: "var(--fg-3)", marginTop: 4}}>
+          <div className="nav-item" style={{color: "var(--fg-3)", marginTop: 4}} onClick={() => {
+            const name = prompt(lang === "es" ? "Nombre del nuevo proyecto" : "New project name");
+            if (name && name.trim()) { setProject(name.trim()); setPage("board"); }
+          }}>
             <span className="icon"><IconApp name="plus" size={14}/></span>
             <span style={{fontSize: 12}}>{lang === "es" ? "Nuevo proyecto" : "New project"}</span>
           </div>
@@ -5700,7 +5811,7 @@ function App() {
 
           {page === "dashboard" && Dashboard && <Dashboard t={t} lang={lang}/>}
           {page === "board" && window.Kanban && <window.Kanban t={t} lang={lang} project={project} currentUser={user ? { id: user.id, name: user.name } : null}/>}
-          {page === "capture" && Capture && <Capture t={t} lang={lang}/>}
+          {page === "capture" && Capture && <Capture t={t} lang={lang} currentUser={user ? { id: user.id, name: user.name } : null}/>}
           {page === "roadmap" && Roadmap && <Roadmap t={t} lang={lang}/>}
           {page === "optimize" && Optimize && <Optimize t={t} lang={lang}/>}
           {page === "settings" && Settings && <Settings t={t} lang={lang}

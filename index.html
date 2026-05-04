@@ -2291,6 +2291,12 @@ html, body {
 }
 .kb-add-assignee:hover { border-color: var(--violet); }
 
+[data-density="compact"] .page { padding: 16px 22px 44px; }
+[data-density="compact"] .card { padding: 13px; }
+[data-density="compact"] .nav-item { padding: 6px 8px; }
+[data-density="compact"] .routine-row, [data-density="compact"] .proj-row, [data-density="compact"] .insight { padding-top: 8px; padding-bottom: 8px; }
+
+
 </style>
 </head>
 <body>
@@ -2339,6 +2345,19 @@ function userFromSessionUser(user, profile = null) {
 function humanSupabaseError(error, fallback = "No se pudo completar la operación") {
   if (!error) return fallback;
   return error.message || error.details || fallback;
+}
+
+function readJsonStore(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (_) {
+    return fallback;
+  }
+}
+
+function writeJsonStore(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {}
 }
 
 /* ============================================
@@ -3389,6 +3408,14 @@ function Sparkline({ values, color = "var(--violet)" }) {
 
 function QuarkField() {
   const [hover, setHover] = useState(null);
+  const [selected, setSelected] = useState(QTd.QUARK_NODES.find(n => n.state === "blocked")?.id || QTd.QUARK_NODES[0]?.id);
+  const [showCriticalOnly, setShowCriticalOnly] = useState(false);
+  const [energy, setEnergy] = useState(1);
+  const visibleNodes = showCriticalOnly
+    ? QTd.QUARK_NODES.filter(n => n.state === "blocked" || n.state === "doing" || n.state === "review")
+    : QTd.QUARK_NODES;
+  const visibleIds = new Set(visibleNodes.map(n => n.id));
+  const selectedNode = QTd.QUARK_NODES.find(n => n.id === selected) || visibleNodes[0];
   const colorOf = (proj, state) => {
     if (state === "blocked") return "var(--rose)";
     if (state === "done") return "var(--green)";
@@ -3396,6 +3423,7 @@ function QuarkField() {
     if (proj === "cyan") return "var(--cyan)";
     return "var(--violet)";
   };
+  const labelFor = (state) => ({ blocked: "Crítico", doing: "En curso", review: "Review", done: "Done", backlog: "Backlog" }[state] || state);
   return (
     <div className="quark-field">
       <svg className="quark-svg" viewBox="0 0 600 280" preserveAspectRatio="xMidYMid meet">
@@ -3405,34 +3433,37 @@ function QuarkField() {
             <stop offset="100%" stopColor="oklch(0.55 0.14 302)" stopOpacity="0"/>
           </radialGradient>
         </defs>
-        {QTd.QUARK_EDGES.map(([a, b], i) => {
+        {QTd.QUARK_EDGES.filter(([a,b]) => visibleIds.has(a) && visibleIds.has(b)).map(([a, b], i) => {
           const na = QTd.QUARK_NODES.find(n => n.id === a);
           const nb = QTd.QUARK_NODES.find(n => n.id === b);
           if (!na || !nb) return null;
+          const active = selectedNode && (selectedNode.id === a || selectedNode.id === b);
           return (
             <line key={i} x1={na.x} y1={na.y} x2={nb.x} y2={nb.y}
-              stroke="oklch(0.62 0.1 302)" strokeOpacity="0.28"
-              strokeWidth="1" strokeDasharray="2 3"/>
+              stroke={active ? "var(--violet-hi)" : "oklch(0.62 0.1 302)"} strokeOpacity={active ? 0.75 : 0.28}
+              strokeWidth={active ? 2 : 1} strokeDasharray="2 3"/>
           );
         })}
-        {QTd.QUARK_NODES.map(n => {
+        {visibleNodes.map(n => {
           const fill = colorOf(n.proj, n.state);
           const pulse = n.state === "doing" || n.state === "blocked";
+          const isActive = selected === n.id || hover === n.id;
           return (
             <g key={n.id}
               onMouseEnter={() => setHover(n.id)}
               onMouseLeave={() => setHover(null)}
+              onClick={() => setSelected(n.id)}
               style={{ cursor: "pointer" }}>
-              <circle cx={n.x} cy={n.y} r={n.r * 1.8} fill="url(#node-glow)" opacity={hover === n.id ? 0.6 : 0.3}/>
+              <circle cx={n.x} cy={n.y} r={n.r * (isActive ? 2.35 : 1.8)} fill="url(#node-glow)" opacity={isActive ? 0.72 : 0.3}/>
               {pulse && (
                 <circle cx={n.x} cy={n.y} r={n.r} fill="none" stroke={fill} strokeOpacity="0.6">
-                  <animate attributeName="r" from={n.r} to={n.r * 2} dur="2s" repeatCount="indefinite"/>
-                  <animate attributeName="opacity" from="0.6" to="0" dur="2s" repeatCount="indefinite"/>
+                  <animate attributeName="r" from={n.r} to={n.r * (2 + energy)} dur={`${2 / energy}s`} repeatCount="indefinite"/>
+                  <animate attributeName="opacity" from="0.6" to="0" dur={`${2 / energy}s`} repeatCount="indefinite"/>
                 </circle>
               )}
-              <circle cx={n.x} cy={n.y} r={n.r} fill={fill} fillOpacity="0.15" stroke={fill} strokeWidth="1.5"/>
+              <circle cx={n.x} cy={n.y} r={n.r + (isActive ? 2 : 0)} fill={fill} fillOpacity="0.15" stroke={fill} strokeWidth={isActive ? 2.4 : 1.5}/>
               <circle cx={n.x} cy={n.y} r={n.r * 0.4} fill={fill}/>
-              {hover === n.id && (
+              {isActive && (
                 <text x={n.x} y={n.y - n.r - 6} textAnchor="middle"
                   fontSize="10" fontFamily="var(--font-mono)" fill="var(--fg-0)"
                   style={{ letterSpacing: "0.05em" }}>{n.label}</text>
@@ -3441,12 +3472,30 @@ function QuarkField() {
           );
         })}
       </svg>
+      <div style={{position: "absolute", top: 10, left: 10, right: 10, display: "flex", justifyContent: "space-between", gap: 8, pointerEvents: "auto"}}>
+        <button type="button" className="btn" style={{padding: "4px 8px", fontSize: 11}} onClick={() => setShowCriticalOnly(v => !v)}>
+          {showCriticalOnly ? "Ver todo" : "Solo críticos"}
+        </button>
+        <button type="button" className="btn" style={{padding: "4px 8px", fontSize: 11}} onClick={() => setEnergy(e => e >= 1.8 ? 0.7 : +(e + 0.35).toFixed(2))}>
+          Energía ×{energy}
+        </button>
+      </div>
+      {selectedNode && (
+        <div style={{position: "absolute", right: 12, bottom: 12, width: 180, background: "var(--surface-elev)", border: "1px solid var(--line)", borderRadius: "var(--r-md)", padding: 10, boxShadow: "0 12px 36px rgba(0,0,0,.25)"}}>
+          <div style={{fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--fg-3)", letterSpacing: ".08em"}}>QUARK SELECCIONADO</div>
+          <div style={{fontSize: 13, fontWeight: 600, marginTop: 4}}>{selectedNode.label}</div>
+          <div style={{display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap"}}>
+            <span className={`pill ${selectedNode.state === "blocked" ? "rose" : selectedNode.state === "review" ? "amber" : selectedNode.state === "done" ? "green" : "violet"}`}><span className="dot"></span>{labelFor(selectedNode.state)}</span>
+            <span className="pill cyan"><span className="dot"></span>{selectedNode.proj || "violet"}</span>
+          </div>
+        </div>
+      )}
       <div style={{
         position: "absolute", bottom: 12, left: 12,
         fontFamily: "var(--font-mono)", fontSize: 10,
         color: "var(--fg-3)", letterSpacing: "0.1em"
       }}>
-        10 QUARKS · 10 ENLACES · 1 CRÍTICO
+        {visibleNodes.length} QUARKS · {QTd.QUARK_EDGES.filter(([a,b]) => visibleIds.has(a) && visibleIds.has(b)).length} ENLACES · {QTd.QUARK_NODES.filter(n => n.state === "blocked").length} CRÍTICO
       </div>
     </div>
   );
@@ -3484,7 +3533,7 @@ function loadRoutineState(lang) {
   return routineSeed(lang);
 }
 
-function Dashboard({ t, lang }) {
+function Dashboard({ t, lang, onOpenBoard, onOpenOptimize }) {
   const insights = QTd.INSIGHTS[lang === "es" ? "es" : "en"];
   const [routine, setRoutine] = useState(() => loadRoutineState(lang));
   const [routineTab, setRoutineTab] = useState("today");
@@ -3601,7 +3650,7 @@ function Dashboard({ t, lang }) {
           {insights.slice(0, 4).map((ins, i) => {
             const iconMap = { warn: "warn", danger: "danger", ok: "rocket", default: "sparkle" };
             return (
-              <div key={i} className="insight" style={{animationDelay: `${i * 0.06}s`, animation: "routine-row-in 0.45s var(--ease-out) both"}}>
+              <div key={i} className="insight" onClick={() => onOpenOptimize && onOpenOptimize(i)} style={{animationDelay: `${i * 0.06}s`, animation: "routine-row-in 0.45s var(--ease-out) both"}}>
                 <div className={`insight-icon ${ins.kind === "default" ? "" : ins.kind}`}>
                   <IconD name={iconMap[ins.kind]} size={14}/>
                 </div>
@@ -3638,7 +3687,7 @@ function Dashboard({ t, lang }) {
             <div className="card-sub">{t.proj_sub}</div>
           </div>
           {QTd.PROJECTS.map((p, i) => (
-            <div key={p.id} className="proj-row" style={{animationDelay: `${i * 0.04}s`, animation: "routine-row-in 0.4s var(--ease-out) both"}}>
+            <div key={p.id} className="proj-row" onClick={() => onOpenBoard && onOpenBoard(p.name.split(" · ")[0])} style={{animationDelay: `${i * 0.04}s`, animation: "routine-row-in 0.4s var(--ease-out) both"}}>
               <div className="proj-icon" style={{
                 background: `var(--${p.color}-fog)`,
                 borderColor: `var(--line-strong)`,
@@ -3877,6 +3926,17 @@ function Capture({ t, lang, currentUser }) {
     }
   };
 
+  const refineStructure = () => {
+    const summary = resultData.map(project => {
+      const tasks = (project.tasks || []).map(task => `- ${task.t} [${(task.pills || []).map(p => p.k).join(", ")}]`).join("\n");
+      return `${project.name}\n${tasks}`;
+    }).join("\n\n");
+    setInput(`${input.trim()}\n\nRefinar esta estructura:\n${summary}`.trim());
+    setTraceLines([]);
+    setStructVisible(0);
+    setRunning(false);
+  };
+
   return (
     <div className="page">
       <div className="page-head">
@@ -3980,7 +4040,7 @@ function Capture({ t, lang, currentUser }) {
                       <button className="btn btn-primary" onClick={applyToWorkspace} disabled={applying}>
                         <IconS name="check" size={14}/>{applying ? (lang === "es" ? "Aplicando…" : "Applying…") : t.cap_apply}
                       </button>
-                      <button className="btn"><IconS name="settings" size={14}/>{t.cap_edit}</button>
+                      <button className="btn" onClick={refineStructure}><IconS name="settings" size={14}/>{t.cap_edit}</button>
                     </div>
                   )}
                 </>
@@ -4002,6 +4062,9 @@ function Roadmap({ t, lang }) {
     ? ["S15", "S16", "S17", "S18", "AHORA", "S20", "S21", "S22"]
     : ["W15", "W16", "W17", "W18", "NOW", "W20", "W21", "W22"];
   const nowIdx = 4;
+  const [selectedBar, setSelectedBar] = useStateB(null);
+  const [zoom, setZoom] = useStateB(1);
+  const selected = selectedBar ? data.flatMap(row => row.bars.map(bar => ({...bar, lane: row.lane}))).find(bar => `${bar.lane}-${bar.t}` === selectedBar) : null;
 
   return (
     <div className="page">
@@ -4039,7 +4102,13 @@ function Roadmap({ t, lang }) {
         </div>
       </div>
 
-      <div className="roadmap">
+      <div style={{display: "flex", justifyContent: "flex-end", gap: 8, marginBottom: 10}}>
+        <button className="btn" onClick={() => setZoom(z => Math.max(0.75, +(z - 0.25).toFixed(2)))}>{t.rm_zoom} −</button>
+        <button className="btn" onClick={() => setZoom(z => Math.min(1.5, +(z + 0.25).toFixed(2)))}>{t.rm_zoom} +</button>
+        {selected && <span className="pill violet"><span className="dot"></span>{selected.lane}: {selected.t} · {selected.p}%</span>}
+      </div>
+
+      <div className="roadmap" style={{transform: `scale(${zoom})`, transformOrigin: "top left", width: `${100 / zoom}%`}}>
         <div className="roadmap-header">
           <div>LANE</div>
           {weekLabels.map((w, i) => (
@@ -4064,7 +4133,9 @@ function Roadmap({ t, lang }) {
               const width = `calc(${cellW} * ${bar.span} - 4px)`;
               return (
                 <div key={bi} className={`roadmap-bar ${bar.c}`}
-                  style={{ left, width, "--p": `${bar.p}%` }}>
+                  onClick={() => setSelectedBar(`${row.lane}-${bar.t}`)}
+                  title={`${row.lane}: ${bar.t} · ${bar.p}%`}
+                  style={{ left, width, "--p": `${bar.p}%`, cursor: "pointer", outline: selectedBar === `${row.lane}-${bar.t}` ? "2px solid var(--violet-hi)" : "none" }}>
                   <div className="progress"/>
                   <span className="bar-label">{bar.t}</span>
                   <span className="bar-meta">{bar.p}%</span>
@@ -4081,10 +4152,33 @@ function Roadmap({ t, lang }) {
 // ============================================
 // OPTIMIZE
 // ============================================
-function Optimize({ t, lang }) {
+function Optimize({ t, lang, initialIndex = null }) {
   const proposals = QT2.OPT_PROPOSALS[lang];
-  const [active, setActive] = useStateB(proposals[0].id);
-  const sel = proposals.find(p => p.id === active);
+  const [dismissed, setDismissed] = useStateB(() => readJsonStore("quark_opt_dismissed_v1", []));
+  const [applied, setApplied] = useStateB(() => readJsonStore("quark_opt_applied_v1", []));
+  const visibleProposals = proposals.filter(p => !dismissed.includes(p.id));
+  const [active, setActive] = useStateB(visibleProposals[Math.min(initialIndex ?? 0, visibleProposals.length - 1)]?.id || proposals[0].id);
+  useEffectB(() => { if (initialIndex != null && visibleProposals[initialIndex]) setActive(visibleProposals[initialIndex].id); }, [initialIndex]);
+  const sel = visibleProposals.find(p => p.id === active) || visibleProposals[0] || proposals[0];
+
+  const applyProposal = () => {
+    const next = Array.from(new Set([...applied, sel.id]));
+    setApplied(next);
+    writeJsonStore("quark_opt_applied_v1", next);
+    alert(lang === "es" ? "Propuesta aplicada al plan local." : "Proposal applied to the local plan.");
+  };
+  const simulateProposal = () => {
+    alert(lang === "es"
+      ? `Simulación: ${sel.title} reduce riesgo y mejora foco sin cambiar datos reales.`
+      : `Simulation: ${sel.title} reduces risk and improves focus without changing real data.`);
+  };
+  const dismissProposal = () => {
+    const next = Array.from(new Set([...dismissed, sel.id]));
+    setDismissed(next);
+    writeJsonStore("quark_opt_dismissed_v1", next);
+    const remaining = proposals.filter(p => !next.includes(p.id));
+    setActive(remaining[0]?.id || proposals[0].id);
+  };
 
   const beforeAfterMap = {
     o1: {
@@ -4137,14 +4231,14 @@ function Optimize({ t, lang }) {
         <div className="meta" style={{display: "flex", alignItems: "center", gap: 8}}>
           <span className="pill violet">
             <span className="dot"></span>
-            {proposals.length} {lang === "es" ? "propuestas" : "proposals"}
+            {visibleProposals.length} {lang === "es" ? "propuestas" : "proposals"}
           </span>
         </div>
       </div>
 
       <div className="opt-grid">
         <div className="opt-list">
-          {proposals.map(p => (
+          {visibleProposals.map(p => (
             <div key={p.id}
               className={`opt-card ${active === p.id ? "active" : ""}`}
               onClick={() => setActive(p.id)}>
@@ -4169,8 +4263,8 @@ function Optimize({ t, lang }) {
               <div className="sub">{sel.id.toUpperCase()} · {lang === "es" ? "IMPACTO" : "IMPACT"} {sel.impact}</div>
             </div>
             <div style={{display: "flex", gap: 8}}>
-              <button className="btn btn-primary"><IconS name="check" size={14}/>{t.opt_apply}</button>
-              <button className="btn">{t.opt_simulate}</button>
+              <button className="btn btn-primary" onClick={applyProposal}><IconS name="check" size={14}/>{applied.includes(sel.id) ? (lang === "es" ? "Aplicada" : "Applied") : t.opt_apply}</button>
+              <button className="btn" onClick={simulateProposal}>{t.opt_simulate}</button>
             </div>
           </div>
 
@@ -4219,9 +4313,9 @@ function Optimize({ t, lang }) {
           </div>
 
           <div className="opt-actions">
-            <button className="btn btn-primary"><IconS name="check" size={14}/>{t.opt_apply}</button>
-            <button className="btn">{t.opt_simulate}</button>
-            <button className="btn btn-ghost">{t.opt_dismiss}</button>
+            <button className="btn btn-primary" onClick={applyProposal}><IconS name="check" size={14}/>{applied.includes(sel.id) ? (lang === "es" ? "Aplicada" : "Applied") : t.opt_apply}</button>
+            <button className="btn" onClick={simulateProposal}>{t.opt_simulate}</button>
+            <button className="btn btn-ghost" onClick={dismissProposal}>{t.opt_dismiss}</button>
           </div>
         </div>
       </div>
@@ -4234,6 +4328,17 @@ function Optimize({ t, lang }) {
 // ============================================
 function Settings({ t, lang, theme, setTheme, density, setDensity, aiVerbose, setAiVerbose }) {
   const [tab, setTab] = useStateB("appearance");
+  const [toggles, setToggles] = useStateB(() => readJsonStore("quark_settings_toggles_v1", { motion: true, autoReorg: true, duplicates: true, decomposition: true, smartNotifications: true, integrations: { GitHub: true, Slack: true, Linear: false, Calendar: true, Figma: false } }));
+  const setToggle = (key, value) => {
+    const next = { ...toggles, [key]: value };
+    setToggles(next);
+    writeJsonStore("quark_settings_toggles_v1", next);
+  };
+  const setIntegration = (name, value) => {
+    const next = { ...toggles, integrations: { ...(toggles.integrations || {}), [name]: value } };
+    setToggles(next);
+    writeJsonStore("quark_settings_toggles_v1", next);
+  };
   const patterns = QT2.PATTERNS[lang];
 
   const tabs = [
@@ -4297,7 +4402,7 @@ function Settings({ t, lang, theme, setTheme, density, setDensity, aiVerbose, se
                   <div className="desc">{lang === "es" ? "Transiciones suaves. Desactiva si prefieres una UI más estática." : "Smooth transitions. Turn off for a calmer, more static UI."}</div>
                 </div>
                 <div className="control">
-                  <div className="toggle on" onClick={(e) => e.currentTarget.classList.toggle("on")}/>
+                  <div className={`toggle ${toggles.motion ? "on" : ""}`} onClick={() => setToggle("motion", !toggles.motion)}/>
                 </div>
               </div>
             </>
@@ -4324,7 +4429,7 @@ function Settings({ t, lang, theme, setTheme, density, setDensity, aiVerbose, se
                   <div className="desc">{lang === "es" ? "Permite a la IA reordenar tareas sin pedir confirmación cuando la confianza supera 0.85." : "Lets the AI reorder tasks without asking when confidence exceeds 0.85."}</div>
                 </div>
                 <div className="control">
-                  <div className="toggle on" onClick={(e) => e.currentTarget.classList.toggle("on")}/>
+                  <div className={`toggle ${toggles.autoReorg ? "on" : ""}`} onClick={() => setToggle("autoReorg", !toggles.autoReorg)}/>
                 </div>
               </div>
               <div className="setting-row">
@@ -4333,7 +4438,7 @@ function Settings({ t, lang, theme, setTheme, density, setDensity, aiVerbose, se
                   <div className="desc">{lang === "es" ? "La IA fusiona tareas redundantes automáticamente." : "AI merges redundant tasks automatically."}</div>
                 </div>
                 <div className="control">
-                  <div className="toggle on" onClick={(e) => e.currentTarget.classList.toggle("on")}/>
+                  <div className={`toggle ${toggles.duplicates ? "on" : ""}`} onClick={() => setToggle("duplicates", !toggles.duplicates)}/>
                 </div>
               </div>
               <div className="setting-row">
@@ -4342,7 +4447,7 @@ function Settings({ t, lang, theme, setTheme, density, setDensity, aiVerbose, se
                   <div className="desc">{lang === "es" ? "Avisa cuando un quark es demasiado grande." : "Alerts when a quark is too large."}</div>
                 </div>
                 <div className="control">
-                  <div className="toggle on" onClick={(e) => e.currentTarget.classList.toggle("on")}/>
+                  <div className={`toggle ${toggles.decomposition ? "on" : ""}`} onClick={() => setToggle("decomposition", !toggles.decomposition)}/>
                 </div>
               </div>
             </>
@@ -4409,7 +4514,7 @@ function Settings({ t, lang, theme, setTheme, density, setDensity, aiVerbose, se
                   <div className="desc">{lang === "es" ? "Solo cuando el impacto/esfuerzo justifica interrupción." : "Only when impact/effort justifies interruption."}</div>
                 </div>
                 <div className="control">
-                  <div className="toggle on" onClick={(e) => e.currentTarget.classList.toggle("on")}/>
+                  <div className={`toggle ${toggles.smartNotifications ? "on" : ""}`} onClick={() => setToggle("smartNotifications", !toggles.smartNotifications)}/>
                 </div>
               </div>
             </>
@@ -4418,11 +4523,11 @@ function Settings({ t, lang, theme, setTheme, density, setDensity, aiVerbose, se
           {tab === "integrations" && (
             <>
               {[
-                { n: "GitHub", d: lang === "es" ? "Sincroniza issues y PRs como quarks." : "Sync issues and PRs as quarks.", on: true },
-                { n: "Slack", d: lang === "es" ? "Captura tareas desde mensajes." : "Capture tasks from messages.", on: true },
-                { n: "Linear", d: lang === "es" ? "Importa proyectos y sprints." : "Import projects and sprints.", on: false },
-                { n: "Calendar", d: lang === "es" ? "Reserva bloques de foco automáticamente." : "Books focus blocks automatically.", on: true },
-                { n: "Figma", d: lang === "es" ? "Vincula frames a quarks de diseño." : "Link frames to design quarks.", on: false },
+                { n: "GitHub", d: lang === "es" ? "Sincroniza issues y PRs como quarks." : "Sync issues and PRs as quarks." },
+                { n: "Slack", d: lang === "es" ? "Captura tareas desde mensajes." : "Capture tasks from messages." },
+                { n: "Linear", d: lang === "es" ? "Importa proyectos y sprints." : "Import projects and sprints." },
+                { n: "Calendar", d: lang === "es" ? "Reserva bloques de foco automáticamente." : "Books focus blocks automatically." },
+                { n: "Figma", d: lang === "es" ? "Vincula frames a quarks de diseño." : "Link frames to design quarks." },
               ].map((it, i) => (
                 <div key={i} className="setting-row">
                   <div>
@@ -4430,7 +4535,7 @@ function Settings({ t, lang, theme, setTheme, density, setDensity, aiVerbose, se
                     <div className="desc">{it.d}</div>
                   </div>
                   <div className="control">
-                    <div className={`toggle ${it.on ? "on" : ""}`} onClick={(e) => e.currentTarget.classList.toggle("on")}/>
+                    <div className={`toggle ${(toggles.integrations || {})[it.n] ? "on" : ""}`} onClick={() => setIntegration(it.n, !(toggles.integrations || {})[it.n])}/>
                   </div>
                 </div>
               ))}
@@ -4558,6 +4663,17 @@ function Login({ lang, onLogin, onLangToggle }) {
     }
   };
 
+  const resetPassword = async (e) => {
+    e.preventDefault();
+    if (!email.trim()) {
+      alert(lang === "es" ? "Escribe tu correo primero." : "Enter your email first.");
+      return;
+    }
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: window.location.origin });
+    if (error) alert(error.message);
+    else alert(lang === "es" ? "Te envié el enlace de recuperación." : "Password reset link sent.");
+  };
+
   return (
     <div className="login-wrap">
       <window.Cosmos/>
@@ -4657,7 +4773,7 @@ function Login({ lang, onLogin, onLangToggle }) {
               )}
 
               <div className="login-links">
-                {!isSignUp && <a href="#">{t.forgot}</a>}
+                {!isSignUp && <a href="#" onClick={resetPassword}>{t.forgot}</a>}
                 <span style={{color: "var(--fg-3)"}}>
                   {isSignUp ? (lang === "es" ? "¿Ya tienes cuenta?" : "Already have an account?") : t.new}{" "}
                   <a href="#" onClick={(e) => { e.preventDefault(); setIsSignUp(!isSignUp); }}>
@@ -5624,6 +5740,9 @@ function App() {
 
   const [page, setPage] = useStateApp("dashboard");
   const [user, setUser] = useStateApp(null);
+  const [optimizeInitial, setOptimizeInitial] = useStateApp(null);
+  const [paletteOpen, setPaletteOpen] = useStateApp(false);
+  const [paletteQuery, setPaletteQuery] = useStateApp("");
   const [project, setProject] = useStateApp(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get("project") || "Quark";
@@ -5696,6 +5815,18 @@ function App() {
     }
   };
 
+  useEffectApp(() => {
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen(true);
+      }
+      if (e.key === "Escape") setPaletteOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const crumb = {
     dashboard: lang === "es" ? "Workspace · Dashboard" : "Workspace · Dashboard",
     board: lang === "es" ? "Workspace · Tablero Kanban" : "Workspace · Kanban Board",
@@ -5713,7 +5844,7 @@ function App() {
   return (
     <>
       <Cosmos/>
-      <div className="app">
+      <div className="app" data-density={density}>
         <aside className="sidebar">
           <div className="brand">
             <div className="brand-mark"><BrandMark/></div>
@@ -5787,11 +5918,11 @@ function App() {
           <header className="topbar">
             <div className="crumb"><b>{crumb}</b></div>
             <div className="topbar-spacer"/>
-            <div className="search">
+            <button type="button" className="search" onClick={() => setPaletteOpen(true)} style={{cursor: "pointer", border: "1px solid var(--line-faint)"}}>
               <IconApp name="search" size={12}/>
               <span>{t.search}</span>
               <kbd>⌘K</kbd>
-            </div>
+            </button>
             <div className="lang-toggle">
               <button className={lang === "es" ? "active" : ""} onClick={() => setTweak("lang", "es")}>ES</button>
               <button className={lang === "en" ? "active" : ""} onClick={() => setTweak("lang", "en")}>EN</button>
@@ -5809,17 +5940,39 @@ function App() {
             </div>
           </header>
 
-          {page === "dashboard" && Dashboard && <Dashboard t={t} lang={lang}/>}
+          {page === "dashboard" && Dashboard && <Dashboard t={t} lang={lang} onOpenBoard={(name) => { setProject(name); setPage("board"); }} onOpenOptimize={(idx) => { setOptimizeInitial(idx); setPage("optimize"); }}/>}
           {page === "board" && window.Kanban && <window.Kanban t={t} lang={lang} project={project} currentUser={user ? { id: user.id, name: user.name } : null}/>}
           {page === "capture" && Capture && <Capture t={t} lang={lang} currentUser={user ? { id: user.id, name: user.name } : null}/>}
           {page === "roadmap" && Roadmap && <Roadmap t={t} lang={lang}/>}
-          {page === "optimize" && Optimize && <Optimize t={t} lang={lang}/>}
+          {page === "optimize" && Optimize && <Optimize t={t} lang={lang} initialIndex={optimizeInitial}/>}
           {page === "settings" && Settings && <Settings t={t} lang={lang}
             theme={theme} setTheme={(v) => setTweak("theme", v)}
             density={density} setDensity={(v) => setTweak("density", v)}
             aiVerbose={aiVerbose} setAiVerbose={(v) => setTweak("aiVerbose", v)}/>}
         </main>
       </div>
+
+      {paletteOpen && (
+        <div className="kb-modal-overlay" onClick={() => setPaletteOpen(false)}>
+          <div className="kb-modal" style={{width: 560, maxHeight: "70vh", top: "12vh", transform: "translateX(-50%)", padding: 16}} onClick={(e) => e.stopPropagation()}>
+            <input className="kb-title-input" autoFocus placeholder={lang === "es" ? "Buscar o ejecutar comando…" : "Search or run command…"} value={paletteQuery} onChange={(e) => setPaletteQuery(e.target.value)} />
+            <div style={{display: "grid", gap: 8, marginTop: 14}}>
+              {[
+                { label: lang === "es" ? "Abrir tablero" : "Open board", action: () => setPage("board") },
+                { label: lang === "es" ? "Capturar tareas" : "Capture tasks", action: () => setPage("capture") },
+                { label: lang === "es" ? "Ver roadmap" : "Open roadmap", action: () => setPage("roadmap") },
+                { label: lang === "es" ? "Optimización IA" : "AI optimization", action: () => setPage("optimize") },
+                { label: lang === "es" ? "Ajustes" : "Settings", action: () => setPage("settings") },
+                ...projectsNav.map(p => ({ label: `${lang === "es" ? "Proyecto" : "Project"}: ${p.name}`, action: () => { setProject(p.name); setPage("board"); } }))
+              ].filter(item => item.label.toLowerCase().includes(paletteQuery.toLowerCase())).map((item, i) => (
+                <button key={i} className="btn" style={{justifyContent: "flex-start"}} onClick={() => { item.action(); setPaletteOpen(false); setPaletteQuery(""); }}>
+                  <IconApp name="arrow" size={14}/>{item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tweaks panel */}
       {TweaksPanel && (

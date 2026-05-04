@@ -154,6 +154,20 @@ html, body {
   from { opacity: 0; transform: translateX(-6px); }
   to { opacity: 1; transform: translateX(0); }
 }
+@keyframes float-glow { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(18px,-16px,0) scale(1.04); } }
+@keyframes soft-pop { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes toast-in { from { opacity: 0; transform: translateX(18px) scale(.96); } to { opacity: 1; transform: translateX(0) scale(1); } }
+
+.toast-stack { position: fixed; right: 18px; top: 18px; z-index: 9999; display: grid; gap: 10px; pointer-events: none; }
+.toast {
+  min-width: 240px; max-width: 380px; padding: 12px 14px;
+  border-radius: var(--r-md); border: 1px solid var(--line);
+  background: var(--surface-elev); color: var(--fg-0);
+  box-shadow: 0 18px 45px oklch(0 0 0 / .28), 0 0 30px var(--violet-fog);
+  backdrop-filter: blur(18px); animation: toast-in .32s var(--ease-out) both;
+}
+.toast.ok { border-color: var(--green); }
+.toast.danger { border-color: var(--rose); }
 
 /* ============================================
    APP SHELL
@@ -165,6 +179,7 @@ html, body {
   grid-template-columns: 240px 1fr;
   height: 100vh;
   overflow: hidden;
+  animation: soft-pop .45s var(--ease-out) both;
 }
 
 .sidebar {
@@ -410,6 +425,7 @@ html, body {
   position: relative;
   backdrop-filter: blur(10px);
   transition: transform 0.28s var(--ease-out), border-color 0.2s, box-shadow 0.28s var(--ease-out);
+  animation: soft-pop .45s var(--ease-out) both;
 }
 .card:hover {
   transform: translateY(-2px);
@@ -1140,6 +1156,18 @@ html, body {
   position: relative;
   z-index: 1;
 }
+.roadmap-editor {
+  display: grid; grid-template-columns: minmax(260px, 1fr) repeat(3, 110px) 120px auto;
+  gap: 8px; align-items: end; margin-bottom: 12px;
+  padding: 12px; border: 1px solid var(--line-faint); border-radius: var(--r-lg);
+  background: linear-gradient(135deg, var(--surface), var(--bg-2));
+  animation: soft-pop .28s var(--ease-out) both;
+}
+.roadmap-editor input, .roadmap-editor select {
+  width: 100%; background: var(--bg-1); color: var(--fg-0); border: 1px solid var(--line);
+  border-radius: var(--r-sm); padding: 8px 9px; outline: none;
+}
+.roadmap-editor label { display: grid; gap: 3px; font-family: var(--font-mono); font-size: 10px; color: var(--fg-3); text-transform: uppercase; letter-spacing: .08em; }
 
 .dep-line {
   position: absolute;
@@ -1643,6 +1671,13 @@ html, body {
   background: radial-gradient(ellipse at 30% 40%, oklch(0.2 0.06 295 / 0.4), transparent 60%), var(--bg-0);
   overflow: hidden;
 }
+.login-wrap::before, .login-wrap::after {
+  content: ""; position: absolute; width: 520px; height: 520px; border-radius: 50%;
+  background: radial-gradient(circle, var(--violet-glow), transparent 64%);
+  filter: blur(16px); opacity: .45; animation: float-glow 9s ease-in-out infinite;
+}
+.login-wrap::before { left: 8%; top: 8%; }
+.login-wrap::after { right: 5%; bottom: -8%; animation-delay: -3s; background: radial-gradient(circle, var(--cyan-fog), transparent 64%); }
 .login-left {
   display: flex; flex-direction: column;
   padding: 40px 56px;
@@ -1705,7 +1740,11 @@ html, body {
               0 0 0 1px var(--line-faint),
               0 0 80px var(--violet-fog);
   backdrop-filter: blur(20px);
+  animation: soft-pop .7s var(--ease-out) both;
 }
+.login-hero, .login-feat-row, .login-brand { animation: soft-pop .65s var(--ease-out) both; }
+.login-feat-row:nth-child(2) { animation-delay: .08s; }
+.login-feat-row:nth-child(3) { animation-delay: .16s; }
 .login-card-head {
   display: flex; flex-direction: column; align-items: center;
   gap: 16px; margin-bottom: 28px;
@@ -2481,6 +2520,96 @@ function writeJsonStore(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {}
 }
 
+function quarkId(prefix = "q") {
+  try { return `${prefix}-${crypto.randomUUID()}`; }
+  catch (_) { return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`; }
+}
+
+function todayISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function showToast(message, kind = "ok") {
+  window.dispatchEvent(new CustomEvent("quark:toast", { detail: { id: quarkId("toast"), message, kind } }));
+}
+
+function priorityFromText(text = "") {
+  const s = String(text).toLowerCase();
+  if (/\bp0\b|cr[ií]tic|urgente|bloque|500|bug|producci[oó]n/.test(s)) return { k: "p0", c: "rose" };
+  if (/alta|high|importante|hoy|mañana|deadline/.test(s)) return { k: "alta", c: "rose" };
+  if (/baja|low|alg[uú]n d[ií]a|puede esperar|idea/.test(s)) return { k: "baja", c: "" };
+  return { k: "media", c: "amber" };
+}
+
+function tagsFromText(text = "") {
+  const s = String(text).toLowerCase();
+  const tags = [];
+  const add = (k, c) => { if (!tags.some(t => t.k === k)) tags.push({ k, c }); };
+  if (/backend|api|endpoint|oauth|token|server|db|base de datos/.test(s)) add("backend", "cyan");
+  if (/diseñ|ux|ui|wireframe|figma|color|token/.test(s)) add("diseño", "violet");
+  if (/research|usuario|entrevista|test/.test(s)) add("research", "violet");
+  if (/personal|mam[aá]|cumple|comprar|cita/.test(s)) add("personal", "violet");
+  if (/bug|error|500|fix|fall/.test(s)) add("bug", "rose");
+  const time = s.match(/\b(\d+\s?(?:h|m|min|hora|horas))\b/);
+  if (time) add(time[1].replace(/\s+/g, ""), "");
+  return tags;
+}
+
+function projectFromText(text = "") {
+  const s = String(text).toLowerCase();
+  if (/atlas|onboarding/.test(s)) return "Atlas";
+  if (/pavo|gateway/.test(s)) return "Pavo";
+  if (/orion|design system|oklch|token/.test(s)) return "Orion";
+  if (/lyra|research/.test(s)) return "Lyra";
+  if (/personal|mam[aá]|cumple|comprar|cita/.test(s)) return "Personal";
+  const colon = String(text).match(/^([A-ZÁÉÍÓÚÑ][\wÁÉÍÓÚÑáéíóúñ -]{2,24})\s*[:—-]/);
+  return colon ? colon[1].trim() : "Quark";
+}
+
+function buildCaptureStructure(input, lang = "es") {
+  const lines = String(input || "")
+    .split(/\n|\r|;|•/)
+    .map(x => x.replace(/^[-*\d.)\s]+/, "").trim())
+    .filter(Boolean);
+  const chunks = lines.length ? lines : String(input || "").split(/[.!?]+/).map(x => x.trim()).filter(Boolean);
+  const useful = chunks.filter(x => x.length > 4).slice(0, 30);
+  const byProject = new Map();
+  useful.forEach((raw) => {
+    const title = raw.replace(/^(reuni[oó]n|nota|recordar|idea)\s*[:—-]?\s*/i, "").trim();
+    if (!title) return;
+    const p = projectFromText(title);
+    const prio = priorityFromText(title);
+    const tags = tagsFromText(title);
+    const pills = [prio, ...tags].filter(Boolean);
+    const arr = byProject.get(p) || [];
+    arr.push({ t: title, pills });
+    byProject.set(p, arr);
+  });
+  if (!byProject.size) return [];
+  return [...byProject.entries()].map(([name, tasks]) => {
+    const high = tasks.some(t => (t.pills || []).some(p => ["p0", "alta", "high"].includes(String(p.k).toLowerCase())));
+    return {
+      name: `${name} · ${lang === "es" ? "capturado" : "captured"}`,
+      meta: `${tasks.length} ${tasks.length === 1 ? "quark" : "quarks"} · ${high ? (lang === "es" ? "alta" : "high") : (lang === "es" ? "media" : "medium")}`,
+      tasks,
+    };
+  });
+}
+
+function ToastHost() {
+  const [items, setItems] = React.useState([]);
+  React.useEffect(() => {
+    const onToast = (e) => {
+      const item = e.detail || { id: quarkId("toast"), message: "OK", kind: "ok" };
+      setItems(prev => [...prev, item].slice(-4));
+      setTimeout(() => setItems(prev => prev.filter(x => x.id !== item.id)), 3400);
+    };
+    window.addEventListener("quark:toast", onToast);
+    return () => window.removeEventListener("quark:toast", onToast);
+  }, []);
+  return <div className="toast-stack">{items.map(it => <div key={it.id} className={`toast ${it.kind || "ok"}`}>{it.message}</div>)}</div>;
+}
+
 /* ============================================
    QUARK TASKING — Data + i18n + Icons
    ============================================ */
@@ -3171,14 +3300,18 @@ const __TWEAKS_STYLE = `
 // Single source of truth for tweak values. setTweak persists via the host
 // (__edit_mode_set_keys → host rewrites the EDITMODE block on disk).
 function useTweaks(defaults) {
-  const [values, setValues] = React.useState(defaults);
+  const [values, setValues] = React.useState(() => ({ ...defaults, ...readJsonStore("quark_tweaks_v2", {}) }));
   // Accepts either setTweak('key', value) or setTweak({ key: value, ... }) so a
   // useState-style call doesn't write a "[object Object]" key into the persisted
   // JSON block.
   const setTweak = React.useCallback((keyOrEdits, val) => {
     const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
       ? keyOrEdits : { [keyOrEdits]: val };
-    setValues((prev) => ({ ...prev, ...edits }));
+    setValues((prev) => {
+      const next = { ...prev, ...edits };
+      writeJsonStore("quark_tweaks_v2", next);
+      return next;
+    });
     window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
   }, []);
   return [values, setTweak];
@@ -3622,7 +3755,7 @@ function QuarkField() {
   );
 }
 
-const ROUTINE_STORAGE_KEY = "quark_routine_v1";
+const ROUTINE_STORAGE_KEY = "quark_routine_v2";
 
 function routineSeed(lang) {
   const rows = QTd.TODAY[lang === "es" ? "es" : "en"];
@@ -4021,6 +4154,10 @@ function Capture({ t, lang, currentUser }) {
   const [structVisible, setStructVisible] = useStateB(0);
   const traceData = QT2.CAPTURE_TRACE[lang];
   const resultData = QT2.CAPTURE_RESULT[lang];
+  const [generatedResult, setGeneratedResult] = useStateB([]);
+  const [generatedTrace, setGeneratedTrace] = useStateB([]);
+  const activeResult = generatedResult.length ? generatedResult : resultData;
+  const activeTrace = generatedTrace.length ? generatedTrace : traceData;
   const traceEnd = useRefB(null);
   const timersRef = useRefB([]);
 
@@ -4038,22 +4175,33 @@ function Capture({ t, lang, currentUser }) {
     setStructVisible(0);
     clearTimers();
 
-    traceData.forEach((line, i) => {
+    const parsed = buildCaptureStructure(input, lang);
+    const nextTrace = [
+      { tag: "init", text: lang === "es" ? `Recibido input. ${parsed.reduce((a, p) => a + p.tasks.length, 0)} unidades accionables detectadas.` : `Input received. ${parsed.reduce((a, p) => a + p.tasks.length, 0)} actionable units detected.` },
+      { tag: "detect", text: lang === "es" ? "Clasificando por proyecto, prioridad y tipo de trabajo…" : "Classifying by project, priority and work type…" },
+      { tag: "ok", text: lang === "es" ? `${parsed.length} proyectos/grupos listos para crear en el tablero.` : `${parsed.length} projects/groups ready to create on the board.` },
+      { tag: "detect", text: lang === "es" ? "Etiquetas y esfuerzo inferidos desde el texto." : "Tags and effort inferred from the text." },
+      { tag: "ok", text: lang === "es" ? "Estructura funcional lista: al aplicar se crean tareas reales en Supabase." : "Functional structure ready: apply creates real tasks in Supabase." },
+    ];
+    setGeneratedResult(parsed.length ? parsed : resultData);
+    setGeneratedTrace(parsed.length ? nextTrace : traceData);
+
+    (parsed.length ? nextTrace : traceData).forEach((line, i) => {
       const t1 = setTimeout(() => {
         setTraceLines(prev => [...prev, line]);
       }, 200 + i * 360);
       timersRef.current.push(t1);
     });
 
-    resultData.forEach((_, i) => {
+    (parsed.length ? parsed : resultData).forEach((_, i) => {
       const t2 = setTimeout(() => {
         setStructVisible(v => v + 1);
-      }, 200 + traceData.length * 360 + i * 280);
+      }, 200 + (parsed.length ? nextTrace : traceData).length * 360 + i * 280);
       timersRef.current.push(t2);
     });
 
     const tEnd = setTimeout(() => setRunning(false),
-      200 + traceData.length * 360 + resultData.length * 280 + 200);
+      200 + (parsed.length ? nextTrace : traceData).length * 360 + (parsed.length ? parsed : resultData).length * 280 + 200);
     timersRef.current.push(tEnd);
   };
 
@@ -4065,13 +4213,15 @@ function Capture({ t, lang, currentUser }) {
     setInput("");
     setTraceLines([]);
     setStructVisible(0);
+    setGeneratedResult([]);
+    setGeneratedTrace([]);
     clearTimers();
     setRunning(false);
     setApplying(false);
   };
 
   const applyToWorkspace = async () => {
-    if (applying || structVisible !== resultData.length) return;
+    if (applying || structVisible !== activeResult.length) return;
     setApplying(true);
     try {
       const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -4080,7 +4230,7 @@ function Capture({ t, lang, currentUser }) {
       if (!uid) throw new Error(lang === "es" ? "Debes iniciar sesión para crear tareas." : "You must sign in to create tasks.");
 
       const rows = [];
-      resultData.forEach((project) => {
+      activeResult.forEach((project) => {
         const projectName = String(project.name || "Quark").split("·")[0].trim() || "Quark";
         (project.tasks || []).forEach((task) => {
           const pills = task.pills || [];
@@ -4104,17 +4254,17 @@ function Capture({ t, lang, currentUser }) {
 
       const { error } = await supabase.from("tasks").insert(rows);
       if (error) throw error;
-      alert(lang === "es" ? `${rows.length} tareas creadas en el workspace.` : `${rows.length} tasks created in the workspace.`);
+      showToast(lang === "es" ? `${rows.length} tareas creadas en el workspace.` : `${rows.length} tasks created in the workspace.`, "ok");
     } catch (err) {
       console.error("Apply capture error:", err);
-      alert(humanSupabaseError(err, lang === "es" ? "No se pudieron crear las tareas." : "Could not create tasks."));
+      showToast(humanSupabaseError(err, lang === "es" ? "No se pudieron crear las tareas." : "Could not create tasks."), "danger");
     } finally {
       setApplying(false);
     }
   };
 
   const refineStructure = () => {
-    const summary = resultData.map(project => {
+    const summary = activeResult.map(project => {
       const tasks = (project.tasks || []).map(task => `- ${task.t} [${(task.pills || []).map(p => p.k).join(", ")}]`).join("\n");
       return `${project.name}\n${tasks}`;
     }).join("\n\n");
@@ -4181,7 +4331,7 @@ function Capture({ t, lang, currentUser }) {
             <>
               <div className="card-head" style={{marginBottom: 10}}>
                 <div className="card-title"><span className="dot"></span>{t.cap_trace_title}</div>
-                <div className="card-sub">{traceLines.length}/{traceData.length}</div>
+                <div className="card-sub">{traceLines.length}/{activeTrace.length}</div>
               </div>
               <div className="thinking-trace">
                 {traceLines.map((line, i) => (
@@ -4191,7 +4341,7 @@ function Capture({ t, lang, currentUser }) {
                     <span>{line.text}</span>
                   </div>
                 ))}
-                {running && traceLines.length < traceData.length && <span className="cursor"></span>}
+                {running && traceLines.length < activeTrace.length && <span className="cursor"></span>}
                 <div ref={traceEnd}/>
               </div>
 
@@ -4200,7 +4350,7 @@ function Capture({ t, lang, currentUser }) {
                   <div className="card-head" style={{marginTop: 18, marginBottom: 10}}>
                     <div className="card-title"><span className="dot"></span>{t.cap_struct_title}</div>
                   </div>
-                  {resultData.slice(0, structVisible).map((proj, i) => (
+                  {activeResult.slice(0, structVisible).map((proj, i) => (
                     <div key={i} className="struct-project" style={{animationDelay: `${i * 0.05}s`}}>
                       <div className="struct-project-head">
                         <IconS name="dashboard" size={14}/>
@@ -4222,7 +4372,7 @@ function Capture({ t, lang, currentUser }) {
                       ))}
                     </div>
                   ))}
-                  {!running && structVisible === resultData.length && (
+                  {!running && structVisible === activeResult.length && (
                     <div style={{display: "flex", gap: 8, marginTop: 12}}>
                       <button className="btn btn-primary" onClick={applyToWorkspace} disabled={applying}>
                         <IconS name="check" size={14}/>{applying ? (lang === "es" ? "Aplicando…" : "Applying…") : t.cap_apply}
@@ -4244,7 +4394,7 @@ function Capture({ t, lang, currentUser }) {
 // ROADMAP
 // ============================================
 function Roadmap({ t, lang }) {
-  const data = QT2.ROADMAP.es; // labels are short enough to share
+  const [data, setData] = useStateB(() => readJsonStore("quark_roadmap_v2", QT2.ROADMAP.es));
   const weekLabels = lang === "es"
     ? ["S15", "S16", "S17", "S18", "AHORA", "S20", "S21", "S22"]
     : ["W15", "W16", "W17", "W18", "NOW", "W20", "W21", "W22"];
@@ -4252,6 +4402,50 @@ function Roadmap({ t, lang }) {
   const [selectedBar, setSelectedBar] = useStateB(null);
   const [zoom, setZoom] = useStateB(1);
   const selected = selectedBar ? data.flatMap(row => row.bars.map(bar => ({...bar, lane: row.lane}))).find(bar => `${bar.lane}-${bar.t}` === selectedBar) : null;
+
+  const persist = (next) => { setData(next); writeJsonStore("quark_roadmap_v2", next); };
+  const addLane = () => {
+    const lane = prompt(lang === "es" ? "Nombre del lane/proyecto" : "Lane/project name");
+    if (!lane?.trim()) return;
+    persist([...data, { lane: lane.trim(), sub: lang === "es" ? "nuevo plan" : "new plan", bars: [], deps: [] }]);
+    showToast(lang === "es" ? "Lane creado" : "Lane created");
+  };
+  const addBar = () => {
+    const lane = prompt(lang === "es" ? "¿En qué lane?" : "Which lane?", selected?.lane || data[0]?.lane || "Quark");
+    if (!lane?.trim()) return;
+    const title = prompt(lang === "es" ? "Nombre del bloque" : "Block name");
+    if (!title?.trim()) return;
+    let found = false;
+    const next = data.map(row => {
+      if (row.lane.toLowerCase() !== lane.trim().toLowerCase()) return row;
+      found = true;
+      return { ...row, bars: [...row.bars, { start: 4, span: 1.5, t: title.trim(), c: "violet", p: 0 }] };
+    });
+    persist(found ? next : [...data, { lane: lane.trim(), sub: "manual", bars: [{ start: 4, span: 1.5, t: title.trim(), c: "violet", p: 0 }], deps: [] }]);
+    showToast(lang === "es" ? "Bloque creado" : "Block created");
+  };
+  const updateSelected = (patch) => {
+    if (!selected) return;
+    const next = data.map(row => row.lane !== selected.lane ? row : {
+      ...row,
+      bars: row.bars.map(bar => bar.t === selected.t ? { ...bar, ...patch } : bar)
+    });
+    persist(next);
+    const newTitle = patch.t || selected.t;
+    setSelectedBar(`${selected.lane}-${newTitle}`);
+  };
+  const deleteSelected = () => {
+    if (!selected) return;
+    if (!confirm(lang === "es" ? "¿Eliminar este bloque del roadmap?" : "Delete this roadmap block?")) return;
+    persist(data.map(row => row.lane !== selected.lane ? row : { ...row, bars: row.bars.filter(bar => bar.t !== selected.t) }));
+    setSelectedBar(null);
+    showToast(lang === "es" ? "Bloque eliminado" : "Block deleted");
+  };
+  const resetRoadmap = () => {
+    if (!confirm(lang === "es" ? "¿Restaurar roadmap demo?" : "Restore demo roadmap?")) return;
+    persist(QT2.ROADMAP.es);
+    setSelectedBar(null);
+  };
 
   return (
     <div className="page">
@@ -4289,11 +4483,27 @@ function Roadmap({ t, lang }) {
         </div>
       </div>
 
-      <div style={{display: "flex", justifyContent: "flex-end", gap: 8, marginBottom: 10}}>
+      <div style={{display: "flex", justifyContent: "flex-end", gap: 8, marginBottom: 10, flexWrap: "wrap"}}>
+        <button className="btn btn-primary" onClick={addBar}><IconS name="plus" size={14}/>{lang === "es" ? "Bloque" : "Block"}</button>
+        <button className="btn" onClick={addLane}><IconS name="plus" size={14}/>{lang === "es" ? "Lane" : "Lane"}</button>
         <button className="btn" onClick={() => setZoom(z => Math.max(0.75, +(z - 0.25).toFixed(2)))}>{t.rm_zoom} −</button>
         <button className="btn" onClick={() => setZoom(z => Math.min(1.5, +(z + 0.25).toFixed(2)))}>{t.rm_zoom} +</button>
+        <button className="btn btn-ghost" onClick={resetRoadmap}>{lang === "es" ? "Reset" : "Reset"}</button>
         {selected && <span className="pill violet"><span className="dot"></span>{selected.lane}: {selected.t} · {selected.p}%</span>}
       </div>
+
+      {selected && (
+        <div className="roadmap-editor">
+          <input value={selected.t} onChange={(e) => updateSelected({ t: e.target.value })} />
+          <label>{lang === "es" ? "Inicio" : "Start"}<input type="number" min="0" max="7" step="0.1" value={selected.start} onChange={(e) => updateSelected({ start: Math.max(0, Math.min(7, Number(e.target.value) || 0)) })}/></label>
+          <label>{lang === "es" ? "Duración" : "Span"}<input type="number" min="0.4" max="8" step="0.1" value={selected.span} onChange={(e) => updateSelected({ span: Math.max(0.4, Math.min(8, Number(e.target.value) || 1)) })}/></label>
+          <label>%<input type="number" min="0" max="100" step="5" value={selected.p} onChange={(e) => updateSelected({ p: Math.max(0, Math.min(100, Number(e.target.value) || 0)) })}/></label>
+          <select value={selected.c} onChange={(e) => updateSelected({ c: e.target.value })}>
+            <option value="violet">violet</option><option value="cyan">cyan</option><option value="amber">amber</option><option value="green">green</option><option value="rose">rose</option>
+          </select>
+          <button className="btn btn-ghost" onClick={deleteSelected}><IconS name="trash" size={14}/>{lang === "es" ? "Eliminar" : "Delete"}</button>
+        </div>
+      )}
 
       <div className="roadmap" style={{transform: `scale(${zoom})`, transformOrigin: "top left", width: `${100 / zoom}%`}}>
         <div className="roadmap-header">
@@ -4348,16 +4558,58 @@ function Optimize({ t, lang, initialIndex = null }) {
   useEffectB(() => { if (initialIndex != null && visibleProposals[initialIndex]) setActive(visibleProposals[initialIndex].id); }, [initialIndex]);
   const sel = visibleProposals.find(p => p.id === active) || visibleProposals[0] || proposals[0];
 
-  const applyProposal = () => {
-    const next = Array.from(new Set([...applied, sel.id]));
-    setApplied(next);
-    writeJsonStore("quark_opt_applied_v1", next);
-    alert(lang === "es" ? "Propuesta aplicada al plan local." : "Proposal applied to the local plan.");
+  const applyProposal = async () => {
+    const now = todayISO();
+    try {
+      const patchById = {
+        o1: async () => {
+          const { data, error } = await supabase.from("tasks").select("id,title,checklist,tags").or("title.ilike.%auth%,title.ilike.%oauth%,title.ilike.%refresh%").limit(10);
+          if (error) throw error;
+          if ((data || []).length < 2) return 0;
+          const keeper = data[0];
+          const checklist = [...normalizeChecklist(keeper.checklist), ...data.slice(1).map(tk => ({ text: tk.title, done: false }))];
+          await supabase.from("tasks").update({ checklist, tags: Array.from(new Set([...(keeper.tags || []), "merged", "auth"])) }).eq("id", keeper.id);
+          await supabase.from("tasks").delete().in("id", data.slice(1).map(tk => tk.id));
+          return data.length;
+        },
+        o2: async () => {
+          const { error } = await supabase.from("tasks").update({ priority: "high", status: "doing", due: now, ai_note: lang === "es" ? "Priorizada por dependencias desde Optimización IA." : "Prioritized by dependencies from AI Optimization." }).ilike("title", "%spec%");
+          if (error) throw error;
+          return 1;
+        },
+        o3: async () => {
+          const { data: u } = await supabase.auth.getUser();
+          const rows = ["Tokens oklch", "Onboarding step 3", "OAuth refresh", "API pagination", "QA + ship"].map(title => ({ title, project_name: "Quark", status: "backlog", priority: "med", created_by: u?.user?.id || null, tags: ["v0.5"], ai_note: "Descompuesto desde Optimización IA" }));
+          const { error } = await supabase.from("tasks").insert(rows);
+          if (error) throw error;
+          return rows.length;
+        },
+        o4: async () => {
+          const { error } = await supabase.from("tasks").update({ priority: "p0", status: "doing", due: now, blocked: false, stuck: false, ai_note: lang === "es" ? "Quick win priorizado: desbloquea trabajo downstream." : "Quick win prioritized: unblocks downstream work." }).or("title.ilike.%#233%,title.ilike.%233%,title.ilike.%bug%");
+          if (error) throw error;
+          return 1;
+        },
+        o5: async () => {
+          const routine = readJsonStore("quark_routine_v2", { today: [], tomorrow: [] });
+          routine.tomorrow = [...(routine.tomorrow || []), { id: quarkId("focus"), code: "FOCUS", t: lang === "es" ? "Deep work 09:00–12:00" : "Deep work 09:00–12:00", time: "180m", prio: "alta", cat: "Focus", done: false }];
+          writeJsonStore("quark_routine_v2", routine);
+          return 1;
+        }
+      };
+      const touched = await (patchById[sel.id] || (async () => 0))();
+      const next = Array.from(new Set([...applied, sel.id]));
+      setApplied(next);
+      writeJsonStore("quark_opt_applied_v1", next);
+      showToast(lang === "es" ? `Propuesta aplicada (${touched} cambios).` : `Proposal applied (${touched} changes).`, "ok");
+    } catch (err) {
+      console.error("Optimize apply error", err);
+      showToast(humanSupabaseError(err, lang === "es" ? "No se pudo aplicar la propuesta." : "Could not apply proposal."), "danger");
+    }
   };
   const simulateProposal = () => {
-    alert(lang === "es"
-      ? `Simulación: ${sel.title} reduce riesgo y mejora foco sin cambiar datos reales.`
-      : `Simulation: ${sel.title} reduces risk and improves focus without changing real data.`);
+    showToast(lang === "es"
+      ? `Simulación lista: ${sel.title}`
+      : `Simulation ready: ${sel.title}`, "ok");
   };
   const dismissProposal = () => {
     const next = Array.from(new Set([...dismissed, sel.id]));
@@ -5637,7 +5889,7 @@ function Kanban({ t, lang, project, currentUser }) {
   const reportError = React.useCallback((error, fallback) => {
     if (!error) return false;
     console.error(fallback, error);
-    alert(humanSupabaseError(error, fallback));
+    showToast(humanSupabaseError(error, fallback), "danger");
     return true;
   }, []);
 
@@ -5677,7 +5929,7 @@ function Kanban({ t, lang, project, currentUser }) {
         tags: task.tags || [],
         assignee: task.assignee_ids || [],
         comments: countByTask[task.id] || 0,
-        checks: null,
+        checks: (() => { const c = normalizeChecklist(task.checklist); return c.length ? `${c.filter(x => x.done).length}/${c.length}` : null; })(),
         checklist: normalizeChecklist(task.checklist),
         due: task.due,
         blocked: task.blocked,
@@ -5906,11 +6158,15 @@ function Kanban({ t, lang, project, currentUser }) {
     const { data: userData } = await supabase.auth.getUser();
     const uid = userData?.user?.id;
     
+    const pr = priorityFromText(title);
     const { error } = await supabase.from('tasks').insert({
       title: title,
       project_name: project,
       status: colId,
-      priority: 'med',
+      priority: pr.k === "alta" ? "high" : pr.k === "baja" ? "low" : pr.k,
+      tags: tagsFromText(title).map(t => t.k).filter(k => !/^\d/.test(k)),
+      code: project.slice(0, 2).toUpperCase(),
+      ai_note: lang === "es" ? "Creada desde el tablero con clasificación automática." : "Created from board with automatic classification.",
       created_by: uid || null
     });
     if (reportError(error, lang === "es" ? "No se pudo crear la tarjeta." : "Could not create card.")) return;
@@ -5933,10 +6189,14 @@ function Kanban({ t, lang, project, currentUser }) {
         <button 
           className="btn btn-primary" 
           style={{height: 36, whiteSpace: "nowrap"}}
-          onClick={() => {
+          onClick={async () => {
             const url = window.location.origin + window.location.pathname + "?project=" + encodeURIComponent(project);
-            navigator.clipboard.writeText(url);
-            alert(lang === "es" ? "¡URL copiada al portapapeles!" : "URL copied to clipboard!");
+            try {
+              await navigator.clipboard.writeText(url);
+              showToast(lang === "es" ? "URL copiada al portapapeles" : "URL copied to clipboard");
+            } catch (_) {
+              prompt(lang === "es" ? "Copia la URL del tablero:" : "Copy the board URL:", url);
+            }
           }}
         >
           <IconK name="link" size={14}/>
@@ -6208,6 +6468,18 @@ function App() {
     const params = new URLSearchParams(window.location.search);
     return params.get("project") || "Quark";
   });
+  const [projectList, setProjectList] = useStateApp(() => readJsonStore("quark_projects_v2", ["Quark", "Atlas", "Orion", "Pavo", "Personal"]));
+  const openProject = (name) => {
+    const clean = String(name || "").trim();
+    if (!clean) return;
+    setProject(clean);
+    setProjectList(prev => {
+      const next = Array.from(new Set([clean, ...prev]));
+      writeJsonStore("quark_projects_v2", next);
+      return next;
+    });
+    setPage("board");
+  };
   const lang = tweaks.lang || "es";
   const theme = tweaks.theme || "dark";
   const density = tweaks.density || "comfortable";
@@ -6331,10 +6603,12 @@ function App() {
     { id: "settings",  label: t.nav_settings,  icon: "settings" },
   ];
 
-  const projectsNav = [
-    { id: "p1", code: "QU", name: project, color: "violet" },
-    { id: "p2", code: "AT", name: "Atlas", color: "cyan" }
-  ];
+  const projectsNav = projectList.map((name, i) => ({
+    id: `p-${name}-${i}`,
+    code: String(name).slice(0, 2).toUpperCase(),
+    name,
+    color: ["violet", "cyan", "amber", "rose", "green"][i % 5]
+  }));
 
   const handleLogout = async () => {
     try {
@@ -6368,12 +6642,13 @@ function App() {
   document.title = crumb;
 
   if (!user && window.Login) {
-    return <window.Login lang={lang} onLangToggle={(v) => setTweak("lang", v)} onLogin={(u) => setUser(u)}/>;
+    return <><ToastHost/><window.Login lang={lang} onLangToggle={(v) => setTweak("lang", v)} onLogin={(u) => setUser(u)}/></>;
   }
 
   return (
     <>
       <Cosmos/>
+      <ToastHost/>
       <div className="app" data-density={density}>
         <aside className="sidebar">
           <div className="brand">
@@ -6397,7 +6672,7 @@ function App() {
 
           <div className="nav-section">{t.nav_projects}</div>
           {projectsNav.map(p => (
-            <div key={p.id} className={`nav-item ${project === p.name ? "active" : ""}`} style={{paddingLeft: 8}} onClick={() => { setProject(p.name); setPage("board"); }}>
+            <div key={p.id} className={`nav-item ${project === p.name ? "active" : ""}`} style={{paddingLeft: 8}} onClick={() => openProject(p.name)}>
               <span className="icon" style={{
                 width: 16, height: 16, borderRadius: 4,
                 background: `var(--${p.color}-fog)`,
@@ -6410,7 +6685,7 @@ function App() {
           ))}
           <div className="nav-item" style={{color: "var(--fg-3)", marginTop: 4}} onClick={() => {
             const name = prompt(lang === "es" ? "Nombre del nuevo proyecto" : "New project name");
-            if (name && name.trim()) { setProject(name.trim()); setPage("board"); }
+            if (name && name.trim()) openProject(name.trim());
           }}>
             <span className="icon"><IconApp name="plus" size={14}/></span>
             <span style={{fontSize: 12}}>{lang === "es" ? "Nuevo proyecto" : "New project"}</span>
@@ -6470,7 +6745,7 @@ function App() {
             </div>
           </header>
 
-          {page === "dashboard" && Dashboard && <Dashboard t={t} lang={lang} tasks={allTasks} onOpenBoard={(name) => { setProject(name); setPage("board"); }} onOpenOptimize={(idx) => { setOptimizeInitial(idx); setPage("optimize"); }}/>}
+          {page === "dashboard" && Dashboard && <Dashboard t={t} lang={lang} tasks={allTasks} onOpenBoard={openProject} onOpenOptimize={(idx) => { setOptimizeInitial(idx); setPage("optimize"); }}/>}
           {page === "board" && window.Kanban && <window.Kanban t={t} lang={lang} project={project} currentUser={user ? { id: user.id, name: user.name } : null}/>}
           {page === "capture" && Capture && <Capture t={t} lang={lang} currentUser={user ? { id: user.id, name: user.name } : null}/>}
           {page === "roadmap" && Roadmap && <Roadmap t={t} lang={lang}/>}
@@ -6493,7 +6768,7 @@ function App() {
                 { label: lang === "es" ? "Ver roadmap" : "Open roadmap", action: () => setPage("roadmap") },
                 { label: lang === "es" ? "Optimización IA" : "AI optimization", action: () => setPage("optimize") },
                 { label: lang === "es" ? "Ajustes" : "Settings", action: () => setPage("settings") },
-                ...projectsNav.map(p => ({ label: `${lang === "es" ? "Proyecto" : "Project"}: ${p.name}`, action: () => { setProject(p.name); setPage("board"); } }))
+                ...projectsNav.map(p => ({ label: `${lang === "es" ? "Proyecto" : "Project"}: ${p.name}`, action: () => openProject(p.name) }))
               ].filter(item => item.label.toLowerCase().includes(paletteQuery.toLowerCase())).map((item, i) => (
                 <button key={i} className="btn" style={{justifyContent: "flex-start"}} onClick={() => { item.action(); setPaletteOpen(false); setPaletteQuery(""); }}>
                   <IconApp name="arrow" size={14}/>{item.label}

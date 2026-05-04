@@ -1474,6 +1474,127 @@ html, body {
 /* ============================================
    ANIMATIONS
    ============================================ */
+
+/* card-lift: scale up + deeper shadow on drag hover */
+@keyframes card-lift {
+  0% { transform: translateY(-1px) scale(1); box-shadow: 0 4px 12px oklch(0 0 0 / 0.3); }
+  100% { transform: translateY(-4px) scale(1.03); box-shadow: 0 12px 32px oklch(0 0 0 / 0.55), 0 0 0 1px var(--violet-glow); }
+}
+
+/* skeleton-pulse: gradient sweep for loading states */
+@keyframes skeleton-pulse {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-2) 25%, var(--bg-3) 50%, var(--bg-2) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.4s ease infinite;
+  border-radius: var(--r-sm);
+}
+
+/* ripple: circular expanding ripple from button click center */
+@keyframes ripple {
+  0% { transform: scale(0); opacity: 0.45; }
+  100% { transform: scale(4); opacity: 0; }
+}
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.btn-ripple .ripple-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: white;
+  pointer-events: none;
+  animation: ripple 0.5s ease-out forwards;
+  width: 60px;
+  height: 60px;
+  margin-left: -30px;
+  margin-top: -30px;
+}
+
+/* stagger-in: cascading entry for list items */
+@keyframes stagger-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.stagger-item {
+  animation: stagger-in 0.38s var(--ease-out) both;
+}
+
+/* column-accept: brief glow pulse when a column accepts a dropped card */
+@keyframes column-accept {
+  0% { box-shadow: 0 0 0 0 var(--violet-glow); }
+  50% { box-shadow: 0 0 0 6px var(--violet-glow), inset 0 0 20px var(--violet-fog); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.kb-col.accepted {
+  animation: column-accept 0.55s var(--ease-out) both;
+}
+
+/* task-complete: strikethrough + fade when task moved to done */
+@keyframes task-complete {
+  0% { opacity: 1; }
+  40% { text-decoration: line-through; text-decoration-color: var(--green); }
+  100% { opacity: 0.55; text-decoration: line-through; color: var(--fg-3); }
+}
+.kb-card.completing {
+  animation: task-complete 0.6s var(--ease-out) forwards;
+}
+
+/* toast-slide: slide in from bottom-right for success/error toasts */
+@keyframes toast-slide {
+  from { transform: translateX(120%) translateY(0); opacity: 0; }
+  to { transform: translateX(0) translateY(0); opacity: 1; }
+}
+@keyframes toast-fade-out {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(120%); opacity: 0; }
+}
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--surface-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  min-width: 260px;
+  max-width: 380px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  box-shadow: 0 8px 24px oklch(0 0 0 / 0.4);
+  backdrop-filter: blur(12px);
+  animation: toast-slide 0.35s var(--ease-out) both;
+  pointer-events: auto;
+}
+.toast.success { border-color: var(--green); }
+.toast.error { border-color: var(--rose); }
+.toast.info { border-color: var(--violet); }
+.toast.leaving { animation: toast-fade-out 0.3s var(--ease-out) forwards; }
+
+/* shake: horizontal shake for form validation errors */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+.shake {
+  animation: shake 0.4s ease both;
+}
+
 @keyframes pulse-ring {
   0% { transform: scale(0.8); opacity: 0.8; }
   100% { transform: scale(1.6); opacity: 0; }
@@ -1843,13 +1964,13 @@ html, body {
   border-radius: var(--r-sm);
   padding: 12px;
   cursor: grab;
-  transition: all 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
   position: relative;
+  animation: stagger-in 0.38s var(--ease-out) both;
 }
 .kb-card:hover {
   border-color: var(--line);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px oklch(0 0 0 / 0.3);
+  animation: card-lift 0.22s var(--ease-out) forwards;
 }
 .kb-card.dragging {
   opacity: 0.4;
@@ -3533,7 +3654,7 @@ function loadRoutineState(lang) {
   return routineSeed(lang);
 }
 
-function Dashboard({ t, lang, onOpenBoard, onOpenOptimize }) {
+function Dashboard({ t, lang, tasks = [], onOpenBoard, onOpenOptimize }) {
   const insights = QTd.INSIGHTS[lang === "es" ? "es" : "en"];
   const [routine, setRoutine] = useState(() => loadRoutineState(lang));
   const [routineTab, setRoutineTab] = useState("today");
@@ -3547,12 +3668,38 @@ function Dashboard({ t, lang, onOpenBoard, onOpenOptimize }) {
     } catch (_) {}
   }, [routine]);
 
+  // Real metrics derived from Supabase tasks
+  const realMetrics = useMemo(() => {
+    if (!tasks || tasks.length === 0) return null;
+    const total = tasks.length;
+    const byStatus = {};
+    const byPrio = {};
+    tasks.forEach(tk => {
+      byStatus[tk.status] = (byStatus[tk.status] || 0) + 1;
+      byPrio[tk.priority] = (byPrio[tk.priority] || 0) + 1;
+    });
+    const doneCount = byStatus['done'] || 0;
+    const doingCount = byStatus['doing'] || 0;
+    const blockedCount = tasks.filter(tk => tk.stuck).length;
+    const stuckCount = tasks.filter(tk => tk.stuck).length;
+    const projects = [...new Set(tasks.map(tk => tk.project_name).filter(Boolean))];
+    const today = new Date().toISOString().slice(0, 10);
+    const overdueCount = tasks.filter(tk => tk.due && tk.due < today && tk.status !== 'done').length;
+    // Recent activity: sort by updated_at, last 5
+    const recent = [...tasks]
+      .filter(tk => tk.updated_at)
+      .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
+      .slice(0, 5);
+    const completionPct = total ? Math.round((doneCount / total) * 100) : 0;
+    return { total, byStatus, byPrio, doneCount, doingCount, blockedCount, stuckCount, projects, overdueCount, recent, completionPct };
+  }, [tasks]);
+
   const { routineTodayPct, combinedProgress, projAvgPct, doneToday, totalToday } = useMemo(() => {
     const day = routine.today || [];
     const totalT = day.length;
     const doneT = day.filter(x => x.done).length;
     const rp = totalT ? Math.round((doneT / totalT) * 100) : 0;
-    const pAvg = QTd.PROJECTS.reduce((a, p) => a + p.progress, 0) / QTd.PROJECTS.length;
+    const pAvg = realMetrics ? realMetrics.completionPct / 100 : (QTd.PROJECTS.reduce((a, p) => a + p.progress, 0) / QTd.PROJECTS.length);
     const pp = Math.round(pAvg * 100);
     const combined = Math.round((rp + pp) / 2);
     return { routineTodayPct: rp, combinedProgress: combined, projAvgPct: pp, doneToday: doneT, totalToday: totalT };
@@ -3620,20 +3767,20 @@ function Dashboard({ t, lang, onOpenBoard, onOpenOptimize }) {
           <Sparkline values={[22, 28, 34, 38, 42, 46, 50, Math.max(12, combinedProgress)]} color="oklch(0.68 0.12 48)"/>
         </div>
         <div className="card metric">
-          <div className="label">{t.m2_label}</div>
-          <div className="num">{doneToday}<small> / {totalToday || "0"}</small></div>
-          <div className="delta" style={{color: "var(--cyan)"}}>● {t.m2_delta}</div>
+          <div className="label">{realMetrics ? (lang === "es" ? "Tareas totales" : "Total tasks") : t.m2_label}</div>
+          <div className="num">{realMetrics ? realMetrics.total : doneToday}<small>{realMetrics ? ` (${realMetrics.doneCount} ✓)` : ` / ${totalToday || "0"}`}</small></div>
+          <div className="delta" style={{color: "var(--cyan)"}}>● {realMetrics ? (lang === "es" ? `${realMetrics.doingCount} en progreso` : `${realMetrics.doingCount} in progress`) : t.m2_delta}</div>
           <Sparkline values={[0, 1, 1, 2, 2, doneToday, doneToday, Math.max(doneToday, 1)]} color="oklch(0.72 0.08 165)"/>
         </div>
         <div className="card metric">
           <div className="label">{t.m3_label}</div>
-          <div className="num">3</div>
-          <div className="delta down">▲ {t.m3_delta}</div>
-          <Sparkline values={[1, 2, 2, 3, 4, 3, 3, 3]} color="oklch(0.68 0.14 25)"/>
+          <div className="num">{realMetrics ? realMetrics.stuckCount : 3}</div>
+          <div className="delta down">▲ {realMetrics ? (lang === "es" ? `${realMetrics.overdueCount} vencidas` : `${realMetrics.overdueCount} overdue`) : t.m3_delta}</div>
+          <Sparkline values={[1, 2, 2, 3, 4, 3, 3, realMetrics ? Math.max(realMetrics.stuckCount, 0) : 3]} color="oklch(0.68 0.14 25)"/>
         </div>
         <div className="card metric">
           <div className="label">{t.m4_label}</div>
-          <div className="num">31<small>pts</small></div>
+          <div className="num">{realMetrics ? realMetrics.byStatus['review'] || 0 : 31}<small>{realMetrics ? (lang === "es" ? " rev" : " rev") : "pts"}</small></div>
           <div className="delta">▲ {t.m4_delta}</div>
           <Sparkline values={[18, 22, 19, 24, 26, 28, 31, 31]} color="oklch(0.77 0.12 145)"/>
         </div>
@@ -3684,25 +3831,65 @@ function Dashboard({ t, lang, onOpenBoard, onOpenOptimize }) {
               <span className="dot"></span>
               {t.proj_title}
             </div>
-            <div className="card-sub">{t.proj_sub}</div>
+            <div className="card-sub">{realMetrics ? `${realMetrics.projects.length} ${lang === "es" ? "ACTIVOS" : "ACTIVE"}` : t.proj_sub}</div>
           </div>
-          {QTd.PROJECTS.map((p, i) => (
-            <div key={p.id} className="proj-row" onClick={() => onOpenBoard && onOpenBoard(p.name.split(" · ")[0])} style={{animationDelay: `${i * 0.04}s`, animation: "routine-row-in 0.4s var(--ease-out) both"}}>
-              <div className="proj-icon" style={{
-                background: `var(--${p.color}-fog)`,
-                borderColor: `var(--line-strong)`,
-                color: `var(--${p.color === "violet" ? "violet-hi" : p.color})`
-              }}>{p.code}</div>
-              <div className="proj-name">
-                {p.name}
-                <small>{p.sub} · {Math.round(p.progress * 100)}% → {t.m1_label}</small>
+          {(realMetrics && realMetrics.projects.length > 0
+            ? realMetrics.projects.map((projName, i) => {
+                const projTasks = tasks.filter(tk => tk.project_name === projName);
+                const done = projTasks.filter(tk => tk.status === 'done').length;
+                const progress = projTasks.length ? done / projTasks.length : 0;
+                const colors = ["violet", "cyan", "amber", "rose", "green", "violet"];
+                const color = colors[i % colors.length];
+                return (
+                  <div key={projName} className="proj-row stagger-item" onClick={() => onOpenBoard && onOpenBoard(projName)} style={{animationDelay: `${i * 0.04}s`}}>
+                    <div className="proj-icon" style={{
+                      background: `var(--${color}-fog)`,
+                      borderColor: `var(--line-strong)`,
+                      color: `var(--${color === "violet" ? "violet-hi" : color})`
+                    }}>{projName.slice(0, 2).toUpperCase()}</div>
+                    <div className="proj-name">
+                      {projName}
+                      <small>{projTasks.length} {lang === "es" ? "tareas" : "tasks"} · {done} {lang === "es" ? "completadas" : "done"}</small>
+                    </div>
+                    <div className="proj-progress">
+                      <div style={{width: `${Math.round(progress * 100)}%`}}/>
+                    </div>
+                    <div className="proj-meta">{Math.round(progress * 100)}%</div>
+                  </div>
+                );
+              })
+            : QTd.PROJECTS.map((p, i) => (
+              <div key={p.id} className="proj-row stagger-item" onClick={() => onOpenBoard && onOpenBoard(p.name.split(" · ")[0])} style={{animationDelay: `${i * 0.04}s`}}>
+                <div className="proj-icon" style={{
+                  background: `var(--${p.color}-fog)`,
+                  borderColor: `var(--line-strong)`,
+                  color: `var(--${p.color === "violet" ? "violet-hi" : p.color})`
+                }}>{p.code}</div>
+                <div className="proj-name">
+                  {p.name}
+                  <small>{p.sub} · {Math.round(p.progress * 100)}% → {t.m1_label}</small>
+                </div>
+                <div className="proj-progress">
+                  <div style={{width: `${p.progress * 100}%`}}/>
+                </div>
+                <div className="proj-meta">{p.due}</div>
               </div>
-              <div className="proj-progress">
-                <div style={{width: `${p.progress * 100}%`}}/>
+            ))
+          )}
+          {realMetrics && realMetrics.recent.length > 0 && (
+            <div style={{marginTop: 12, paddingTop: 10, borderTop: "1px dashed var(--line-faint)"}}>
+              <div style={{fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--fg-3)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 8}}>
+                {lang === "es" ? "ACTIVIDAD RECIENTE" : "RECENT ACTIVITY"}
               </div>
-              <div className="proj-meta">{p.due}</div>
+              {realMetrics.recent.map((tk, i) => (
+                <div key={tk.id} className="stagger-item" style={{display: "flex", alignItems: "center", gap: 8, padding: "4px 0", borderBottom: "1px solid var(--line-faint)", fontSize: 12, animationDelay: `${i * 0.04}s`}}>
+                  <span className={`pill ${tk.status === 'done' ? 'green' : tk.status === 'doing' ? 'violet' : tk.status === 'review' ? 'amber' : ''}`} style={{flexShrink: 0}}>{tk.status}</span>
+                  <span style={{flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--fg-1)"}}>{tk.title}</span>
+                  <span style={{fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--fg-3)", flexShrink: 0}}>{tk.project_name}</span>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
 
         {/* Routine: today / tomorrow — today always available */}
@@ -4329,6 +4516,8 @@ function Optimize({ t, lang, initialIndex = null }) {
 function Settings({ t, lang, theme, setTheme, density, setDensity, aiVerbose, setAiVerbose }) {
   const [tab, setTab] = useStateB("appearance");
   const [toggles, setToggles] = useStateB(() => readJsonStore("quark_settings_toggles_v1", { motion: true, autoReorg: true, duplicates: true, decomposition: true, smartNotifications: true, integrations: { GitHub: true, Slack: true, Linear: false, Calendar: true, Figma: false } }));
+  const [integTokens, setIntegTokens] = useStateB(() => readJsonStore("quark_integrations", {}));
+  const [integInputs, setIntegInputs] = useStateB({});
   const setToggle = (key, value) => {
     const next = { ...toggles, [key]: value };
     setToggles(next);
@@ -4338,6 +4527,20 @@ function Settings({ t, lang, theme, setTheme, density, setDensity, aiVerbose, se
     const next = { ...toggles, integrations: { ...(toggles.integrations || {}), [name]: value } };
     setToggles(next);
     writeJsonStore("quark_settings_toggles_v1", next);
+    if (!value) {
+      // Remove token on disable
+      const nextTokens = { ...integTokens };
+      delete nextTokens[name];
+      if (name === "GitHub") delete nextTokens.GitHubRepo;
+      setIntegTokens(nextTokens);
+      writeJsonStore("quark_integrations", nextTokens);
+    }
+  };
+  const saveIntegToken = (name, token, extra) => {
+    const nextTokens = { ...integTokens, [name]: token };
+    if (extra) Object.assign(nextTokens, extra);
+    setIntegTokens(nextTokens);
+    writeJsonStore("quark_integrations", nextTokens);
   };
   const patterns = QT2.PATTERNS[lang];
 
@@ -4523,22 +4726,75 @@ function Settings({ t, lang, theme, setTheme, density, setDensity, aiVerbose, se
           {tab === "integrations" && (
             <>
               {[
-                { n: "GitHub", d: lang === "es" ? "Sincroniza issues y PRs como quarks." : "Sync issues and PRs as quarks." },
-                { n: "Slack", d: lang === "es" ? "Captura tareas desde mensajes." : "Capture tasks from messages." },
-                { n: "Linear", d: lang === "es" ? "Importa proyectos y sprints." : "Import projects and sprints." },
-                { n: "Calendar", d: lang === "es" ? "Reserva bloques de foco automáticamente." : "Books focus blocks automatically." },
-                { n: "Figma", d: lang === "es" ? "Vincula frames a quarks de diseño." : "Link frames to design quarks." },
-              ].map((it, i) => (
-                <div key={i} className="setting-row">
-                  <div>
-                    <div className="label">{it.n}</div>
-                    <div className="desc">{it.d}</div>
+                { n: "GitHub", d: lang === "es" ? "Sincroniza issues y PRs como quarks." : "Sync issues and PRs as quarks.", label: lang === "es" ? "Personal Access Token (PAT)" : "Personal Access Token (PAT)", extra: { key: "GitHubRepo", label: lang === "es" ? "Repositorio (owner/repo)" : "Repository (owner/repo)", placeholder: "owner/repo" } },
+                { n: "Slack", d: lang === "es" ? "Captura tareas desde mensajes." : "Capture tasks from messages.", label: lang === "es" ? "Bot Token" : "Bot Token" },
+                { n: "Linear", d: lang === "es" ? "Importa proyectos y sprints." : "Import projects and sprints.", label: "API Key" },
+                { n: "Calendar", d: lang === "es" ? "Reserva bloques de foco automáticamente." : "Books focus blocks automatically.", label: lang === "es" ? "API Key / OAuth Token" : "API Key / OAuth Token" },
+                { n: "Figma", d: lang === "es" ? "Vincula frames a quarks de diseño." : "Link frames to design quarks.", label: lang === "es" ? "Personal Access Token" : "Personal Access Token" },
+              ].map((it, i) => {
+                const isOn = !!(toggles.integrations || {})[it.n];
+                const hasToken = !!(integTokens[it.n]);
+                return (
+                  <div key={i} style={{marginBottom: 12}}>
+                    <div className="setting-row" style={{marginBottom: isOn ? 8 : 0}}>
+                      <div style={{display:"flex",alignItems:"center",gap:8}}>
+                        <div>
+                          <div className="label" style={{display:"flex",alignItems:"center",gap:7}}>
+                            {it.n}
+                            {hasToken && <span style={{fontSize:10,padding:"1px 6px",borderRadius:10,background:"var(--green-fog)",border:"1px solid var(--green)",color:"var(--green)",fontFamily:"var(--font-mono)",letterSpacing:"0.06em"}}>{lang === "es" ? "CONECTADO" : "CONNECTED"}</span>}
+                            {isOn && !hasToken && <span style={{fontSize:10,padding:"1px 6px",borderRadius:10,background:"var(--amber-fog)",border:"1px solid var(--amber)",color:"var(--amber)",fontFamily:"var(--font-mono)",letterSpacing:"0.06em"}}>{lang === "es" ? "SIN TOKEN" : "NO TOKEN"}</span>}
+                          </div>
+                          <div className="desc">{it.d}</div>
+                        </div>
+                      </div>
+                      <div className="control">
+                        <div className={`toggle ${isOn ? "on" : ""}`} onClick={() => setIntegration(it.n, !isOn)}/>
+                      </div>
+                    </div>
+                    {isOn && (
+                      <div style={{padding:"10px 12px",background:"var(--bg-2)",border:"1px solid var(--line)",borderRadius:"var(--r-md)",display:"flex",flexDirection:"column",gap:8}}>
+                        <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                          <input
+                            type="password"
+                            placeholder={it.label}
+                            value={integInputs[it.n] ?? (integTokens[it.n] || "")}
+                            onChange={e => setIntegInputs(p => ({ ...p, [it.n]: e.target.value }))}
+                            style={{flex:1,background:"var(--bg-3)",border:"1px solid var(--line-strong)",borderRadius:"var(--r-sm)",padding:"5px 10px",fontSize:12,color:"var(--fg-1)",fontFamily:"var(--font-mono)",outline:"none"}}
+                          />
+                          <button className="btn btn-primary" style={{height:30,padding:"0 12px",fontSize:12,whiteSpace:"nowrap"}} onClick={() => {
+                            const tok = (integInputs[it.n] ?? "").trim();
+                            if (!tok) return;
+                            const extra = {};
+                            if (it.extra && integInputs[it.n + "_extra"]) extra[it.extra.key] = integInputs[it.n + "_extra"].trim();
+                            saveIntegToken(it.n, tok, extra);
+                            setIntegInputs(p => ({ ...p, [it.n]: "" }));
+                          }}>
+                            {lang === "es" ? "Guardar" : "Save"}
+                          </button>
+                          {hasToken && (
+                            <button className="btn btn-ghost" style={{height:30,padding:"0 10px",fontSize:12}} onClick={() => {
+                              const nextTokens = { ...integTokens };
+                              delete nextTokens[it.n];
+                              if (it.extra) delete nextTokens[it.extra.key];
+                              setIntegTokens(nextTokens);
+                              writeJsonStore("quark_integrations", nextTokens);
+                            }}>✕</button>
+                          )}
+                        </div>
+                        {it.extra && (
+                          <input
+                            type="text"
+                            placeholder={it.extra.label + (it.extra.placeholder ? ` (${it.extra.placeholder})` : "")}
+                            value={integInputs[it.n + "_extra"] ?? (integTokens[it.extra.key] || "")}
+                            onChange={e => setIntegInputs(p => ({ ...p, [it.n + "_extra"]: e.target.value }))}
+                            style={{background:"var(--bg-3)",border:"1px solid var(--line-strong)",borderRadius:"var(--r-sm)",padding:"5px 10px",fontSize:12,color:"var(--fg-1)",fontFamily:"var(--font-mono)",outline:"none"}}
+                          />
+                        )}
+                      </div>
+                    )}
                   </div>
-                  <div className="control">
-                    <div className={`toggle ${(toggles.integrations || {})[it.n] ? "on" : ""}`} onClick={() => setIntegration(it.n, !(toggles.integrations || {})[it.n])}/>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </>
           )}
         </div>
@@ -4920,7 +5176,7 @@ function AssignDropdown({ open, ids, onChange, onClose, teammates = [] }) {
   );
 }
 
-function KanbanCard({ card, onAssign, onClick, teammates = [] }) {
+function KanbanCard({ card, onAssign, onClick, teammates = [], onDecompose, onPushGitHub }) {
   const [popOpen, setPopOpen] = useStateK(false);
   const prioColor = (p) => {
     if (p === "p0" || p === "alta" || p === "high") return "rose";
@@ -5003,6 +5259,23 @@ function KanbanCard({ card, onAssign, onClick, teammates = [] }) {
       {card.checks && (
         <div className="kb-card-progress">
           <div style={{width: `${(card.checks.done / card.checks.total) * 100}%`}}/>
+        </div>
+      )}
+
+      {(onDecompose || onPushGitHub) && (
+        <div className="kb-card-actions" onClick={e => e.stopPropagation()} style={{display:"flex",gap:4,marginTop:6,paddingTop:6,borderTop:"1px solid var(--line-faint)"}}>
+          {onDecompose && (
+            <button className="btn btn-ghost" style={{padding:"2px 7px",fontSize:10,height:22,borderRadius:4,display:"flex",alignItems:"center",gap:3}} onClick={() => onDecompose(card)} title="Decompose task">
+              <IconK name="sparkle" size={10}/>
+              {card.tags && card.tags.includes("has-subtasks") ? "⊞" : "÷"}
+            </button>
+          )}
+          {onPushGitHub && (
+            <button className="btn btn-ghost" style={{padding:"2px 7px",fontSize:10,height:22,borderRadius:4,display:"flex",alignItems:"center",gap:3}} onClick={() => onPushGitHub(card)} title="Push to GitHub">
+              <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+              GitHub
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -5336,6 +5609,30 @@ function Kanban({ t, lang, project, currentUser }) {
   const [newTitle, setNewTitle] = useStateK("");
   const [teammates, setTeammates] = useStateK([]);
   const [taskComments, setTaskComments] = useStateK([]);
+  const [decomposeCard, setDecomposeCard] = useStateK(null);
+  const [decomposeCount, setDecomposeCount] = useStateK(3);
+  const [decomposeLoading, setDecomposeLoading] = useStateK(false);
+
+  const PRIO_ORDER = { p0: 0, urgent: 0, high: 1, alta: 1, med: 2, media: 2, low: 3, baja: 3 };
+  const sortByPrioThenDue = (cards) => [...cards].sort((a, b) => {
+    const pa = PRIO_ORDER[a.prio] ?? 2;
+    const pb = PRIO_ORDER[b.prio] ?? 2;
+    if (pa !== pb) return pa - pb;
+    if (a.due && b.due) return a.due.localeCompare(b.due);
+    if (a.due) return -1;
+    if (b.due) return 1;
+    return 0;
+  });
+  const autoReorgEnabled = () => {
+    try { return (JSON.parse(localStorage.getItem("quark_settings_toggles_v1") || "{}")).autoReorg !== false; } catch (_) { return true; }
+  };
+  const reorganize = () => {
+    setBoard(b => {
+      const next = {};
+      for (const col of Object.keys(b)) { next[col] = sortByPrioThenDue(b[col]); }
+      return next;
+    });
+  };
 
   const reportError = React.useCallback((error, fallback) => {
     if (!error) return false;
@@ -5391,7 +5688,13 @@ function Kanban({ t, lang, project, currentUser }) {
         createdBy: task.created_by,
       });
     });
-    setBoard(b);
+    if (autoReorgEnabled()) {
+      const sorted = {};
+      for (const col of Object.keys(b)) { sorted[col] = sortByPrioThenDue(b[col]); }
+      setBoard(sorted);
+    } else {
+      setBoard(b);
+    }
   }, [project]);
 
   const reloadComments = React.useCallback(async (taskId) => {
@@ -5521,6 +5824,53 @@ function Kanban({ t, lang, project, currentUser }) {
     await loadTasks();
   };
 
+  const decomposeTask = async (card, count) => {
+    setDecomposeLoading(true);
+    try {
+      const subtasks = [];
+      for (let i = 1; i <= count; i++) {
+        subtasks.push({
+          title: `${card.title} - Part ${i}`,
+          project_name: card.proj,
+          status: 'doing',
+          priority: card.prio || 'med',
+        });
+      }
+      const { error: insertErr } = await supabase.from('tasks').insert(subtasks);
+      if (insertErr) { alert(lang === "es" ? "No se pudieron crear las subtareas." : "Could not create subtasks."); setDecomposeLoading(false); return; }
+      // Tag parent with has-subtasks
+      const existingTags = card.tags || [];
+      if (!existingTags.includes("has-subtasks")) {
+        await supabase.from('tasks').update({ tags: [...existingTags, "has-subtasks"] }).eq('id', card.id);
+      }
+      setDecomposeCard(null);
+      await loadTasks();
+    } finally {
+      setDecomposeLoading(false);
+    }
+  };
+
+  const pushToGitHub = async (card) => {
+    const integrations = (() => { try { return JSON.parse(localStorage.getItem("quark_integrations") || "{}"); } catch (_) { return {}; } })();
+    const token = integrations.GitHub;
+    if (!token) { alert(lang === "es" ? "No hay token de GitHub configurado. Ve a Ajustes → Integraciones." : "No GitHub token configured. Go to Settings → Integrations."); return; }
+    // Parse "owner/repo" from stored ghRepo or default
+    const repo = integrations.GitHubRepo || "";
+    if (!repo || !repo.includes("/")) { alert(lang === "es" ? "Configura el repositorio GitHub (owner/repo) en Integraciones." : "Set your GitHub repository (owner/repo) in Integrations."); return; }
+    try {
+      const res = await fetch(`https://api.github.com/repos/${repo}/issues`, {
+        method: "POST",
+        headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ title: card.title, body: card.description || "", labels: card.tags || [] })
+      });
+      if (!res.ok) { const j = await res.json(); alert(`GitHub error: ${j.message || res.status}`); return; }
+      const issue = await res.json();
+      alert(lang === "es" ? `Issue creado: #${issue.number}` : `Issue created: #${issue.number}`);
+    } catch (err) {
+      alert(lang === "es" ? "Error al conectar con GitHub." : "Error connecting to GitHub.");
+    }
+  };
+
   const postCommentTask = async (taskId, text) => {
     const { data: u } = await supabase.auth.getUser();
     const uid = u?.user?.id;
@@ -5600,6 +5950,10 @@ function Kanban({ t, lang, project, currentUser }) {
           <button className={filter === "mine" ? "active" : ""} onClick={() => setFilter("mine")}>{lang === "es" ? "Mis tareas" : "Mine"}</button>
           <button className={filter === "unassigned" ? "active" : ""} onClick={() => setFilter("unassigned")}>{lang === "es" ? "Sin asignar" : "Unassigned"}</button>
         </div>
+        <button className="btn btn-ghost" style={{height: 30, padding: "0 10px", fontSize: 12, display: "flex", alignItems: "center", gap: 5}} onClick={reorganize} title={lang === "es" ? "Ordenar por prioridad y fecha" : "Sort by priority and due date"}>
+          <IconK name="optimize" size={13}/>
+          {lang === "es" ? "Reorganizar" : "Reorganize"}
+        </button>
         <div className="kb-team">
           <span style={{fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--fg-3)", letterSpacing: "0.1em", marginRight: 4}}>{lang === "es" ? "EQUIPO" : "TEAM"}</span>
           {teammates.map(u => <Avatar key={u.id} user={u} size={24} ring={true}/>)}
@@ -5666,7 +6020,9 @@ function Kanban({ t, lang, project, currentUser }) {
                   <KanbanCard key={card.id} card={card}
                     onAssign={updateAssignee}
                     onClick={() => setDetail(card)}
-                    teammates={teammates}/>
+                    teammates={teammates}
+                    onDecompose={(c) => { setDecomposeCard(c); setDecomposeCount(3); }}
+                    onPushGitHub={(() => { try { return JSON.parse(localStorage.getItem("quark_integrations") || "{}"); } catch(_) { return {}; } })().GitHub ? pushToGitHub : null}/>
                 ))}
                 {cards.length === 0 && showAdd !== col.id && (
                   <div className="kb-empty">{lang === "es" ? "Vacío" : "Empty"}</div>
@@ -5698,12 +6054,116 @@ function Kanban({ t, lang, project, currentUser }) {
           onPostComment={postCommentTask}
         />
       )}
+
+      {decomposeCard && (
+        <div style={{position:"fixed",inset:0,background:"oklch(0 0 0 / 0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:3000}} onClick={() => setDecomposeCard(null)}>
+          <div style={{background:"var(--surface-elev)",border:"1px solid var(--line-strong)",borderRadius:"var(--r-lg)",padding:"28px 32px",width:340,boxShadow:"0 24px 64px oklch(0 0 0 / 0.5)"}} onClick={e => e.stopPropagation()}>
+            <div style={{fontFamily:"var(--font-mono)",fontSize:10,letterSpacing:"0.12em",color:"var(--violet-hi)",marginBottom:8}}>
+              {lang === "es" ? "DESCOMPONER TAREA" : "DECOMPOSE TASK"}
+            </div>
+            <div style={{fontSize:13,color:"var(--fg-1)",marginBottom:16,lineHeight:1.5}}>
+              <strong>{decomposeCard.title}</strong>
+            </div>
+            <div style={{marginBottom:16}}>
+              <label style={{fontSize:12,color:"var(--fg-2)",display:"block",marginBottom:6}}>
+                {lang === "es" ? `Número de subtareas: ${decomposeCount}` : `Number of subtasks: ${decomposeCount}`}
+              </label>
+              <input type="range" min={2} max={5} value={decomposeCount} onChange={e => setDecomposeCount(Number(e.target.value))}
+                style={{width:"100%",accentColor:"var(--violet)"}}/>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:"var(--fg-3)",marginTop:2}}>
+                <span>2</span><span>3</span><span>4</span><span>5</span>
+              </div>
+            </div>
+            <div style={{fontSize:11,color:"var(--fg-3)",marginBottom:16,lineHeight:1.5}}>
+              {lang === "es"
+                ? `Se crearán ${decomposeCount} subtareas: "${decomposeCard.title} - Part 1", etc.`
+                : `Will create ${decomposeCount} subtasks: "${decomposeCard.title} - Part 1", etc.`}
+            </div>
+            <div style={{display:"flex",gap:8}}>
+              <button className="btn btn-primary" style={{flex:1,height:34,fontSize:13}} disabled={decomposeLoading}
+                onClick={() => decomposeTask(decomposeCard, decomposeCount)}>
+                {decomposeLoading ? "…" : (lang === "es" ? "Descomponer" : "Decompose")}
+              </button>
+              <button className="btn btn-ghost" style={{height:34,padding:"0 14px",fontSize:13}} onClick={() => setDecomposeCard(null)}>
+                {lang === "es" ? "Cancelar" : "Cancel"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 window.Login = Login;
 window.Kanban = Kanban;
+
+
+//----
+
+/* ============================================
+   TOAST NOTIFICATION SYSTEM
+   ============================================ */
+const ToastContext = React.createContext(null);
+
+function ToastProvider({ children }) {
+  const [toasts, setToasts] = React.useState([]);
+
+  const showToast = React.useCallback((message, type = "info", duration = 3500) => {
+    const id = Date.now() + Math.random();
+    setToasts(prev => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts(prev => prev.map(t => t.id === id ? { ...t, leaving: true } : t));
+      setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 330);
+    }, duration);
+  }, []);
+
+  const iconMap = { success: "check", error: "warn", info: "sparkle" };
+  const colorMap = { success: "var(--green)", error: "var(--rose)", info: "var(--violet-hi)" };
+
+  return (
+    <ToastContext.Provider value={showToast}>
+      {children}
+      <div className="toast-container">
+        {toasts.map(toast => (
+          <div key={toast.id} className={`toast ${toast.type} ${toast.leaving ? "leaving" : ""}`}>
+            <span style={{ color: colorMap[toast.type], flexShrink: 0 }}>
+              <IconK name={iconMap[toast.type] || "sparkle"} size={14}/>
+            </span>
+            <span>{toast.message}</span>
+          </div>
+        ))}
+      </div>
+    </ToastContext.Provider>
+  );
+}
+
+function useToast() {
+  return React.useContext(ToastContext) || (() => {});
+}
+
+/* Ripple effect — attach to any button with class btn-ripple */
+function addRipple(e) {
+  const btn = e.currentTarget;
+  const rect = btn.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const circle = document.createElement("span");
+  circle.className = "ripple-circle";
+  circle.style.left = x + "px";
+  circle.style.top = y + "px";
+  btn.appendChild(circle);
+  setTimeout(() => circle.remove(), 520);
+}
+
+// Apply ripple to primary buttons globally
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".btn-primary, .btn-routine-add, .kb-btn-save");
+  if (btn) addRipple({ currentTarget: btn, clientX: e.clientX, clientY: e.clientY });
+}, true);
+
+window.ToastProvider = ToastProvider;
+window.useToast = useToast;
 
 
 //----
@@ -5740,6 +6200,7 @@ function App() {
 
   const [page, setPage] = useStateApp("dashboard");
   const [user, setUser] = useStateApp(null);
+  const [allTasks, setAllTasks] = useStateApp([]);
   const [optimizeInitial, setOptimizeInitial] = useStateApp(null);
   const [paletteOpen, setPaletteOpen] = useStateApp(false);
   const [paletteQuery, setPaletteQuery] = useStateApp("");
@@ -5774,21 +6235,90 @@ function App() {
     };
     checkSession();
 
-    // Subscribe to auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    // Subscribe to auth changes — handles token refresh, sign-out, etc.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT') {
         setUser(null);
+      } else if (event === 'TOKEN_REFRESHED') {
+        // Token was refreshed automatically — no state change needed, session stays valid
+        console.debug("[Auth] Token refreshed silently.");
+      } else if (event === 'PASSWORD_RECOVERY') {
+        // could show a password reset UI; for now no-op
       } else if (session && session.user) {
-        setUser({
+        const userObj = {
           id: session.user.id,
           email: session.user.email,
           name: session.user.user_metadata?.name || session.user.email.split("@")[0]
-        });
+        };
+        setUser(userObj);
       }
     });
 
-    return () => subscription?.unsubscribe();
+    // Ensure auto-refresh is active for the current session
+    supabase.auth.startAutoRefresh();
+
+    return () => {
+      subscription?.unsubscribe();
+      supabase.auth.stopAutoRefresh();
+    };
   }, []);
+
+  // Load ALL tasks for dashboard metrics
+  useEffectApp(() => {
+    const loadAllTasks = async () => {
+      try {
+        const { data } = await supabase.from('tasks').select('id,title,status,priority,project_name,due,stuck,updated_at,created_at');
+        if (data) setAllTasks(data);
+      } catch (err) {
+        console.warn("Could not load tasks for dashboard:", err);
+      }
+    };
+    loadAllTasks();
+    const ch = supabase.channel('all-tasks-dash')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, loadAllTasks)
+      .subscribe();
+    return () => supabase.removeChannel(ch);
+  }, []);
+
+  // Smart notifications: overdue and stuck tasks
+  useEffectApp(() => {
+    const smartEnabled = (() => { try { return (JSON.parse(localStorage.getItem("quark_settings_toggles_v1") || "{}")).smartNotifications !== false; } catch (_) { return true; } })();
+    if (!smartEnabled || !allTasks.length) return;
+    const fireNotifs = () => {
+      if (typeof Notification === "undefined") return;
+      if (Notification.permission === "default") {
+        Notification.requestPermission().then(p => { if (p === "granted") fireNotifs(); });
+        return;
+      }
+      if (Notification.permission !== "granted") return;
+      const today = new Date().toISOString().slice(0, 10);
+      const overdue = allTasks.filter(tk => tk.due && tk.due < today && tk.status !== "done");
+      if (overdue.length > 0) {
+        new Notification(lang === "es" ? "Quark Tasking — Tareas vencidas" : "Quark Tasking — Overdue tasks", {
+          body: lang === "es"
+            ? `${overdue.length} tarea(s) vencida(s): ${overdue.slice(0, 3).map(t => t.title).join(", ")}${overdue.length > 3 ? "…" : ""}`
+            : `${overdue.length} overdue task(s): ${overdue.slice(0, 3).map(t => t.title).join(", ")}${overdue.length > 3 ? "…" : ""}`,
+          icon: "/favicon.ico",
+          tag: "quark-overdue"
+        });
+      }
+      // Stuck tasks (stuck field or stuck_days > 3, approximate via stuck flag)
+      const stuck = allTasks.filter(tk => tk.stuck && tk.status !== "done");
+      if (stuck.length > 0) {
+        new Notification(lang === "es" ? "Quark Tasking — Tareas estancadas" : "Quark Tasking — Stuck tasks", {
+          body: lang === "es"
+            ? `${stuck.length} tarea(s) estancada(s): ${stuck.slice(0, 3).map(t => t.title).join(", ")}${stuck.length > 3 ? "…" : ""}`
+            : `${stuck.length} stuck task(s): ${stuck.slice(0, 3).map(t => t.title).join(", ")}${stuck.length > 3 ? "…" : ""}`,
+          icon: "/favicon.ico",
+          tag: "quark-stuck"
+        });
+      }
+    };
+    fireNotifs();
+    // Re-check once daily (86400000ms)
+    const timer = setInterval(fireNotifs, 86400000);
+    return () => clearInterval(timer);
+  }, [allTasks, lang]);
 
   const t = QT3.I18N[lang];
 
@@ -5940,7 +6470,7 @@ function App() {
             </div>
           </header>
 
-          {page === "dashboard" && Dashboard && <Dashboard t={t} lang={lang} onOpenBoard={(name) => { setProject(name); setPage("board"); }} onOpenOptimize={(idx) => { setOptimizeInitial(idx); setPage("optimize"); }}/>}
+          {page === "dashboard" && Dashboard && <Dashboard t={t} lang={lang} tasks={allTasks} onOpenBoard={(name) => { setProject(name); setPage("board"); }} onOpenOptimize={(idx) => { setOptimizeInitial(idx); setPage("optimize"); }}/>}
           {page === "board" && window.Kanban && <window.Kanban t={t} lang={lang} project={project} currentUser={user ? { id: user.id, name: user.name } : null}/>}
           {page === "capture" && Capture && <Capture t={t} lang={lang} currentUser={user ? { id: user.id, name: user.name } : null}/>}
           {page === "roadmap" && Roadmap && <Roadmap t={t} lang={lang}/>}
@@ -6020,7 +6550,11 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <window.ToastProvider>
+    <App/>
+  </window.ToastProvider>
+);
 
   </script>
 </body>

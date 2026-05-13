@@ -42,6 +42,23 @@ export default function Workflow() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [activePulse, setActivePulse] = useState(0)
   const [zoom, setZoom] = useState(1)
+  const [showNewProject, setShowNewProject] = useState(false)
+  const [newProject, setNewProject] = useState({ name: '', nodes: 3 })
+  const [projectList, setProjectList] = useState(projectTasks)
+
+  const handleAddProject = () => {
+    if (!newProject.name.trim()) return
+    const project = {
+      id: Date.now(),
+      name: newProject.name,
+      progress: 0,
+      nodes: newProject.nodes,
+      status: 'active',
+    }
+    setProjectList(prev => [...prev, project])
+    setNewProject({ name: '', nodes: 3 })
+    setShowNewProject(false)
+  }
   
   useEffect(() => {
     if (isPlaying) {
@@ -198,7 +215,7 @@ export default function Workflow() {
           </div>
           
           <div className="space-y-3">
-            {projectTasks.map((project, i) => (
+            {projectList.map((project, i) => (
               <motion.div
                 key={project.id}
                 className="p-3 rounded-lg bg-white/5 hover:bg-white/10 cursor-pointer transition-colors"
@@ -227,12 +244,35 @@ export default function Workflow() {
           </div>
           
           <motion.button
+            onClick={() => setShowNewProject(!showNewProject)}
             className="w-full mt-4 p-3 rounded-lg border border-dashed border-white/10 text-white/40 text-sm hover:text-white/70 hover:border-white/20 transition-colors flex items-center justify-center gap-2"
-            whileHover={{ scale: 1.01 }}
+            whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.97 }}
           >
             <Plus className="w-4 h-4" />
             Nuevo proyecto
           </motion.button>
+          <AnimatePresence>
+            {showNewProject && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mt-3">
+                <div className="space-y-3 p-4 rounded-xl border border-[rgb(var(--quantum-500)/.3)] bg-[rgb(var(--quantum-500)/.07)]">
+                  <input value={newProject.name} onChange={(e) => setNewProject(p => ({ ...p, name: e.target.value }))}
+                    placeholder="Nombre del proyecto" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:border-[rgb(var(--quantum-500))] focus:outline-none transition-all text-sm" autoFocus />
+                  <div className="flex items-center gap-3">
+                    <label className="text-xs text-white/40">Nodos:</label>
+                    <input type="range" min={2} max={10} value={newProject.nodes}
+                      onChange={(e) => setNewProject(p => ({ ...p, nodes: Number(e.target.value) }))}
+                      className="flex-1 accent-[rgb(var(--quantum-500))]" />
+                    <span className="text-xs font-mono text-white">{newProject.nodes}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => setShowNewProject(false)} className="flex-1 py-2.5 rounded-xl border border-white/10 text-white/50 text-sm hover:bg-white/5 transition-colors">Cancelar</button>
+                    <button onClick={handleAddProject} disabled={!newProject.name.trim()}
+                      className="flex-1 py-2.5 rounded-xl bg-[rgb(var(--quantum-500))] text-white text-sm font-medium disabled:opacity-40 hover:bg-[rgb(var(--quantum-400))] transition-colors">Crear</button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
         
         <div className="glass-card p-5">

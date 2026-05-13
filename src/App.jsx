@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Dashboard from './components/Dashboard'
 import Sidebar from './components/Sidebar'
@@ -43,6 +43,14 @@ function App() {
         setAppState('login')
       }
     }, 1800)
+  }, [])
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.detail && pages[e.detail]) setCurrentPage(e.detail)
+    }
+    window.addEventListener('navigate', handler)
+    return () => window.removeEventListener('navigate', handler)
   }, [])
 
   const handleLoginComplete = () => {

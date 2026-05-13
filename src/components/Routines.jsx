@@ -70,7 +70,31 @@ const weeklyProgress = [
 
 export default function Routines() {
   const [activeDay, setActiveDay] = useState(0)
-  
+  const [showNewRoutine, setShowNewRoutine] = useState(false)
+  const [newRoutine, setNewRoutine] = useState({ name: '', time: '', tasks: '' })
+  const [routinesList, setRoutinesList] = useState(routines)
+
+  const handleAddRoutine = () => {
+    if (!newRoutine.name.trim()) return
+    const routine = {
+      id: Date.now(),
+      name: newRoutine.name,
+      time: newRoutine.time || '09:00 - 10:00',
+      color: 'from-[rgb(var(--quantum-500))] to-[rgb(var(--neon-cyan))]',
+      days: [true, true, true, true, true, false, false],
+      tasks: newRoutine.tasks.split(',').filter(Boolean).map((t, i) => ({
+        name: t.trim(),
+        duration: '15 min',
+        done: false,
+      })),
+      streak: 0,
+      completion: 0,
+    }
+    setRoutinesList(prev => [...prev, routine])
+    setNewRoutine({ name: '', time: '', tasks: '' })
+    setShowNewRoutine(false)
+  }
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -86,14 +110,38 @@ export default function Routines() {
             <p className="text-sm text-white/50">Automatiza tus hábitos con IA</p>
           </div>
           <motion.button
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-quantum-500/20 border border-quantum-500/30 text-quantum-200 hover:bg-quantum-500/30 transition-colors"
-            whileHover={{ scale: 1.02 }}
+            onClick={() => setShowNewRoutine(!showNewRoutine)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[rgb(var(--quantum-500)/.2)] border border-[rgb(var(--quantum-500)/.3)] text-[rgb(var(--quantum-200))] hover:bg-[rgb(var(--quantum-500)/.3)] transition-colors"
+            whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
           >
             <Plus className="w-4 h-4" />
             Nueva rutina
           </motion.button>
         </div>
         
+        <AnimatePresence>
+          {showNewRoutine && (
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+              className="glass-card p-5">
+              <h3 className="text-base font-medium text-white mb-4">Crear nueva rutina</h3>
+              <div className="space-y-3">
+                <input value={newRoutine.name} onChange={(e) => setNewRoutine(p => ({ ...p, name: e.target.value }))}
+                  placeholder="Nombre de la rutina" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:border-[rgb(var(--quantum-500))] focus:outline-none transition-all text-sm" autoFocus />
+                <input value={newRoutine.time} onChange={(e) => setNewRoutine(p => ({ ...p, time: e.target.value }))}
+                  placeholder="Horario (ej: 09:00 - 10:00)" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:border-[rgb(var(--quantum-500))] focus:outline-none transition-all text-sm" />
+                <input value={newRoutine.tasks} onChange={(e) => setNewRoutine(p => ({ ...p, tasks: e.target.value }))}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddRoutine()}
+                  placeholder="Tareas separadas por coma" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:border-[rgb(var(--quantum-500))] focus:outline-none transition-all text-sm" />
+                <div className="flex gap-2">
+                  <button onClick={() => setShowNewRoutine(false)} className="flex-1 py-2.5 rounded-xl border border-white/10 text-white/50 text-sm hover:bg-white/5 transition-colors">Cancelar</button>
+                  <button onClick={handleAddRoutine} disabled={!newRoutine.name.trim()}
+                    className="flex-1 py-2.5 rounded-xl bg-[rgb(var(--quantum-500))] text-white text-sm font-medium disabled:opacity-40 hover:bg-[rgb(var(--quantum-400))] transition-colors">Crear rutina</button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="glass-card p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -139,7 +187,7 @@ export default function Routines() {
         </div>
         
         <div className="grid grid-cols-2 gap-4">
-          {routines.map((routine, i) => (
+          {routinesList.map((routine, i) => (
             <motion.div
               key={routine.id}
               className="glass-card p-5 cursor-pointer group"

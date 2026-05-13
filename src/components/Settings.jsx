@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   User, Bell, Palette, Shield, Zap, Database, HelpCircle, Brain,
@@ -10,6 +10,9 @@ import {
 } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { useTheme } from '../contexts/ThemeContext'
+import SettingsIntegrations from './SettingsIntegrations'
+import SettingsData from './SettingsData'
+import SettingsHelp from './SettingsHelp'
 
 /* ── Constants ──────────────────────────────────────────────────────── */
 
@@ -1022,16 +1025,27 @@ export default function Settings() {
             </motion.div>
           )}
 
-          {/* ── PLACEHOLDER ── */}
-          {!['appearance', 'profile', 'ai', 'notifications', 'security'].includes(activeSection) && (
-            <motion.div key="placeholder" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}
-              className="glass-card p-12 text-center">
-              <SettingsIcon className="w-12 h-12 text-white/15 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-white mb-2">
-                {settingsSections.find(s => s.id === activeSection)?.label}
-              </h3>
-              <p className="text-sm text-white/35">Sección en desarrollo. Próximamente.</p>
+          {/* ── INTEGRATIONS ── */}
+          {activeSection === 'integrations' && (
+            <motion.div key="integrations" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
+              <SettingsIntegrations />
+            </motion.div>
+          )}
+
+          {/* ── DATA ── */}
+          {activeSection === 'data' && (
+            <motion.div key="data" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
+              <SettingsData />
+            </motion.div>
+          )}
+
+          {/* ── HELP ── */}
+          {activeSection === 'help' && (
+            <motion.div key="help" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
+              <SettingsHelp />
             </motion.div>
           )}
 

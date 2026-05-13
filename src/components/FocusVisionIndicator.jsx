@@ -10,7 +10,7 @@ const focusLabels = {
 }
 
 export default function FocusVisionIndicator({
-  state, focus, confidence, sensitivity,
+  state, focus, confidence, sensitivity, error,
   onActivate, onDeactivate, onSensitivityChange,
 }) {
   const fl = focusLabels[focus] || focusLabels.unknown
@@ -130,13 +130,20 @@ export default function FocusVisionIndicator({
       )}
 
       {(state === 'denied' || state === 'error') && (
-        <button
-          onClick={onActivate}
-          className="w-full py-2 rounded-lg bg-[rgb(var(--quantum-500)/.1)] border border-[rgb(var(--quantum-500)/.2)] text-[rgb(var(--quantum-300))] text-xs font-medium hover:bg-[rgb(var(--quantum-500)/.2)] transition-all flex items-center justify-center gap-2"
-        >
-          <Camera className="w-3.5 h-3.5" />
-          Reintentar
-        </button>
+        <>
+          {error && (
+            <div className="mb-3 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20">
+              <p className="text-[11px] text-red-300 leading-relaxed">{error}</p>
+            </div>
+          )}
+          <button
+            onClick={onActivate}
+            className="w-full py-2 rounded-lg bg-[rgb(var(--quantum-500)/.1)] border border-[rgb(var(--quantum-500)/.2)] text-[rgb(var(--quantum-300))] text-xs font-medium hover:bg-[rgb(var(--quantum-500)/.2)] transition-all flex items-center justify-center gap-2"
+          >
+            <Camera className="w-3.5 h-3.5" />
+            Reintentar
+          </button>
+        </>
       )}
 
       {state === 'idle' && (

@@ -308,6 +308,7 @@ export default function Focus() {
           focus={vision.focus}
           confidence={vision.confidence}
           sensitivity={vision.sensitivity}
+          error={vision.error}
           onActivate={handleVisionActivate}
           onDeactivate={vision.deactivate}
           onSensitivityChange={vision.setSensitivity}

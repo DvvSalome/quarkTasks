@@ -224,8 +224,6 @@ export default function useFocusVision() {
       setState('active')
       setFocus('unknown')
       setConfidence(0)
-
-      startInterval()
     } catch (err) {
       activeRef.current = false
       setState('error')
@@ -238,6 +236,10 @@ export default function useFocusVision() {
         setError('La cámara no soporta la configuración requerida')
       } else if (err.name === 'NotReadableError') {
         setError('La cámara está siendo usada por otra aplicación')
+      } else if (err.name === 'SecurityError') {
+        setError('La cámara requiere una conexión segura (HTTPS o localhost)')
+      } else if (err.name === 'AbortError') {
+        setError('No se pudo acceder a la cámara por algún motivo desconocido')
       } else {
         setError(err.message || 'Error al acceder a la cámara')
       }

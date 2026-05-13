@@ -6,59 +6,53 @@ const CONFIGS = {
   strict:  { interval: 1500, distractedAfter: 3,  absentAfter: 8 },
 }
 
-const VALID_KEYS = Object.keys(CONFIGS)
-
-function createDetector() {
-  if (!window.FaceDetector) return null
-  try {
-    return new window.FaceDetector({ maxDetectedFaces: 1 })
-  } catch {
-    return null
-  }
-}
-
 export default function useFocusVision() {
   const [state, setState] = useState('idle')
   const [focus, setFocus] = useState('unknown')
-  const [sensitivity, setSensitivity] = useState('normal')
   const [confidence, setConfidence] = useState(0)
   const [error, setError] = useState(null)
+  const [sensitivity, setSensitivity] = useState('normal')
 
-  const activeRef = useRef(false)
-  const videoRef = useRef(null)
+  const stateRef = useRef('idle')
   const streamRef = useRef(null)
+  const videoRef = useRef(null)
   const detectorRef = useRef(null)
   const canvasRef = useRef(null)
   const lastFrameRef = useRef(null)
   const distractedElapsed = useRef(0)
   const absentElapsed = useRef(0)
-  const configRef = useRef(CONFIGS.normal)
   const intervalRef = useRef(null)
+  const configRef = useRef(CONFIGS.normal)
 
   const changeSensitivity = useCallback((key) => {
-    if (!VALID_KEYS.includes(key)) return
+    if (!CONFIGS[key]) return
     setSensitivity(key)
     configRef.current = CONFIGS[key]
   }, [])
 
   const stop = useCallback(() => {
-    activeRef.current = false
+    stateRef.current = 'idle'
     clearInterval(intervalRef.current)
     intervalRef.current = null
+
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(t => t.stop())
       streamRef.current = null
     }
+
     if (videoRef.current) {
+      videoRef.current.pause()
       videoRef.current.srcObject = null
       videoRef.current.parentNode?.removeChild(videoRef.current)
       videoRef.current = null
     }
+
     detectorRef.current = null
     canvasRef.current = null
     lastFrameRef.current = null
     distractedElapsed.current = 0
     absentElapsed.current = 0
+
     setState('idle')
     setFocus('unknown')
     setConfidence(0)
@@ -69,75 +63,75 @@ export default function useFocusVision() {
     return stop
   }, [stop])
 
-  const detectFrame = useCallback(async () => {
+  const runDetection = useCallback(async () => {
     const video = videoRef.current
-    if (!video || video.readyState < 2 || video.paused || video.ended) {
-      return { present: false, looking: false, conf: 0 }
-    }
+    if (!video || video.readyState < 2) return
 
-    const detector = detectorRef.current
-    if (detector) {
+    let result
+
+    if (window.FaceDetector) {
       try {
-        const faces = await detector.detect(video)
-        if (faces.length === 0) return { present: false, looking: false, conf: 0 }
-
-        const f = faces[0]
-        const { x, y, width, height } = f.boundingBox
-        const vw = video.videoWidth
-        const vh = video.videoHeight
-        const cx = x + width / 2
-        const cy = y + height / 2
-        const looking =
-          Math.abs(cx - vw / 2) < vw * 0.3 &&
-          Math.abs(cy - vh / 2) < vh * 0.3 &&
-          width > vw * 0.08
-
-        return { present: true, looking, conf: looking ? 0.92 : 0.65 }
-      } catch {
-        return { present: false, looking: false, conf: 0 }
-      }
+        let det = detectorRef.current
+        if (!det) {
+          det = new window.FaceDetector({ maxDetectedFaces: 1 })
+          detectorRef.current = det
+        }
+        const faces = await det.detect(video)
+        if (faces.length > 0) {
+          const f = faces[0]
+          const { x, y, width, height } = f.boundingBox
+          const vw = video.videoWidth
+          const vh = video.videoHeight
+          const cx = x + width / 2
+          const cy = y + height / 2
+          const looking =
+            Math.abs(cx - vw / 2) < vw * 0.3 &&
+            Math.abs(cy - vh / 2) < vh * 0.3 &&
+            width > vw * 0.08
+          result = { present: true, looking, conf: looking ? 0.92 : 0.65 }
+        }
+      } catch {}
     }
 
-    try {
-      let c = canvasRef.current
-      if (!c) {
-        c = document.createElement('canvas')
-        c.width = 48; c.height = 36
-        canvasRef.current = c
-      }
-      const ctx = c.getContext('2d')
-      if (!ctx) return { present: false, looking: false, conf: 0 }
+    if (!result) {
+      try {
+        let c = canvasRef.current
+        if (!c) {
+          c = document.createElement('canvas')
+          c.width = 48
+          c.height = 36
+          canvasRef.current = c
+        }
+        const ctx = c.getContext('2d')
+        if (ctx) {
+          ctx.drawImage(video, 0, 0, 48, 36)
+          const data = ctx.getImageData(0, 0, 48, 36).data
 
-      ctx.drawImage(video, 0, 0, 48, 36)
-      const data = ctx.getImageData(0, 0, 48, 36).data
+          const prev = lastFrameRef.current
+          lastFrameRef.current = data
 
-      const prev = lastFrameRef.current
-      lastFrameRef.current = data
-
-      if (!prev) return { present: true, looking: true, conf: 0.3 }
-
-      let diff = 0
-      const total = data.length / 4
-      for (let i = 0; i < data.length; i += 4) {
-        diff += Math.abs(data[i] - prev[i]) +
-                Math.abs(data[i + 1] - prev[i + 1]) +
-                Math.abs(data[i + 2] - prev[i + 2])
-      }
-
-      const avg = diff / total / 3
-      const present = avg > 0.8
-      const looking = avg > 1.5 && avg < 20
-      return { present, looking, conf: Math.min(1, avg / 12) }
-    } catch {
-      return { present: false, looking: false, conf: 0 }
+          if (prev) {
+            let diff = 0
+            const total = data.length / 4
+            for (let i = 0; i < data.length; i += 4) {
+              diff += Math.abs(data[i] - prev[i]) +
+                      Math.abs(data[i + 1] - prev[i + 1]) +
+                      Math.abs(data[i + 2] - prev[i + 2])
+            }
+            const avg = diff / total / 3
+            result = {
+              present: avg > 0.8,
+              looking: avg > 1.5 && avg < 20,
+              conf: Math.min(1, avg / 12),
+            }
+          } else {
+            result = { present: true, looking: true, conf: 0.3 }
+          }
+        }
+      } catch {}
     }
-  }, [])
 
-  const tickRef = useRef(null)
-  const tick = useCallback(async () => {
-    if (!activeRef.current) return
-    const result = await detectFrame()
-    if (!activeRef.current) return
+    if (!result) result = { present: false, looking: false, conf: 0 }
 
     const cfg = configRef.current
 
@@ -163,98 +157,81 @@ export default function useFocusVision() {
     } else {
       setFocus('unknown')
     }
-  }, [detectFrame])
-
-  tickRef.current = tick
-
-  const startInterval = useCallback(() => {
-    clearInterval(intervalRef.current)
-    intervalRef.current = setInterval(() => {
-      tickRef.current()
-    }, configRef.current.interval)
   }, [])
 
   const start = useCallback(async () => {
-    if (activeRef.current) return
-    activeRef.current = true
+    if (stateRef.current === 'active' || stateRef.current === 'requesting') return
+    stateRef.current = 'requesting'
 
     setState('requesting')
     setError(null)
-    distractedElapsed.current = 0
-    absentElapsed.current = 0
-    lastFrameRef.current = null
-
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      activeRef.current = false
-      setError('La cámara requiere una conexión segura (HTTPS o localhost)')
-      setState('error')
-      return
-    }
+    setFocus('unknown')
+    setConfidence(0)
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { width: { ideal: 320 }, height: { ideal: 240 }, facingMode: 'user' },
       })
 
-      if (!activeRef.current) {
+      if (stateRef.current !== 'requesting') {
         stream.getTracks().forEach(t => t.stop())
         return
       }
 
       const video = document.createElement('video')
       video.srcObject = stream
-      video.setAttribute('playsinline', '')
       video.muted = true
+      video.playsInline = true
       video.style.display = 'none'
       document.body.appendChild(video)
       await video.play()
 
-      if (!activeRef.current) {
+      if (stateRef.current !== 'requesting') {
         video.srcObject = null
         video.remove()
         stream.getTracks().forEach(t => t.stop())
         return
       }
 
-      videoRef.current = video
       streamRef.current = stream
-      detectorRef.current = createDetector()
-      canvasRef.current = null
-
+      videoRef.current = video
+      stateRef.current = 'active'
       setState('active')
-      setFocus('unknown')
-      setConfidence(0)
     } catch (err) {
-      activeRef.current = false
-      setState('error')
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-        setError('Permiso de cámara denegado — revisa la configuración del navegador')
+        stateRef.current = 'denied'
         setState('denied')
-      } else if (err.name === 'NotFoundError') {
-        setError('No se detectó ninguna cámara en este dispositivo')
-      } else if (err.name === 'OverconstrainedError') {
-        setError('La cámara no soporta la configuración requerida')
+        setError('Permiso de cámara denegado — revisa la configuración del navegador')
+        return
+      }
+      stateRef.current = 'error'
+      setState('error')
+      if (err.name === 'NotFoundError') {
+        setError('No se detectó cámara en este dispositivo')
       } else if (err.name === 'NotReadableError') {
         setError('La cámara está siendo usada por otra aplicación')
       } else if (err.name === 'SecurityError') {
-        setError('La cámara requiere una conexión segura (HTTPS o localhost)')
-      } else if (err.name === 'AbortError') {
-        setError('No se pudo acceder a la cámara por algún motivo desconocido')
+        setError('Cámara no disponible — requiere HTTPS o localhost')
       } else {
         setError(err.message || 'Error al acceder a la cámara')
       }
     }
-  }, [startInterval])
+  }, [runDetection])
 
   useEffect(() => {
     if (state !== 'active') return
-    startInterval()
+    clearInterval(intervalRef.current)
+    const cfg = configRef.current
+    intervalRef.current = setInterval(() => {
+      runDetection()
+    }, cfg.interval)
     return () => clearInterval(intervalRef.current)
-  }, [sensitivity, state, startInterval])
+  }, [sensitivity, state, runDetection])
 
   return {
-    state, focus, sensitivity, confidence, error,
-    activate: start, deactivate: stop,
+    state, focus, confidence, error, sensitivity,
+    activate: start,
+    deactivate: stop,
     setSensitivity: changeSensitivity,
   }
 }

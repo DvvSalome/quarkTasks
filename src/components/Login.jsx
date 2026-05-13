@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import {
   Brain, Eye, EyeOff, Sparkles, ArrowRight, Mail, Lock, User, AtSign, Phone, AlertCircle, Check,
 } from 'lucide-react'
@@ -7,41 +7,163 @@ import { cn } from '../lib/utils'
 
 const easeOut = [0.16, 1, 0.3, 1]
 
-function InputField({ icon: Icon, label, type = 'text', value, onChange, placeholder, required, suffix, error, autoFocus }) {
-  const [focused, setFocused] = useState(false)
-  const hasValue = value && value.length > 0
+function Orb({ size, color, blur, initialX, initialY, ampX, ampY, periodX, periodY, phaseX, phaseY }) {
+  const t = useMotionValue(0)
+
+  useEffect(() => {
+    let start = Date.now()
+    let raf
+    const tick = () => {
+      const elapsed = (Date.now() - start) / 1000
+      t.set(elapsed)
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [t])
+
+  const x = useTransform(t, (v) => initialX + ampX * Math.sin(v * 2 * Math.PI / periodX + phaseX))
+  const y = useTransform(t, (v) => initialY + ampY * Math.sin(v * 2 * Math.PI / periodY + phaseY))
 
   return (
-    <div>
-      <label className={cn('block text-xs font-mono tracking-wider mb-1.5 transition-colors duration-200',
-        error ? 'text-red-400' : focused ? 'text-[rgb(var(--quantum-300))]' : 'text-white/35')}>
-        {label}
-        {required && <span className="text-red-400 ml-0.5">*</span>}
-      </label>
-      <div className="relative group">
-        <Icon className={cn('absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-200',
-          error ? 'text-red-400' : focused ? 'text-[rgb(var(--quantum-400))]' : 'text-white/20')} />
-        <input type={type} value={value} onChange={onChange}
-          onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
-          autoFocus={autoFocus}
-          className={cn(
-            'w-full pl-10 pr-10 py-3 rounded-xl bg-white/5 border text-white placeholder:text-white/25 text-sm outline-none transition-all duration-200',
-            error ? 'border-red-500/50 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' :
-            focused ? 'border-[rgb(var(--quantum-500))] ring-2 ring-[rgb(var(--quantum-500)/.12)]' :
-            'border-white/10 hover:border-white/20',
-            suffix && 'pr-12'
-          )}
-          placeholder={placeholder} required={required} />
-        {suffix && (
-          <div className="absolute right-3.5 top-1/2 -translate-y-1/2">{suffix}</div>
+    <motion.div
+      className="absolute rounded-full pointer-events-none"
+      style={{
+        width: size, height: size,
+        background: `radial-gradient(circle, ${color} 0%, transparent 70%)`,
+        filter: `blur(${blur}px)`,
+        x, y, translateX: '-50%', translateY: '-50%',
+      }}
+    />
+  )
+}
+
+function InputField({ icon: Icon, label, type = 'text', value, onChange, placeholder, required, suffix, error, autoFocus }) {
+  const [focused, setFocused] = useState(false)
+  const [shaking, setShaking] = useState(false)
+  const hasValue = value && value.length > 0
+  const showFloating = focused || hasValue
+  const inputRef = useRef(null)
+
+  useEffect(() => {
+    if (error) {
+      setShaking(true)
+      const timeout = setTimeout(() => setShaking(false), 400)
+      return () => clearTimeout(timeout)
+    }
+  }, [error])
+
+  return (
+    <div className="relative">
+      <div
+        className={cn(
+          'relative rounded-xl border transition-all duration-300 group',
+          error ? 'border-red-500/50' :
+          focused ? 'border-[rgb(var(--quantum-500))]' :
+          'border-white/[0.08] hover:border-white/[0.18]'
         )}
-        {error && (
-          <div className="flex items-center gap-1 mt-1.5">
-            <AlertCircle className="w-3 h-3 text-red-400" />
-            <span className="text-xs text-red-400/80">{error}</span>
+        style={focused && !error ? {
+          boxShadow: '0 0 0 1px rgb(var(--quantum-500)), 0 0 20px rgb(var(--quantum-500)/.12)',
+        } : error ? {
+          boxShadow: '0 0 0 1px rgba(239,68,68,0.5), 0 0 20px rgba(239,68,68,0.1)',
+        } : {}}
+      >
+        <div className="relative flex items-center">
+          <motion.div
+            className="absolute left-3.5 flex items-center justify-center"
+            animate={{
+              scale: focused || hasValue ? 1 : 0.85,
+              opacity: error ? 0.6 : focused || hasValue ? 1 : 0.35,
+            }}
+            transition={{ duration: 0.25, ease: easeOut }}
+          >
+            <Icon className={cn(
+              'w-4 h-4 transition-colors duration-300',
+              error ? 'text-red-400' : focused ? 'text-[rgb(var(--quantum-400))]' : 'text-white/30'
+            )} />
+          </motion.div>
+
+          <div className="relative w-full">
+            {/* Floating label */}
+            <motion.label
+              className="absolute left-10 top-1/2 -translate-y-1/2 pointer-events-none text-sm origin-left"
+              initial={false}
+              animate={{
+                y: showFloating ? -22 : 0,
+                scale: showFloating ? 0.78 : 1,
+                color: error ? 'rgb(248 113 113)' :
+                       focused ? 'rgb(var(--quantum-300))' :
+                       hasValue ? 'rgb(255 255 255 / 0.5)' :
+                       'rgb(255 255 255 / 0.3)',
+              }}
+              transition={{ duration: 0.2, ease: easeOut }}
+              style={{ willChange: 'transform' }}
+            >
+              {placeholder || label}
+              {required && <span className="text-red-400 ml-0.5">*</span>}
+            </motion.label>
+
+            <input
+              ref={inputRef}
+              type={type}
+              value={value}
+              onChange={onChange}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              autoFocus={autoFocus}
+              className={cn(
+                'w-full bg-transparent text-white text-sm outline-none',
+                'pl-10 pr-10 py-3.5',
+                'placeholder:opacity-0',
+                suffix && 'pr-12',
+                shaking && 'animate-shake'
+              )}
+              placeholder={showFloating ? '' : (placeholder || label)}
+              required={required}
+            />
           </div>
+
+          {suffix && (
+            <motion.div
+              className="absolute right-3.5 flex items-center"
+              animate={{ opacity: focused || hasValue ? 1 : 0.4 }}
+              transition={{ duration: 0.2 }}
+            >
+              {suffix}
+            </motion.div>
+          )}
+        </div>
+
+        {/* Bottom glow line on focus */}
+        {focused && !error && (
+          <motion.div
+            className="absolute bottom-0 left-2 right-2 h-px rounded-full"
+            initial={{ opacity: 0, scaleX: 0.5 }}
+            animate={{ opacity: 1, scaleX: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: easeOut }}
+            style={{
+              background: 'linear-gradient(90deg, transparent, rgb(var(--quantum-400)), rgb(var(--neon-cyan)), transparent)',
+            }}
+          />
         )}
       </div>
+
+      {/* Error message */}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -4, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: 'auto' }}
+            exit={{ opacity: 0, y: -4, height: 0 }}
+            transition={{ duration: 0.2, ease: easeOut }}
+            className="flex items-center gap-1 overflow-hidden pt-1.5 pl-1"
+          >
+            <AlertCircle className="w-3 h-3 text-red-400 flex-shrink-0" />
+            <span className="text-xs text-red-400/80">{error}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -50,24 +172,10 @@ export default function Login({ onComplete }) {
   const [isLogin, setIsLogin] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [mousePos, setMousePos] = useState({ x: 50, y: 50 })
   const [formData, setFormData] = useState({ displayName: '', username: '', email: '', phone: '', password: '' })
   const [errors, setErrors] = useState({})
-  const [touched, setTouched] = useState({})
+  const [focusedField, setFocusedField] = useState(null)
   const containerRef = useRef(null)
-
-  useEffect(() => {
-    const handle = (e) => {
-      if (!containerRef.current) return
-      const rect = containerRef.current.getBoundingClientRect()
-      setMousePos({
-        x: ((e.clientX - rect.left) / rect.width) * 100,
-        y: ((e.clientY - rect.top) / rect.height) * 100,
-      })
-    }
-    window.addEventListener('mousemove', handle)
-    return () => window.removeEventListener('mousemove', handle)
-  }, [])
 
   const validate = () => {
     const errs = {}
@@ -99,7 +207,6 @@ export default function Login({ onComplete }) {
     setIsLogin(p => !p)
     setFormData({ displayName: '', username: '', email: '', phone: '', password: '' })
     setErrors({})
-    setTouched({})
   }
 
   const pwToggle = (
@@ -120,18 +227,15 @@ export default function Login({ onComplete }) {
 
   return (
     <div ref={containerRef} className="min-h-screen relative overflow-hidden bg-[rgb(var(--quantum-950))]">
-      <motion.div className="absolute inset-0 pointer-events-none" transition={{ duration: 0.3 }}>
-        <motion.div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 70% 60% at ${mousePos.x}% ${mousePos.y}%, rgb(var(--quantum-500)/.13) 0%, transparent 55%)` }} />
-      </motion.div>
+      {/* Organic ambient orbs — Lissajous sine-wave motion */}
+      <Orb size={500} color="rgba(123,46,255,0.12)" blur={90}
+        initialX={20} initialY={30} ampX={25} ampY={20} periodX={23} periodY={31} phaseX={0} phaseY={1.2} />
+      <Orb size={420} color="rgba(0,245,255,0.07)" blur={90}
+        initialX={70} initialY={60} ampX={18} ampY={22} periodX={29} periodY={37} phaseX={2.1} phaseY={0.5} />
+      <Orb size={350} color="rgba(255,77,219,0.06)" blur={80}
+        initialX={45} initialY={70} ampX={20} ampY={15} periodX={19} periodY={41} phaseX={0.8} phaseY={2.5} />
 
-      <motion.div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgb(var(--quantum-500)/.15) 0%, transparent 70%)', filter: 'blur(70px)' }}
-        animate={{ x: [0, 30, 0], y: [0, -30, 0] }} transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }} />
-      <motion.div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgb(var(--neon-cyan)/.1) 0%, transparent 70%)', filter: 'blur(70px)' }}
-        animate={{ x: [0, -40, 0], y: [0, 40, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }} />
-
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_70%_50%_at_50%_50%,black_40%,transparent_100%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.012)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.012)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_70%_50%_at_50%_50%,black_40%,transparent_100%)] pointer-events-none" />
 
       <div className="relative z-10 min-h-screen flex">
         <motion.div variants={stagger} initial="hidden" animate="visible"
@@ -200,17 +304,17 @@ export default function Login({ onComplete }) {
                     </motion.p>
                   </div>
 
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleSubmit} className="space-y-5">
                     <AnimatePresence>
                       {!isLogin && (
                         <motion.div key="reg-fields" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }} className="space-y-4 overflow-hidden">
+                          exit={{ opacity: 0, height: 0 }} className="space-y-5 overflow-hidden">
                           <InputField icon={User} label="Nombre de interacción" value={formData.displayName}
                             onChange={set('displayName')} placeholder="Cómo te llamará la IA" required={!isLogin}
-                            error={touched.displayName && errors.displayName} autoFocus={!isLogin} />
+                            error={errors.displayName} autoFocus={!isLogin} />
                           <InputField icon={AtSign} label="@Username" value={formData.username}
                             onChange={set('username')} placeholder="tu_usuario_único" required={!isLogin}
-                            error={touched.username && errors.username} />
+                            error={errors.username} />
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -218,13 +322,13 @@ export default function Login({ onComplete }) {
                     <InputField icon={Mail} label={isLogin ? 'Email o @username' : 'Correo electrónico'}
                       type={isLogin ? 'text' : 'email'} value={formData.email} onChange={set('email')}
                       placeholder={isLogin ? 'tu@email.com o @usuario' : 'tu@email.com'} required
-                      error={touched.email && errors.email} autoFocus={isLogin} />
+                      error={errors.email} autoFocus={isLogin} />
 
                     <AnimatePresence>
                       {!isLogin && (
                         <motion.div key="phone" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                          <InputField icon={Phone} label="Teléfono (opcional — para 2FA)" type="tel"
+                          <InputField icon={Phone} label="Teléfono (opcional)" type="tel"
                             value={formData.phone} onChange={set('phone')} placeholder="+34 600 000 000" />
                         </motion.div>
                       )}
@@ -232,10 +336,10 @@ export default function Login({ onComplete }) {
 
                     <InputField icon={Lock} label="Contraseña" type={showPassword ? 'text' : 'password'}
                       value={formData.password} onChange={set('password')} placeholder="••••••••" required suffix={pwToggle}
-                      error={touched.password && errors.password} />
+                      error={errors.password} />
 
                     {isLogin && (
-                      <div className="flex justify-end">
+                      <div className="flex justify-end -mt-2">
                         <button type="button" className="text-sm text-[rgb(var(--quantum-300))] hover:text-[rgb(var(--quantum-200))] transition-colors">
                           ¿Olvidaste tu contraseña?
                         </button>

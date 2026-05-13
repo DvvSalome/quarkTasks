@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
 import {
   Brain, Zap, Target, Clock, Moon, Sun, Coffee, Sparkles,
   ChevronRight, ChevronLeft, Check, BarChart3, GitBranch, Repeat,
@@ -9,6 +9,30 @@ import { cn } from '../lib/utils'
 
 const easeOut = [0.16, 1, 0.3, 1]
 const easeInOut = [0.76, 0, 0.24, 1]
+
+function Orb({ size, color, blur, initialX, initialY, ampX, ampY, periodX, periodY, phaseX, phaseY }) {
+  const t = useMotionValue(0)
+  useEffect(() => {
+    let start = Date.now()
+    let raf
+    const tick = () => { t.set((Date.now() - start) / 1000); raf = requestAnimationFrame(tick) }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [t])
+  const x = useTransform(t, (v) => `${initialX + ampX * Math.sin(v * 2 * Math.PI / periodX + phaseX)}%`)
+  const y = useTransform(t, (v) => `${initialY + ampY * Math.sin(v * 2 * Math.PI / periodY + phaseY)}%`)
+  return (
+    <motion.div
+      className="absolute rounded-full pointer-events-none"
+      style={{
+        width: size, height: size,
+        background: `radial-gradient(circle, ${color} 0%, transparent 70%)`,
+        filter: `blur(${blur}px)`,
+        x, y, translateX: '-50%', translateY: '-50%',
+      }}
+    />
+  )
+}
 
 const container = {
   hidden: { opacity: 0 },
@@ -137,13 +161,10 @@ export default function Onboarding({ onComplete }) {
       <ParticleBackground />
 
       <div className="absolute inset-0 bg-gradient-to-br from-[rgb(var(--quantum-900))] via-[rgb(var(--quantum-950))] to-black">
-        <motion.div className="absolute inset-0"
-          animate={{ background: [
-            'radial-gradient(ellipse 60% 40% at 30% 20%, rgba(123,46,255,0.12) 0%, transparent 50%)',
-            'radial-gradient(ellipse 60% 40% at 70% 80%, rgba(0,245,255,0.08) 0%, transparent 50%)',
-            'radial-gradient(ellipse 60% 40% at 30% 20%, rgba(123,46,255,0.12) 0%, transparent 50%)',
-          ] }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }} />
+        <Orb size={520} color="rgba(123,46,255,0.11)" blur={90}
+          initialX={20} initialY={25} ampX={22} ampY={18} periodX={25} periodY={33} phaseX={0} phaseY={1.5} />
+        <Orb size={400} color="rgba(0,245,255,0.06)" blur={85}
+          initialX={65} initialY={55} ampX={20} ampY={24} periodX={31} periodY={39} phaseX={2.3} phaseY={0.8} />
       </div>
 
       <motion.div className="fixed top-0 left-0 right-0 h-0.5 bg-white/5 z-50"

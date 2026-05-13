@@ -40,6 +40,7 @@ export default function Focus() {
   const [showVisionModal, setShowVisionModal] = useState(false)
   const prevFocusRef = useRef(null)
   const hasSeenModalRef = useRef(localStorage.getItem('quark_vision_modal_shown') === 'true')
+  const lastChimeRef = useRef(0)
 
   const modeDurations = { focus: 25 * 60, deep: 90 * 60, break: 5 * 60 }
 
@@ -63,6 +64,9 @@ export default function Focus() {
     if (vision.state !== 'active' || muted) return
     const prev = prevFocusRef.current
     if (prev && prev !== vision.focus) {
+      const now = Date.now()
+      if (now - lastChimeRef.current < 2000) return
+      lastChimeRef.current = now
       if (vision.focus === 'distracted') {
         playChime('distracted', audioVolume)
       } else if (vision.focus === 'absent') {

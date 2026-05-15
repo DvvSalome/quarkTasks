@@ -86,38 +86,45 @@ export default function TopBar({ searchQuery, onSearchChange, currentPage }) {
         </AnimatePresence>
       </motion.div>
 
-      {/* Notifications */}
-      <motion.button
-        className="relative p-2 rounded-lg hover:bg-white/5 transition-colors"
-        whileHover={{ scale: 1.08 }}
-        whileTap={{ scale: 0.93 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-      >
-        <Bell className="w-5 h-5 text-white/55" />
-        <motion.span
-          className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-neon-pink"
-          animate={{ scale: [1, 1.3, 1], opacity: [0.8, 1, 0.8] }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ boxShadow: '0 0 6px rgba(255,46,151,0.7)' }}
-        />
-      </motion.button>
+       {/* Notifications */}
+       <motion.button
+         className="relative p-2 rounded-lg hover:bg-white/5 transition-colors"
+         whileHover={{ scale: 1.08 }}
+         whileTap={{ scale: 0.93 }}
+         transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+         onClick={() => {
+           window.dispatchEvent(new CustomEvent('toast', { detail: 'Mostrando notificaciones' }))
+           // In a real app, this would open a notifications panel
+         }}
+       >
+         <Bell className="w-5 h-5 text-white/55" />
+         <motion.span
+           className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-neon-pink"
+           animate={{ scale: [1, 1.3, 1], opacity: [0.8, 1, 0.8] }}
+           transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+           style={{ boxShadow: '0 0 6px rgba(255,46,151,0.7)' }}
+         />
+       </motion.button>
 
-      {/* Avatar */}
-      <motion.div
-        className="flex items-center gap-3 pl-4 border-l border-white/8 cursor-pointer"
-        whileHover={{ scale: 1.04 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-      >
-        <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-quantum-500 to-neon-cyan flex items-center justify-center overflow-hidden">
-          <span className="text-sm font-semibold text-white">U</span>
-          <motion.div
-            className="absolute inset-0 bg-white/20 rounded-lg"
-            initial={{ x: '-100%', skewX: '-15deg' }}
-            whileHover={{ x: '150%' }}
-            transition={{ duration: 0.4 }}
-          />
-        </div>
-      </motion.div>
+       {/* Avatar */}
+       <motion.button
+         className="flex items-center gap-3 pl-4 border-l border-white/8 cursor-pointer"
+         whileHover={{ scale: 1.04 }}
+         transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+         onClick={() => {
+           window.dispatchEvent(new CustomEvent('navigate', { detail: '/profile' }))
+         }}
+       >
+         <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-quantum-500 to-neon-cyan flex items-center justify-center overflow-hidden">
+           <span className="text-sm font-semibold text-white">U</span>
+           <motion.div
+             className="absolute inset-0 bg-white/20 rounded-lg"
+             initial={{ x: '-100%', skewX: '-15deg' }}
+             whileHover={{ x: '150%' }}
+             transition={{ duration: 0.4 }}
+           />
+         </div>
+       </motion.button>
     </motion.header>
   )
 }

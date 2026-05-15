@@ -158,9 +158,16 @@ export default function Tasks() {
                             )}
                             <Flag className={cn('w-3.5 h-3.5', priorityColors[task.priority])} />
                           </div>
-                          <button className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white/10 transition-opacity">
-                            <MoreVertical className="w-4 h-4 text-white/40" />
-                          </button>
+                           <motion.button
+                             className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white/10 transition-opacity"
+                             whileHover={{ scale: 1.02 }}
+                             whileTap={{ scale: 0.98 }}
+                             onClick={() => {
+                               window.dispatchEvent(new CustomEvent('toast', { detail: 'Más opciones para esta tarea' }))
+                             }}
+                           >
+                             <MoreVertical className="w-4 h-4 text-white/40" />
+                           </motion.button>
                         </div>
                         <h4 className="text-sm text-white mb-3">{task.title}</h4>
                         <div className="flex items-center gap-2 flex-wrap mb-3">

@@ -256,29 +256,39 @@ export default function SettingsHelp() {
               <MessageSquare className="w-4 h-4 text-green-400" />
               <h3 className="text-base font-medium text-white">Contacto</h3>
             </div>
-            <div className="space-y-2">
-              {[
-                { icon: Mail, label: 'soporte@quarktasking.com', desc: 'Respuesta en 24h' },
-                { icon: MessageSquare, label: 'Chat en vivo', desc: 'Disponible 9-18h' },
-                { icon: Bug, label: 'Reportar bug', desc: 'GitHub Issues' },
-              ].map((item, i) => {
-                const Icon = item.icon
-                return (
-                  <motion.button
-                    key={i}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl border border-white/8 bg-white/3 hover:bg-white/5 transition-colors text-left"
-                    whileHover={{ x: 2 }}
-                  >
-                    <Icon className="w-4 h-4 text-white/40" />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm text-white/80 truncate">{item.label}</div>
-                      <div className="text-xs text-white/30">{item.desc}</div>
-                    </div>
-                    <ChevronRight className="w-3.5 h-3.5 text-white/20" />
-                  </motion.button>
-                )
-              })}
-            </div>
+             <div className="space-y-2">
+               {[
+                 { icon: Mail, label: 'soporte@quarktasking.com', desc: 'Respuesta en 24h', action: 'mailto:soporte@quarktasking.com' },
+                 { icon: MessageSquare, label: 'Chat en vivo', desc: 'Disponible 9-18h', action: 'chat' },
+                 { icon: Bug, label: 'Reportar bug', desc: 'GitHub Issues', action: 'https://github.com/quarktasking/quark/issues' },
+               ].map((item, i) => {
+                 const Icon = item.icon
+                 return (
+                   <motion.button
+                     key={i}
+                     className="w-full flex items-center gap-3 p-3 rounded-xl border border-white/8 bg-white/3 hover:bg-white/5 transition-colors text-left"
+                     whileHover={{ x: 2 }}
+                     onClick={() => {
+                       if (item.action === 'mailto:soporte@quarktasking.com') {
+                         window.location.href = item.action
+                       } else if (item.action === 'chat') {
+                         window.dispatchEvent(new CustomEvent('toast', { detail: 'Abriendo chat en vivo...' }))
+                         // In a real app, this would open a chat modal or navigate to chat
+                       } else if (item.action.startsWith('http')) {
+                         window.open(item.action, '_blank', 'noopener,noreferrer')
+                       }
+                     }}
+                   >
+                     <Icon className="w-4 h-4 text-white/40" />
+                     <div className="flex-1 min-w-0">
+                       <div className="text-sm text-white/80 truncate">{item.label}</div>
+                       <div className="text-xs text-white/30">{item.desc}</div>
+                     </div>
+                     <ChevronRight className="w-3.5 h-3.5 text-white/20" />
+                   </motion.button>
+                 )
+               })}
+             </div>
           </div>
 
           {/* Tips */}

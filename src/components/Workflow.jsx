@@ -214,34 +214,37 @@ export default function Workflow() {
             <span className="text-sm font-medium text-white">Proyectos Activos</span>
           </div>
           
-          <div className="space-y-3">
-            {projectList.map((project, i) => (
-              <motion.div
-                key={project.id}
-                className="p-3 rounded-lg bg-white/5 hover:bg-white/10 cursor-pointer transition-colors"
-                whileHover={{ x: 4 }}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-white">{project.name}</span>
-                  <span className="text-xs text-white/40">{project.nodes} nodos</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
-                    <motion.div
-                      className={cn(
-                        'h-full rounded-full',
-                        project.status === 'completed' ? 'bg-green-500' : 'bg-gradient-to-r from-quantum-500 to-neon-cyan'
-                      )}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${project.progress}%` }}
-                      transition={{ duration: 0.8, delay: i * 0.1 }}
-                    />
-                  </div>
-                  <span className="text-xs text-white/50 font-mono">{project.progress}%</span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+           <div className="space-y-3">
+             {projectList.map((project, i) => (
+               <motion.button
+                 key={project.id}
+                 className="w-full p-3 rounded-lg bg-white/5 hover:bg-white/10 cursor-pointer transition-colors"
+                 whileHover={{ x: 4 }}
+                 onClick={() => {
+                   window.dispatchEvent(new CustomEvent('navigate', { detail: `/project/${project.id}` }))
+                 }}
+               >
+                 <div className="flex items-center justify-between mb-2">
+                   <span className="text-sm text-white">{project.name}</span>
+                   <span className="text-xs text-white/40">{project.nodes} nodos</span>
+                 </div>
+                 <div className="flex items-center gap-2">
+                   <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                     <motion.div
+                       className={cn(
+                         'h-full rounded-full',
+                         project.status === 'completed' ? 'bg-green-500' : 'bg-gradient-to-r from-quantum-500 to-neon-cyan'
+                       )}
+                       initial={{ width: 0 }}
+                       animate={{ width: `${project.progress}%` }}
+                       transition={{ duration: 0.8, delay: i * 0.1 }}
+                     />
+                   </div>
+                   <span className="text-xs text-white/50 font-mono">{project.progress}%</span>
+                 </div>
+               </motion.button>
+             ))}
+           </div>
           
           <motion.button
             onClick={() => setShowNewProject(!showNewProject)}
@@ -281,25 +284,33 @@ export default function Workflow() {
             <span className="text-sm font-medium text-white">Flujos Recientes</span>
           </div>
           
-          <div className="space-y-2">
-            {[
-              { name: 'Deploy → Test → Prod', time: '2h ago', status: 'completed' },
-              { name: 'Code → Review → Merge', time: '4h ago', status: 'completed' },
-              { name: 'Plan → Design → Build', time: '1d ago', status: 'active' },
-            ].map((flow, i) => (
-              <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
-                <ArrowRight className="w-4 h-4 text-white/40" />
-                <div className="flex-1">
-                  <div className="text-sm text-white/70">{flow.name}</div>
-                  <div className="text-xs text-white/30">{flow.time}</div>
-                </div>
-                <div className={cn(
-                  'w-2 h-2 rounded-full',
-                  flow.status === 'completed' ? 'bg-green-400' : 'bg-quantum-400'
-                )} />
-              </div>
-            ))}
-          </div>
+           <div className="space-y-2">
+             {[
+               { name: 'Deploy → Test → Prod', time: '2h ago', status: 'completed' },
+               { name: 'Code → Review → Merge', time: '4h ago', status: 'completed' },
+               { name: 'Plan → Design → Build', time: '1d ago', status: 'active' },
+             ].map((flow, i) => (
+               <motion.button
+                 key={i}
+                 className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors"
+                 whileHover={{ scale: 1.02 }}
+                 onClick={() => {
+                   window.dispatchEvent(new CustomEvent('toast', { detail: `Abriendo flujo: ${flow.name}` }))
+                   // In a real app, this would navigate to the flow editor
+                 }}
+               >
+                 <ArrowRight className="w-4 h-4 text-white/40" />
+                 <div className="flex-1">
+                   <div className="text-sm text-white/70">{flow.name}</div>
+                   <div className="text-xs text-white/30">{flow.time}</div>
+                 </div>
+                 <div className={cn(
+                   'w-2 h-2 rounded-full',
+                   flow.status === 'completed' ? 'bg-green-400' : 'bg-quantum-400'
+                 )} />
+               </motion.button>
+             ))}
+           </div>
         </div>
       </div>
     </motion.div>

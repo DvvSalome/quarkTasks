@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Play, Pause, RotateCcw, Camera, CameraOff,
   ShieldCheck, Cpu, Eye, Zap, Brain, AlertTriangle,
-  X, Lock, Activity,
+  X, Lock, Activity, Crosshair, CheckCircle2, RefreshCw,
 } from 'lucide-react'
 import useFocusVision from '../hooks/useFocusVision'
 import { playChime } from '../lib/audio'
@@ -90,7 +90,7 @@ function TimerRing({ progress, focusState, size = 260 }) {
   )
 }
 
-function CameraFeed({ stream }) {
+function CameraFeed({ stream, calibrating, countdown }) {
   const videoRef = useRef(null)
 
   useEffect(() => {
@@ -123,6 +123,52 @@ function CameraFeed({ stream }) {
       <div className="absolute inset-0 pointer-events-none"
         style={{ background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px)' }}
       />
+      {/* Calibration overlay */}
+      <AnimatePresence>
+        {calibrating && (
+          <motion.div
+            className="absolute inset-0 flex flex-col items-center justify-center gap-3"
+            style={{ background: 'rgba(7,4,15,0.75)', backdropFilter: 'blur(2px)' }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          >
+            {/* Crosshair reticle */}
+            <div className="relative w-16 h-16 flex items-center justify-center">
+              <motion.div
+                className="absolute inset-0 rounded-full border-2 border-[rgb(var(--quantum-400)/0.5)]"
+                animate={{ scale: [1, 1.12, 1] }}
+                transition={{ duration: 1.2, repeat: Infinity }}
+              />
+              <Crosshair className="w-6 h-6 text-[rgb(var(--quantum-300))]" />
+            </div>
+            <p className="text-white/80 text-xs font-mono tracking-widest text-center">
+              MIRA LA PANTALLA
+            </p>
+            {/* Countdown */}
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={countdown}
+                className="text-4xl font-mono font-light text-[rgb(var(--quantum-300))]"
+                initial={{ opacity: 0, scale: 1.4 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.7 }}
+                transition={{ duration: 0.25 }}
+                style={{ textShadow: '0 0 20px rgb(var(--quantum-500))' }}
+              >
+                {countdown > 0 ? countdown : '✓'}
+              </motion.span>
+            </AnimatePresence>
+            {/* Progress bar */}
+            <div className="w-24 h-0.5 rounded-full bg-white/10 overflow-hidden">
+              <motion.div
+                className="h-full bg-[rgb(var(--quantum-400))] rounded-full"
+                initial={{ width: '0%' }}
+                animate={{ width: '100%' }}
+                transition={{ duration: 3.5, ease: 'linear' }}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -233,6 +279,17 @@ export default function Focus() {
   const vision             = useFocusVision()
   const prevFocusRef       = useRef('focused')
   const alertTimerRef      = useRef(null)
+  const [calCountdown, setCalCountdown] = useState(0)
+
+  // Sync countdown display with calibration
+  useEffect(() => {
+    if (!vision.calibrating) { setCalCountdown(0); return }
+    setCalCountdown(3)
+    const t1 = setTimeout(() => setCalCountdown(2), 1050)
+    const t2 = setTimeout(() => setCalCountdown(1), 2100)
+    const t3 = setTimeout(() => setCalCountdown(0), 3150)
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
+  }, [vision.calibrating])
 
   // ── Timer countdown ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -591,7 +648,11 @@ export default function Focus() {
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 >
                   {/* Camera feed */}
-                  <CameraFeed stream={vision.stream} />
+                  <CameraFeed
+                    stream={vision.stream}
+                    calibrating={vision.calibrating}
+                    countdown={calCountdown}
+                  />
 
                   {/* State badge */}
                   <motion.div
@@ -615,6 +676,39 @@ export default function Focus() {
                       transition={{ duration: 2, repeat: Infinity }}
                     />
                   </motion.div>
+
+                  {/* Calibration row */}
+                  <div className="flex items-center gap-2">
+                    {vision.calibration ? (
+                      <>
+                        <div className="flex items-center gap-1.5 flex-1 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-400 flex-shrink-0" />
+                          <span className="text-[9px] font-mono text-emerald-300/70 tracking-wide">
+                            CALIBRADO · {vision.calibration.samples} muestras
+                          </span>
+                        </div>
+                        <button
+                          onClick={vision.startCalibration}
+                          disabled={vision.calibrating}
+                          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.07] text-white/30 hover:text-white/55 hover:bg-white/[0.07] transition-all disabled:opacity-30"
+                          title="Recalibrar posición"
+                        >
+                          <RefreshCw className="w-3 h-3" />
+                          <span className="text-[9px] font-mono">Recal</span>
+                        </button>
+                      </>
+                    ) : (
+                      <motion.button
+                        onClick={vision.startCalibration}
+                        disabled={vision.calibrating}
+                        className="flex items-center gap-1.5 flex-1 px-3 py-2 rounded-lg bg-[rgb(var(--quantum-500)/0.1)] border border-[rgb(var(--quantum-500)/0.2)] text-[rgb(var(--quantum-300)/0.8)] text-[10px] font-mono tracking-wide hover:bg-[rgb(var(--quantum-500)/0.18)] transition-all disabled:opacity-40"
+                        whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
+                      >
+                        <Crosshair className="w-3.5 h-3.5" />
+                        {vision.calibrating ? 'Calibrando...' : 'Calibrar posición'}
+                      </motion.button>
+                    )}
+                  </div>
 
                   {/* Focus score */}
                   <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.05]">
@@ -645,10 +739,10 @@ export default function Focus() {
                   {/* Stats grid */}
                   <div className="grid grid-cols-2 gap-1.5">
                     {[
-                      { label: 'Modo',      value: 'Local AI',     icon: Cpu        },
-                      { label: 'Latencia',  value: '< 3s',         icon: Activity   },
-                      { label: 'Privacidad',value: 'Zero Trust',   icon: ShieldCheck },
-                      { label: 'Datos',     value: 'Ephemeral',    icon: Lock       },
+                      { label: 'Motor',     value: vision.detMethod === 'api' ? 'FaceDetector' : 'Canvas AI', icon: Cpu },
+                      { label: 'Intervalo', value: '1.2s',          icon: Activity   },
+                      { label: 'Privacidad',value: 'Zero Trust',    icon: ShieldCheck },
+                      { label: 'Datos',     value: 'Ephemeral',     icon: Lock       },
                     ].map(({ label, value, icon: Icon }) => (
                       <div key={label} className="flex items-center gap-2 p-2 rounded-lg bg-white/[0.025] border border-white/[0.045]">
                         <Icon className="w-3 h-3 text-white/20 flex-shrink-0" />
